@@ -1,1 +1,8 @@
-print(13214242141242)
+return function(svo_from_injector)  
+    print("🟢 svo =", svo_from_injector)  -- Вывод в консоль (F9)
+    if svo_from_injector == "1" then  
+        warn("Режим 1 активирован!")  
+    else  
+        warn("Неизвестный режим:", svo_from_injector)  
+    end  
+end
