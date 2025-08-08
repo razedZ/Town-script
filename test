@@ -167,6 +167,27 @@ function PizdecWare:CreateWindow(guiName, infoText, saveFileName)
     UIStroke.Transparency = 0.8
     UIStroke.Thickness = 1
 
+    -- Разделение ElementContainer на левую и правую части
+    local LeftContainer = Instance.new("Frame")
+    LeftContainer.Name = "LeftContainer"
+    LeftContainer.Parent = ElementContainer
+    LeftContainer.BackgroundColor3 = Color3.fromRGB(23, 24, 28)
+    LeftContainer.BorderColor3 = Color3.fromRGB(0, 0, 0)
+    LeftContainer.BorderSizePixel = 0
+    LeftContainer.Position = UDim2.new(0, 0, 0, 0)
+    LeftContainer.Size = UDim2.new(0.5, 0, 1, 0)
+    LeftContainer.BackgroundTransparency = 1
+
+    local RightContainer = Instance.new("Frame")
+    RightContainer.Name = "RightContainer"
+    RightContainer.Parent = ElementContainer
+    RightContainer.BackgroundColor3 = Color3.fromRGB(23, 24, 28)
+    RightContainer.BorderColor3 = Color3.fromRGB(0, 0, 0)
+    RightContainer.BorderSizePixel = 0
+    RightContainer.Position = UDim2.new(0.5, 0, 0, 0)
+    RightContainer.Size = UDim2.new(0.5, 0, 1, 0)
+    RightContainer.BackgroundTransparency = 1
+
     local Line = Instance.new("Frame")
     Line.Name = "Line"
     Line.Parent = ElementContainer
@@ -237,7 +258,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveFileName)
     Tabs.BackgroundTransparency = 1
     Tabs.BorderColor3 = Color3.fromRGB(0, 0, 0)
     Tabs.BorderSizePixel = 0
-    Tabs.Position = UDim2.new(0.0449740589, 0, 0.036599841 + (26/399/2) - (20/399/2), 0) -- Центр Tabs выравнивается с центром иконок (26 пикселей высота иконки, 20 пикселей высота Tabs)
+    Tabs.Position = UDim2.new(0.0449740589, 0, 0.036599841 + (26/399/2) - (20/399/2), 0)
     Tabs.Size = UDim2.new(0, 50, 0, 20)
     Tabs.Font = Enum.Font.ArialBold
     Tabs.Text = "Tabs"
@@ -324,8 +345,8 @@ function PizdecWare:CreateWindow(guiName, infoText, saveFileName)
         if not TweenService then return nil end
         local tabCount = #TabZone:GetChildren() - 2 -- Exclude Tabs and SelectedTab
         local spacing = 0.0902255669
-        local initialOffset = 0.0100250627 + (Tabs.Size.Y.Scale * 2) + 0.004 -- Уменьшаем на половину от 0.008 (2 пикселя из 4)
-        local newPosition = UDim2.new(0.30674848, 0, initialOffset + (tabCount * spacing), 2) -- Смещение на 2 пикселя вниз
+        local initialOffset = 0.0100250627 + (Tabs.Size.Y.Scale * 2) + 0.004
+        local newPosition = UDim2.new(0.30674848, 0, initialOffset + (tabCount * spacing), 2)
         
         local tab = Instance.new("TextLabel")
         tab.Name = visualName
@@ -377,6 +398,72 @@ function PizdecWare:CreateWindow(guiName, infoText, saveFileName)
         end
 
         return tab
+    end
+
+    function PizdecWare:CreateSection(sectionName, tab, side)
+        if not TweenService then return nil end
+        local container = (side == "left" and LeftContainer) or (side == "right" and RightContainer) or LeftContainer -- По умолчанию левая часть
+        local sectionCount = #container:GetChildren()
+
+        local section = Instance.new("Frame")
+        section.Name = sectionName
+        section.Parent = container
+        section.BackgroundColor3 = Color3.fromRGB(23, 24, 28)
+        section.BorderColor3 = Color3.fromRGB(0, 0, 0)
+        section.BorderSizePixel = 0
+        section.Position = UDim2.new(0, 0, 0, sectionCount * 50) -- 50 пикселей между секциями
+        section.Size = UDim2.new(1, -10, 0, 40)
+        section.BackgroundTransparency = 1
+        section.ZIndex = 4
+
+        local UICornerSection = Instance.new("UICorner")
+        UICornerSection.Parent = section
+
+        local SectionLabel = Instance.new("TextLabel")
+        SectionLabel.Name = "SectionLabel"
+        SectionLabel.Parent = section
+        SectionLabel.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+        SectionLabel.BackgroundTransparency = 1
+        SectionLabel.BorderColor3 = Color3.fromRGB(0, 0, 0)
+        SectionLabel.BorderSizePixel = 0
+        SectionLabel.Position = UDim2.new(0, 5, 0, 0)
+        SectionLabel.Size = UDim2.new(0.7, 0, 1, 0)
+        SectionLabel.Font = Enum.Font.SourceSansBold
+        SectionLabel.Text = sectionName
+        SectionLabel.TextColor3 = Color3.fromRGB(147, 152, 156)
+        SectionLabel.TextSize = 14.000
+        SectionLabel.TextTransparency = 0
+        SectionLabel.TextXAlignment = Enum.TextXAlignment.Left
+        SectionLabel.ZIndex = 5
+        fadeIn(SectionLabel)
+
+        local SectionLine = Instance.new("Frame")
+        SectionLine.Name = "SectionLine"
+        SectionLine.Parent = section
+        SectionLine.BackgroundColor3 = Color3.fromRGB(23, 24, 28)
+        SectionLine.BorderColor3 = Color3.fromRGB(0, 0, 0)
+        SectionLine.BorderSizePixel = 0
+        SectionLine.Position = UDim2.new(0, 0, 1, -2)
+        SectionLine.Size = UDim2.new(1, 0, 0, 2)
+        SectionLine.ZIndex = 4
+        fadeIn(SectionLine)
+
+        local ShowSectionButton = Instance.new("ImageButton")
+        ShowSectionButton.Name = "ShowSection"
+        ShowSectionButton.Parent = section
+        ShowSectionButton.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+        ShowSectionButton.BackgroundTransparency = 1
+        ShowSectionButton.BorderColor3 = Color3.fromRGB(0, 0, 0)
+        ShowSectionButton.BorderSizePixel = 0
+        ShowSectionButton.Position = UDim2.new(1, -30, 0, 5)
+        ShowSectionButton.Size = UDim2.new(0, 20, 0, 20)
+        ShowSectionButton.Image = "rbxassetid://12653789995" -- Иконка (замени на нужную)
+        ShowSectionButton.ImageTransparency = 0
+        ShowSectionButton.ZIndex = 5
+        fadeIn(ShowSectionButton)
+
+        fadeIn(section)
+        return section
     end
 
     return setmetatable({}, PizdecWare)
