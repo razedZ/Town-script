@@ -334,7 +334,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveFileName)
                 local moveTween = TweenService:Create(SelectedTab, tweenInfo, { Position = newPosition })
                 moveTween:Play()
 
-                -- Скрыть/показать секции в зависимости от таба
+                -- Управление видимостью секций по табу
                 for _, container in pairs({LeftContainer, RightContainer}) do
                     for _, section in pairs(container:GetChildren()) do
                         if section:IsA("Frame") and section:FindFirstChild("ShowSection") then
@@ -435,7 +435,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveFileName)
         section.BackgroundColor3 = Color3.fromRGB(17, 19, 23)
         section.BorderColor3 = Color3.fromRGB(0, 0, 0)
         section.BorderSizePixel = 0
-        section.Position = UDim2.new(0, 5, 0, sectionCount * 160) -- Оригинальное позиционирование с отступом 5
+        section.Position = UDim2.new(0, 5, 0, sectionCount * 160) -- Оригинальное позиционирование
         section.Size = UDim2.new(0, 200, 0, 150)
         section.BackgroundTransparency = 0
         section.ZIndex = 4
