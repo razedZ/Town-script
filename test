@@ -420,24 +420,23 @@ function PizdecWare:CreateWindow(guiName, infoText, saveFileName)
         section.BackgroundColor3 = Color3.fromRGB(17, 19, 23)
         section.BorderColor3 = Color3.fromRGB(0, 0, 0)
         section.BorderSizePixel = 0
-        section.Position = UDim2.new(0, 0, 0, sectionCount * 40) -- Уменьшен отступ для свернутых секций
+        section.Position = UDim2.new(0, 0, 0, sectionCount * 40)
         section.Size = UDim2.new(1, 0, 0, 150)
         section.BackgroundTransparency = 0
         section.ZIndex = 4
         section.Visible = (tab == currentTab)
         section.ClipsDescendants = true
 
-        -- Сохраняем оригинальный размер для разворачивания
-        section.ExpandedSize = UDim2.new(1, 0, 0, 150)
-        section.CollapsedSize = UDim2.new(1, 0, 0, 30)
-        section.IsExpanded = true
-
-        table.insert(tabSections[tab.Name], section)
+        -- Сохраняем размеры для анимации
+        local expandedSize = UDim2.new(1, 0, 0, 150)
+        local collapsedSize = UDim2.new(1, 0, 0, 30)
+        local isExpanded = true
 
         local UICornerSection = Instance.new("UICorner")
         UICornerSection.CornerRadius = UDim.new(0, 3)
         UICornerSection.Parent = section
 
+        -- Серая линия разделитель
         local SectionLine = Instance.new("Frame")
         SectionLine.Name = "Line"
         SectionLine.Parent = section
@@ -445,10 +444,11 @@ function PizdecWare:CreateWindow(guiName, infoText, saveFileName)
         SectionLine.BorderColor3 = Color3.fromRGB(20, 21, 25)
         SectionLine.BorderSizePixel = 0
         SectionLine.Position = UDim2.new(0.0449740589, 0, 0.200355425, 0)
-        SectionLine.Size = UDim2.new(0, 180, 0, -1)
+        SectionLine.Size = UDim2.new(0, 180, 0, 1)
         SectionLine.ZIndex = 4
         fadeIn(SectionLine)
 
+        -- Название секции
         local SectionLabel = Instance.new("TextLabel")
         SectionLabel.Name = "Label"
         SectionLabel.Parent = section
@@ -466,6 +466,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveFileName)
         SectionLabel.ZIndex = 5
         fadeIn(SectionLabel)
 
+        -- Кнопка сворачивания
         local ShowSectionButton = Instance.new("TextButton")
         ShowSectionButton.Name = "ShowSection"
         ShowSectionButton.Parent = section
@@ -474,7 +475,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveFileName)
         ShowSectionButton.BorderColor3 = Color3.fromRGB(0, 0, 0)
         ShowSectionButton.BorderSizePixel = 0
         ShowSectionButton.Position = UDim2.new(0.860000014, 0, 0.0666666701, 0)
-        ShowSectionButton.Size = UDim2.new(0, 10, 0, 10)
+        ShowSectionButton.Size = UDim2.new(0, 20, 0, 20)
         ShowSectionButton.Font = Enum.Font.SourceSans
         ShowSectionButton.Text = "▼"
         ShowSectionButton.TextColor3 = Color3.fromRGB(147, 152, 156)
@@ -482,6 +483,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveFileName)
         ShowSectionButton.ZIndex = 5
         fadeIn(ShowSectionButton)
 
+        -- Кнопка в UI (пример элемента секции)
         local Button = Instance.new("TextButton")
         Button.Name = "Button"
         Button.Parent = section
@@ -517,20 +519,19 @@ function PizdecWare:CreateWindow(guiName, infoText, saveFileName)
         ButtonText.ZIndex = 6
         fadeIn(ButtonText)
 
-        -- Список всех элементов секции, которые нужно скрывать/показывать
+        -- Список элементов для скрытия/показа
         local sectionElements = {SectionLine, Button, ButtonText}
 
-        -- Функция для сворачивания/разворачивания секции
         local function toggleSection()
             if not TweenService then return end
             
-            section.IsExpanded = not section.IsExpanded
+            isExpanded = not isExpanded
             
-            if section.IsExpanded then
+            if isExpanded then
                 -- Разворачиваем секцию
                 ShowSectionButton.Text = "▼"
                 
-                -- Плавное появление элементов
+                -- Показываем элементы
                 for _, element in ipairs(sectionElements) do
                     if element:IsA("TextLabel") or element:IsA("TextButton") then
                         TweenService:Create(element, TweenInfo.new(0.2), {
@@ -543,15 +544,15 @@ function PizdecWare:CreateWindow(guiName, infoText, saveFileName)
                     end
                 end
                 
-                -- Плавное изменение размера
+                -- Анимация размера
                 TweenService:Create(section, TweenInfo.new(0.3), {
-                    Size = section.ExpandedSize
+                    Size = expandedSize
                 }):Play()
             else
                 -- Сворачиваем секцию
                 ShowSectionButton.Text = "▲"
                 
-                -- Плавное исчезновение элементов
+                -- Скрываем элементы
                 for _, element in ipairs(sectionElements) do
                     if element:IsA("TextLabel") or element:IsA("TextButton") then
                         TweenService:Create(element, TweenInfo.new(0.2), {
@@ -564,14 +565,13 @@ function PizdecWare:CreateWindow(guiName, infoText, saveFileName)
                     end
                 end
                 
-                -- Плавное изменение размера
+                -- Анимация размера
                 TweenService:Create(section, TweenInfo.new(0.3), {
-                    Size = section.CollapsedSize
+                    Size = collapsedSize
                 }):Play()
             end
         end
 
-        -- Обработчик клика по кнопке сворачивания
         ShowSectionButton.MouseButton1Click:Connect(toggleSection)
 
         fadeIn(section)
