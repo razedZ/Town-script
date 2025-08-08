@@ -1,5 +1,6 @@
-local success, HttpService = pcall(game.GetService, game, "HttpService")
-local success2, TweenService = pcall(game.GetService, game, "TweenService")
+local game = game or nil -- Проверка на наличие game
+local success, HttpService = pcall(function() return game and game:GetService("HttpService") end)
+local success2, TweenService = pcall(function() return game and game:GetService("TweenService") end)
 
 if not (success and success2) or not HttpService or not TweenService then
     warn("Required services (HttpService or TweenService) are not available. Script will not function fully.")
@@ -154,9 +155,9 @@ function PizdecWare:CreateWindow(guiName, infoText, saveFileName)
             })
             tween:Play()
             tween.Completed:Connect(function()
-                element.BackgroundTransparency = initialTransparency == 1 ? 1 : 0 -- Восстанавливаем прозрачность только если она изначально была 1
+                element.BackgroundTransparency = initialTransparency == 1 ? 1 : 0
                 if element.TextTransparency == 0 then
-                    element.TextTransparency = 0 -- Убеждаемся, что текст остаётся видимым
+                    element.TextTransparency = 0
                 end
             end)
         elseif element:IsA("ImageLabel") or element:IsA("ImageButton") then
@@ -165,9 +166,9 @@ function PizdecWare:CreateWindow(guiName, infoText, saveFileName)
             })
             tween:Play()
             tween.Completed:Connect(function()
-                element.BackgroundTransparency = initialTransparency == 1 ? 1 : 0 -- Восстанавливаем прозрачность только если она изначально была 1
+                element.BackgroundTransparency = initialTransparency == 1 ? 1 : 0
                 if element.ImageTransparency == 0 then
-                    element.ImageTransparency = 0 -- Убеждаемся, что изображение остаётся видимым
+                    element.ImageTransparency = 0
                 end
             end)
         else
@@ -176,7 +177,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveFileName)
             })
             tween:Play()
             tween.Completed:Connect(function()
-                element.BackgroundTransparency = initialTransparency == 1 ? 1 : 0 -- Восстанавливаем прозрачность только если она изначально была 1
+                element.BackgroundTransparency = initialTransparency == 1 ? 1 : 0
             end)
         end
     end
@@ -204,7 +205,6 @@ function PizdecWare:CreateWindow(guiName, infoText, saveFileName)
     TabZone.BackgroundTransparency = 1 -- Прозрачность 1 изначально и всегда
     local UICorner_TabZone = Instance.new("UICorner")
     UICorner_TabZone.Parent = TabZone
-    -- Не вызываем fadeIn для TabZone, чтобы не менять его прозрачность
 
     local Tabs = Instance.new("TextLabel")
     Tabs.Name = "Tabs"
