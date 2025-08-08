@@ -466,7 +466,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveFileName)
         SectionLabel.ZIndex = 5
         fadeIn(SectionLabel)
 
-        -- Кнопка сворачивания
+        -- Кнопка сворачивания (выровнена с названием секции)
         local ShowSectionButton = Instance.new("TextButton")
         ShowSectionButton.Name = "ShowSection"
         ShowSectionButton.Parent = section
@@ -483,44 +483,59 @@ function PizdecWare:CreateWindow(guiName, infoText, saveFileName)
         ShowSectionButton.ZIndex = 5
         fadeIn(ShowSectionButton)
 
-        -- Кнопка в UI (пример элемента секции)
-        local Button = Instance.new("TextButton")
-        Button.Name = "Button"
-        Button.Parent = section
-        Button.BackgroundColor3 = Color3.fromRGB(24, 29, 32)
-        Button.BorderColor3 = Color3.fromRGB(0, 0, 0)
-        Button.BorderSizePixel = 0
-        Button.Position = UDim2.new(0.0599743649, 0, 0.25999999, 0)
-        Button.Size = UDim2.new(0, 30, 0, 20)
-        Button.Font = Enum.Font.SourceSans
-        Button.Text = ""
-        Button.TextColor3 = Color3.fromRGB(0, 0, 0)
-        Button.TextSize = 14.000
-        Button.ZIndex = 5
+        -- Список всех элементов секции (кроме заголовка и кнопки сворачивания)
+        local sectionElements = {}
 
-        local UICornerButton = Instance.new("UICorner")
-        UICornerButton.CornerRadius = UDim.new(0, 4)
-        UICornerButton.Parent = Button
+        -- Функция для добавления элементов в секцию
+        function section:AddElement(element)
+            table.insert(sectionElements, element)
+            element.Parent = section
+            return element
+        end
 
-        local ButtonText = Instance.new("TextLabel")
-        ButtonText.Name = "ToggleText"
-        ButtonText.Parent = Button
-        ButtonText.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-        ButtonText.BackgroundTransparency = 1
-        ButtonText.BorderColor3 = Color3.fromRGB(0, 0, 0)
-        ButtonText.BorderSizePixel = 0
-        ButtonText.Position = UDim2.new(1.35000002, 0, -0.200000003, 0)
-        ButtonText.Size = UDim2.new(0, 100, 0, 24)
-        ButtonText.Font = Enum.Font.SourceSansBold
-        ButtonText.Text = "Button"
-        ButtonText.TextColor3 = Color3.fromRGB(147, 152, 156)
-        ButtonText.TextSize = 17.000
-        ButtonText.TextXAlignment = Enum.TextXAlignment.Left
-        ButtonText.ZIndex = 6
-        fadeIn(ButtonText)
+        -- Оператор для создания кнопки
+        function section:CreateButton(buttonName, callback)
+            local button = Instance.new("TextButton")
+            button.Name = buttonName
+            button.BackgroundColor3 = Color3.fromRGB(24, 29, 32)
+            button.BorderColor3 = Color3.fromRGB(0, 0, 0)
+            button.BorderSizePixel = 0
+            button.Position = UDim2.new(0.0599743649, 0, 0.25999999 + (#sectionElements * 0.15), 0)
+            button.Size = UDim2.new(0, 30, 0, 20)
+            button.Font = Enum.Font.SourceSans
+            button.Text = ""
+            button.TextColor3 = Color3.fromRGB(0, 0, 0)
+            button.TextSize = 14.000
+            button.ZIndex = 5
 
-        -- Список элементов для скрытия/показа
-        local sectionElements = {SectionLine, Button, ButtonText}
+            local UICornerButton = Instance.new("UICorner")
+            UICornerButton.CornerRadius = UDim.new(0, 4)
+            UICornerButton.Parent = button
+
+            local ButtonText = Instance.new("TextLabel")
+            ButtonText.Name = "ToggleText"
+            ButtonText.Parent = button
+            ButtonText.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+            ButtonText.BackgroundTransparency = 1
+            ButtonText.BorderColor3 = Color3.fromRGB(0, 0, 0)
+            ButtonText.BorderSizePixel = 0
+            ButtonText.Position = UDim2.new(1.35000002, 0, -0.200000003, 0)
+            ButtonText.Size = UDim2.new(0, 100, 0, 24)
+            ButtonText.Font = Enum.Font.SourceSansBold
+            ButtonText.Text = buttonName
+            ButtonText.TextColor3 = Color3.fromRGB(147, 152, 156)
+            ButtonText.TextSize = 17.000
+            ButtonText.TextXAlignment = Enum.TextXAlignment.Left
+            ButtonText.ZIndex = 6
+            fadeIn(ButtonText)
+
+            button.MouseButton1Click:Connect(callback)
+
+            self:AddElement(button)
+            self:AddElement(ButtonText)
+
+            return button
+        end
 
         local function toggleSection()
             if not TweenService then return end
@@ -531,7 +546,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveFileName)
                 -- Разворачиваем секцию
                 ShowSectionButton.Text = "▼"
                 
-                -- Показываем элементы
+                -- Показываем элементы с задержкой
                 for _, element in ipairs(sectionElements) do
                     if element:IsA("TextLabel") or element:IsA("TextButton") then
                         TweenService:Create(element, TweenInfo.new(0.2), {
@@ -544,15 +559,14 @@ function PizdecWare:CreateWindow(guiName, infoText, saveFileName)
                     end
                 end
                 
-                -- Анимация размера
-                TweenService:Create(section, TweenInfo.new(0.3), {
-                    Size = expandedSize
-                }):Play()
+                -- Затем анимируем размер
+                task.delay(0.2, function()
+                    TweenService:Create(section, TweenInfo.new(0.3), {
+                        Size = expandedSize
+                    }):Play()
+                end)
             else
-                -- Сворачиваем секцию
-                ShowSectionButton.Text = "▲"
-                
-                -- Скрываем элементы
+                -- Сначала скрываем элементы
                 for _, element in ipairs(sectionElements) do
                     if element:IsA("TextLabel") or element:IsA("TextButton") then
                         TweenService:Create(element, TweenInfo.new(0.2), {
@@ -565,10 +579,13 @@ function PizdecWare:CreateWindow(guiName, infoText, saveFileName)
                     end
                 end
                 
-                -- Анимация размера
-                TweenService:Create(section, TweenInfo.new(0.3), {
-                    Size = collapsedSize
-                }):Play()
+                -- Затем анимируем размер
+                task.delay(0.2, function()
+                    ShowSectionButton.Text = "▲"
+                    TweenService:Create(section, TweenInfo.new(0.3), {
+                        Size = collapsedSize
+                    }):Play()
+                end)
             end
         end
 
