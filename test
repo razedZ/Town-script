@@ -334,6 +334,38 @@ function PizdecWare:CreateWindow(guiName, infoText, saveFileName)
                 local moveTween = TweenService:Create(SelectedTab, tweenInfo, { Position = newPosition })
                 moveTween:Play()
 
+                -- Скрыть все секции, не связанные с текущим табом
+                for _, container in pairs({LeftContainer, RightContainer}) do
+                    for _, section in pairs(container:GetChildren()) do
+                        if section:IsA("Frame") and section ~= Line then
+                            local sectionTab = section:GetAttribute("Tab")
+                            if sectionTab ~= tab then
+                                local sizeTween = TweenService:Create(section, TweenInfo.new(0.2, Enum.EasingStyle.Quad), { Size = UDim2.new(0, 200, 0, 0) })
+                                local transparencyTween = TweenService:Create(section, TweenInfo.new(0.2, Enum.EasingStyle.Quad), { BackgroundTransparency = 1 })
+                                sizeTween:Play()
+                                transparencyTween:Play()
+                                for _, child in pairs(section:GetChildren()) do
+                                    if child ~= section:FindFirstChild("ShowSection") then
+                                        local childTween = TweenService:Create(child, TweenInfo.new(0.2, Enum.EasingStyle.Quad), { TextTransparency = 1 })
+                                        childTween:Play()
+                                    end
+                                end
+                            else
+                                local sizeTween = TweenService:Create(section, TweenInfo.new(0.2, Enum.EasingStyle.Quad), { Size = UDim2.new(0, 200, 0, 150) })
+                                local transparencyTween = TweenService:Create(section, TweenInfo.new(0.2, Enum.EasingStyle.Quad), { BackgroundTransparency = 0 })
+                                sizeTween:Play()
+                                transparencyTween:Play()
+                                for _, child in pairs(section:GetChildren()) do
+                                    if child ~= section:FindFirstChild("ShowSection") then
+                                        local childTween = TweenService:Create(child, TweenInfo.new(0.2, Enum.EasingStyle.Quad), { TextTransparency = 0 })
+                                        childTween:Play()
+                                    end
+                                end
+                            end
+                        end
+                    end
+                end
+
                 currentTab = tab
             else
                 currentTab = tab
@@ -411,10 +443,11 @@ function PizdecWare:CreateWindow(guiName, infoText, saveFileName)
         section.BackgroundColor3 = Color3.fromRGB(17, 19, 23)
         section.BorderColor3 = Color3.fromRGB(0, 0, 0)
         section.BorderSizePixel = 0
-        section.Position = UDim2.new(0, 5, 0, sectionCount * 160) -- Учитываем размер секции (150 + отступ)
+        section.Position = UDim2.new(0, 5, 0, sectionCount * 160)
         section.Size = UDim2.new(0, 200, 0, 150)
         section.BackgroundTransparency = 0
         section.ZIndex = 4
+        section:SetAttribute("Tab", tab) -- Привязка секции к табу
 
         local UICornerSection = Instance.new("UICorner")
         UICornerSection.CornerRadius = UDim.new(0, 3)
@@ -499,6 +532,34 @@ function PizdecWare:CreateWindow(guiName, infoText, saveFileName)
         ButtonText.TextXAlignment = Enum.TextXAlignment.Left
         ButtonText.ZIndex = 6
         fadeIn(ButtonText)
+
+        -- Логика сворачивания/разворачивания секции
+        local isCollapsed = false
+        ShowSectionButton.MouseButton1Click:Connect(function()
+            isCollapsed = not isCollapsed
+            local targetSize = isCollapsed and UDim2.new(0, 200, 0, 30) or UDim2.new(0, 200, 0, 150)
+            ShowSectionButton.Text = isCollapsed and "▲" or "▼"
+
+            local sizeTween = TweenService:Create(section, TweenInfo.new(0.3, Enum.EasingStyle.Quad), { Size = targetSize })
+            local lineTween = TweenService:Create(SectionLine, TweenInfo.new(0.2, Enum.EasingStyle.Quad), { BackgroundTransparency = isCollapsed and 1 or 0 })
+            sizeTween:Play()
+            lineTween:Play()
+
+            for _, child in pairs(section:GetChildren()) do
+                if child ~= ShowSectionButton and child ~= SectionLabel then
+                    local childTween = TweenService:Create(child, TweenInfo.new(0.2, Enum.EasingStyle.Quad), { TextTransparency = isCollapsed and 1 or 0 })
+                    childTween:Play()
+                    if isCollapsed then
+                        childTween.Completed:Wait()
+                        local moveTween = TweenService:Create(section, TweenInfo.new(0.1, Enum.EasingStyle.Quad), { Position = UDim2.new(0, 5, 0, section.Position.Y.Offset + 120) })
+                        moveTween:Play()
+                    else
+                        local moveTween = TweenService:Create(section, TweenInfo.new(0.1, Enum.EasingStyle.Quad), { Position = UDim2.new(0, 5, 0, sectionCount * 160) })
+                        moveTween:Play()
+                    end
+                end
+            end
+        end)
 
         fadeIn(section)
         return section
