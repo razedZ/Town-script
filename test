@@ -402,65 +402,103 @@ function PizdecWare:CreateWindow(guiName, infoText, saveFileName)
 
     function PizdecWare:CreateSection(sectionName, tab, side)
         if not TweenService then return nil end
-        local container = (side == "left" and LeftContainer) or (side == "right" and RightContainer) or LeftContainer -- По умолчанию левая часть
+        local container = (side == "left" and LeftContainer) or (side == "right" and RightContainer) or LeftContainer
         local sectionCount = #container:GetChildren()
 
         local section = Instance.new("Frame")
         section.Name = sectionName
         section.Parent = container
-        section.BackgroundColor3 = Color3.fromRGB(23, 24, 28)
+        section.BackgroundColor3 = Color3.fromRGB(17, 19, 23)
         section.BorderColor3 = Color3.fromRGB(0, 0, 0)
         section.BorderSizePixel = 0
-        section.Position = UDim2.new(0, 0, 0, sectionCount * 50) -- 50 пикселей между секциями
-        section.Size = UDim2.new(1, -10, 0, 40)
-        section.BackgroundTransparency = 1
+        section.Position = UDim2.new(0, 5, 0, sectionCount * 160) -- Учитываем размер секции (150 + отступ)
+        section.Size = UDim2.new(0, 200, 0, 150)
+        section.BackgroundTransparency = 0
         section.ZIndex = 4
 
         local UICornerSection = Instance.new("UICorner")
+        UICornerSection.CornerRadius = UDim.new(0, 3)
         UICornerSection.Parent = section
 
+        local SectionLine = Instance.new("Frame")
+        SectionLine.Name = "Line"
+        SectionLine.Parent = section
+        SectionLine.BackgroundColor3 = Color3.fromRGB(66, 63, 71)
+        SectionLine.BorderColor3 = Color3.fromRGB(20, 21, 25)
+        SectionLine.BorderSizePixel = 0
+        SectionLine.Position = UDim2.new(0.0449740589, 0, 0.200355425, 0)
+        SectionLine.Size = UDim2.new(0, 180, 0, -1)
+        SectionLine.ZIndex = 4
+        fadeIn(SectionLine)
+
         local SectionLabel = Instance.new("TextLabel")
-        SectionLabel.Name = "SectionLabel"
+        SectionLabel.Name = "Label"
         SectionLabel.Parent = section
         SectionLabel.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
         SectionLabel.BackgroundTransparency = 1
         SectionLabel.BorderColor3 = Color3.fromRGB(0, 0, 0)
         SectionLabel.BorderSizePixel = 0
-        SectionLabel.Position = UDim2.new(0, 5, 0, 0)
-        SectionLabel.Size = UDim2.new(0.7, 0, 1, 0)
-        SectionLabel.Font = Enum.Font.SourceSansBold
+        SectionLabel.Position = UDim2.new(0.0849743634, 0, 0, 0)
+        SectionLabel.Size = UDim2.new(0, 100, 0, 29)
+        SectionLabel.Font = Enum.Font.ArialBold
         SectionLabel.Text = sectionName
         SectionLabel.TextColor3 = Color3.fromRGB(147, 152, 156)
         SectionLabel.TextSize = 14.000
-        SectionLabel.TextTransparency = 0
         SectionLabel.TextXAlignment = Enum.TextXAlignment.Left
         SectionLabel.ZIndex = 5
         fadeIn(SectionLabel)
 
-        local SectionLine = Instance.new("Frame")
-        SectionLine.Name = "SectionLine"
-        SectionLine.Parent = section
-        SectionLine.BackgroundColor3 = Color3.fromRGB(23, 24, 28)
-        SectionLine.BorderColor3 = Color3.fromRGB(0, 0, 0)
-        SectionLine.BorderSizePixel = 0
-        SectionLine.Position = UDim2.new(0, 0, 1, -2)
-        SectionLine.Size = UDim2.new(1, 0, 0, 2)
-        SectionLine.ZIndex = 4
-        fadeIn(SectionLine)
-
-        local ShowSectionButton = Instance.new("ImageButton")
+        local ShowSectionButton = Instance.new("TextButton")
         ShowSectionButton.Name = "ShowSection"
         ShowSectionButton.Parent = section
         ShowSectionButton.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
         ShowSectionButton.BackgroundTransparency = 1
         ShowSectionButton.BorderColor3 = Color3.fromRGB(0, 0, 0)
         ShowSectionButton.BorderSizePixel = 0
-        ShowSectionButton.Position = UDim2.new(1, -30, 0, 5)
-        ShowSectionButton.Size = UDim2.new(0, 20, 0, 20)
-        ShowSectionButton.Image = "rbxassetid://12653789995" -- Иконка (замени на нужную)
-        ShowSectionButton.ImageTransparency = 0
+        ShowSectionButton.Position = UDim2.new(0.860000014, 0, 0.0666666701, 0)
+        ShowSectionButton.Size = UDim2.new(0, 10, 0, 10)
+        ShowSectionButton.Font = Enum.Font.SourceSans
+        ShowSectionButton.Text = "▼"
+        ShowSectionButton.TextColor3 = Color3.fromRGB(147, 152, 156)
+        ShowSectionButton.TextSize = 14.000
         ShowSectionButton.ZIndex = 5
         fadeIn(ShowSectionButton)
+
+        -- Добавление кнопки в стиле оригинального UI
+        local Button = Instance.new("TextButton")
+        Button.Name = "Button"
+        Button.Parent = section
+        Button.BackgroundColor3 = Color3.fromRGB(24, 29, 32)
+        Button.BorderColor3 = Color3.fromRGB(0, 0, 0)
+        Button.BorderSizePixel = 0
+        Button.Position = UDim2.new(0.0599743649, 0, 0.25999999, 0)
+        Button.Size = UDim2.new(0, 30, 0, 20)
+        Button.Font = Enum.Font.SourceSans
+        Button.Text = ""
+        Button.TextColor3 = Color3.fromRGB(0, 0, 0)
+        Button.TextSize = 14.000
+        Button.ZIndex = 5
+
+        local UICornerButton = Instance.new("UICorner")
+        UICornerButton.CornerRadius = UDim.new(0, 4)
+        UICornerButton.Parent = Button
+
+        local ButtonText = Instance.new("TextLabel")
+        ButtonText.Name = "ToggleText"
+        ButtonText.Parent = Button
+        ButtonText.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+        ButtonText.BackgroundTransparency = 1
+        ButtonText.BorderColor3 = Color3.fromRGB(0, 0, 0)
+        ButtonText.BorderSizePixel = 0
+        ButtonText.Position = UDim2.new(1.35000002, 0, -0.200000003, 0)
+        ButtonText.Size = UDim2.new(0, 100, 0, 24)
+        ButtonText.Font = Enum.Font.SourceSansBold
+        ButtonText.Text = "Button"
+        ButtonText.TextColor3 = Color3.fromRGB(147, 152, 156)
+        ButtonText.TextSize = 17.000
+        ButtonText.TextXAlignment = Enum.TextXAlignment.Left
+        ButtonText.ZIndex = 6
+        fadeIn(ButtonText)
 
         fadeIn(section)
         return section
