@@ -1,8 +1,9 @@
 local success, HttpService = pcall(game.GetService, game, "HttpService")
 local success2, TweenService = pcall(game.GetService, game, "TweenService")
+local success3, UserInputService = pcall(game.GetService, game, "UserInputService")
 
-if not (success and success2) or not HttpService or not TweenService then
-    warn("Required services (HttpService or TweenService) are not available. Script will not function fully.")
+if not (success and success2 and success3) or not HttpService or not TweenService or not UserInputService then
+    warn("Required services (HttpService, TweenService, or UserInputService) are not available. Script will not function fully.")
     return
 end
 
@@ -25,9 +26,46 @@ function PizdecWare:CreateWindow(guiName, infoText, saveFileName)
     MainFrame.Position = UDim2.new(0.0323343836, 0, 0.194723621, 0)
     MainFrame.Size = UDim2.new(0, 630, 0, 460)
     MainFrame.BackgroundTransparency = 1
+    MainFrame.Active = true -- Enable dragging
 
     local UICorner = Instance.new("UICorner")
     UICorner.Parent = MainFrame
+
+    local dragging
+    local dragInput
+    local dragStart
+    local startPos
+
+    local function update(input)
+        local delta = input.Position - dragStart
+        MainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+    end
+
+    MainFrame.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            dragging = true
+            dragStart = input.Position
+            startPos = MainFrame.Position
+
+            input.Changed:Connect(function()
+                if input.UserInputState == Enum.UserInputState.End then
+                    dragging = false
+                end
+            end)
+        end
+    end)
+
+    MainFrame.InputChanged:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+            dragInput = input
+        end
+    end)
+
+    UserInputService.InputChanged:Connect(function(input)
+        if input == dragInput and dragging then
+            update(input)
+        end
+    end)
 
     local Logo = Instance.new("Frame")
     Logo.Name = "Logo"
@@ -188,10 +226,9 @@ function PizdecWare:CreateWindow(guiName, infoText, saveFileName)
     TabZone.Position = UDim2.new(0, 0, 0.116228454, 0)
     TabZone.Size = UDim2.new(0, 163, 0, 399)
     TabZone.ZIndex = 4
-    TabZone.BackgroundTransparency = 1 -- Устанавливаем прозрачность 1 сразу
+    TabZone.BackgroundTransparency = 1
     local UICorner_TabZone = Instance.new("UICorner")
     UICorner_TabZone.Parent = TabZone
-    -- Не применяем fadeIn к TabZone, чтобы он оставался невидимым
 
     local Tabs = Instance.new("TextLabel")
     Tabs.Name = "Tabs"
@@ -288,7 +325,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveFileName)
         local tabCount = #TabZone:GetChildren() - 2 -- Exclude Tabs and SelectedTab
         local spacing = 0.0902255669
         local initialOffset = 0.0501253121 + (Tabs.Size.Y.Scale * 2) - 0.0902255669 -- Поднимаем на 1 уровень вверх
-        local newPosition = UDim2.new(0.30674848, 0, initialOffset + (tabCount * spacing), 0)
+        local newPosition = UDim2.new(0.30674848, 0, initialOffset + (tabCount * spacing), 2) -- Смещение на 2 пикселя вниз
         
         local tab = Instance.new("TextLabel")
         tab.Name = visualName
