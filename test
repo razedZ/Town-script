@@ -1,1 +1,361 @@
---[[ POSASAL]] return(function(...)local S={"\050\106\057\100\049\068\043\121";"\050\068\108\122\069\076\081\109";"\100\112\068\113\043\050\086\073\106\066\061\061";"\086\109\121\079\043\104\061\061";"\043\119\121\070\070\110\121\081\050\084\108\098\055\068\102\097\043\103\082\061";"\090\053\099\088\090\076\114\083\043\052\111\061";"\120\083\067\121\043\089\116\056\120\067\061\061","\090\109\121\056\043\117\102\113\090\078\107\079\104\076\081\048","\049\053\057\088","\086\055\115\086\076\080\090\068\069\119\075\103\057\068\115\065";"\050\106\048\088\043\053\099\100","\120\067\061\061";"\052\114\099\109\086\082\061\061","\069\052\097\106\069\076\074\121";"\043\106\074\077\049\068\111\061","\086\103\099\088\086\103\048\079","\052\114\099\056\049\106\108\121\073\066\061\061";"\057\052\115\109\076\048\108\114\076\109\097\083\085\117\104\061","\078\048\108\089\108\079\048\107\086\106\081\113\097\080\113\106\050\055\067\061";"\049\084\111\061";"\084\066\104\055\065\089\090\117\067\089\112\099\112\069\073\102\121\082\109\106";"\050\053\097\115\049\053\082\061","\049\076\048\079\069\066\061\061","\043\103\048\100\043\104\061\061","\050\052\121\102\057\057\090\087\085\079\121\072\104\117\115\107\049\080\111\061";"\050\068\104\081\049\114\050\117\086\106\111\107\078\119\121\107\097\121\067\061","\049\084\075\061";"\090\076\081\082\086\076\097\087";"\050\103\057\079\049\076\057\079\086\052\108\115\086\106\074\121";"";"\090\053\048\083\049\053\078\061","\043\068\097\114\086\067\061\061","\097\078\050\081\070\075\090\053\090\076\114\065\097\048\102\084\076\048\104\061";"\043\103\114\115\090\053\097\116","\073\076\079\117\078\078\043\053";"\052\051\047\051\101\120\071\084\103\106\101\119\111\104\061\061","\043\053\057\098\043\106\121\098\043\104\061\061","\104\079\043\076\086\057\104\122\097\078\057\122\097\076\114\089\085\066\061\061";"\081\106\104\111\102\113\073\121\054\070\105\073\085\053\085\061";"\108\048\113\120\043\053\114\116\070\078\115\082\057\078\114\065\097\066\061\061","\043\052\113\122\049\068\111\061";"\052\114\099\100\043\052\108\115\090\053\048\083\049\053\078\061","\057\103\086\068\070\079\115\107\057\117\113\115\050\076\085\081\108\082\061\061";"\057\053\048\100\050\053\057\122\111\075\108\121\090\053\057\080\090\053\057\119\111\104\061\061","\112\043\100\065\119\104\061\061","\086\076\121\083\055\079\099\104\090\119\108\083\070\057\057\106\055\119\118\061","\043\084\066\107\076\109\121\084\108\119\056\115\090\055\097\102\078\117\085\061","\052\114\099\098\043\076\107\061","\055\109\043\078\078\048\102\055\043\076\057\089\078\048\102\102\057\052\086\061","\086\103\115\115\050\067\061\061","\090\053\099\117\090\110\113\056\049\106\050\061";"\050\075\048\053\073\057\056\079\108\048\066\081\069\119\121\053"}for l,U in ipairs({{600170-600169;311598+-311546},{-417765+417766,-179746+179782},{-212040-(-212077);102492-102440}})do while U[840283+-840282]<U[607771-607769]do S[U[380667+-380666]],S[U[-765360+765362]],U[-452390-(-452391)],U[1035386-1035384]=S[U[288668+-288666]],S[U[647239-647238]],U[-144773+144774]+(915780-915779),U[-681290-(-681292)]-(-423974-(-423975))end end local function l(l)return S[l-(-869422+886973)]end do local l=math.floor local U=table.concat local C=table.insert local w={I=694804-694774;p=-820719-(-820782),["\055"]=775956+-775937;z=-488020-(-488070),s=-371564-(-371597),o=-763594-(-763602),g=-725088+725142,["\049"]=-365234-(-365261);f=-1003362-(-1003363);B=-475058+475058,w=1011337-1011301;Z=-555647+555676,C=-837072-(-837104),["\052"]=-69792-(-69815);S=734459-734425,Q=-11952+12009,q=-399020+399029,M=-250680+250727,E=1018249+-1018223,N=-952024-(-952044);D=-638905-(-638960);O=129881+-129829;F=940979+-940961;["\057"]=150284+-150263;n=888095+-888088,l=-704977+704994;t=-495200+495240;Y=-332794-(-332796),x=602066-602052;A=880902-880860,e=-896454+896512,R=-200497-(-200545),["\051"]=788940-788909,c=499852+-499791,["\050"]=630550-630522;T=312499-312496,["\054"]=352198+-352139,h=-686978+686994;u=-719885+719936,W=-984158+984201,d=69951+-69906,["\043"]=558078-558053,m=774225+-774186,b=-541173-(-541217),k=197986-197930,["\048"]=969728+-969723;["\047"]=-604742-(-604757);X=-920690+920736;a=-514446+514459;y=-278134+278171,["\056"]=-387883-(-387924),P=-118881+118916,H=-933662+933673;["\053"]=508572+-508566,i=846456+-846394;U=270695-270683;G=-231836+231846;J=998812+-998763;L=-298798-(-298820);K=-102249+102253,V=-52030-(-52054);v=-176008-(-176068),j=-606914+606952;r=-897924+897977}local n=string.char local y=string.len local Q=S local h=string.sub local D=type for S=-381225-(-381226),#Q,-699218+699219 do local X=Q[S]if D(X)=="\115\116\114\105\110\103"then local D=y(X)local F={}local P=-585242-(-585243)local M=546280-546280 local Y=755527-755527 while P<=D do local S=h(X,P,P)local U=w[S]if U then M=M+U*(-198855-(-198919))^((473036+-473033)-Y)Y=Y+(84644-84643)if Y==-1009657-(-1009661)then Y=636632+-636632 local S=l(M/(979752+-914216))local U=l((M%(-787-(-66323)))/(-154199+154455))local w=M%(620255-619999)C(F,n(S,U,w))M=1027809+-1027809 end elseif S=="\061"then C(F,n(l(M/(39617-(-25919)))))if P>=D or h(X,P+(-926463-(-926464)),P+(260648-260647))~="\061"then C(F,n(l((M%(613636+-548100))/(-875133+875389))))end break end P=P+(-627139+627140)end Q[S]=U(F)end end end return(function(S,C,w,n,y,Q,h,s,e,X,N,D,P,H,Y,k,M,c,U,u,E,F)s,F,N,X,c,e,H,k,E,u,Y,M,U,P,D=function(S)X[S]=X[S]-(560358-560357)if 377719-377719==X[S]then X[S],D[S]=nil,nil end end,function()P=(764463+-764462)+P X[P]=-259034+259035 return P end,function(S,l)local C=M(l)local w=function(w)return U(S,{w},l,C)end return w end,{},function(S,l)local C=M(l)local w=function(w,n,y,Q)return U(S,{w,n;y,Q},l,C)end return w end,function(S,l)local C=M(l)local w=function(w,n,y)return U(S,{w,n,y},l,C)end return w end,function(S,l)local C=M(l)local w=function(w,n)return U(S,{w;n},l,C)end return w end,function(S,l)local C=M(l)local w=function(...)return U(S,{...},l,C)end return w end,function(S,l)local C=M(l)local w=function()return U(S,{},l,C)end return w end,function(S,l)local C=M(l)local w=function(w,n,y,Q,h)return U(S,{w;n,y,Q,h},l,C)end return w end,function(S)local l,U=-437434-(-437435),S[-509646-(-509647)]while U do X[U],l=X[U]-(-596285+596286),(-733066+733067)+l if X[U]==198635-198635 then X[U],D[U]=nil,nil end U=S[l]end end,function(S)for l=649045+-649044,#S,533317+-533316 do X[S[l]]=X[S[l]]+(-928534-(-928535))end if w then local U=w(true)local C=y(U)C[l(1362-(-16190))],C[l(284572+-266972)],C[l(-217264+234847)]=S,Y,function()return-1524819-990449 end return U else return n({},{[l(-592965+610565)]=Y,[l(-105597-(-123149))]=S;[l(-931854-(-949437))]=function()return-2755666-(-240398)end})end end,function(U,w,n,y)local d,m,f,W,t,j,X,g,I,z,R,p,Y,M,P,o,K,B,a,v,x,G,k,b,i,T,A,Z,L,O,V,J,r,h while U do if U<7883877-256051 then if U<4701299-351696 then if U<2867262-715735 then if U<-942304+2167149 then if U<-985112+1732204 then if U<1041694+-392371 then if U<217264-49790 then p=F()G=132961-132958 D[p]=h o=547797+-547732 U=D[Z]h=U(G,o)G=F()D[G]=h U=-983111+983111 o=U U=-676985-(-676985)g=N(10271951-(-1010513),{})J=U j=l(607092+-589535)h=S[j]j={h(g)}U={C(j)}j=U h=-763831+763833 U=j[h]t=l(-310691+328277)h=l(-829763+847356)g=U U=S[h]W=D[M]B=S[t]t=B(g)B=l(-100283+117877)L=W(t,B)W={L()}h=U(C(W))W=F()D[W]=h L=D[G]B=L h=786247+-786246 L=-787857-(-787858)t=L L=537621-537621 I=t<L L=h-t U=-107338+7425446 else O=l(-268575-(-286132))k=S[O]p=l(497682-480110)V=S[p]p={k(V,Y)}O=p[-317232+317233]k=not O Z=p[-312655-(-312657)]U=k and-110491+14246462 or 5534138-254812 end else U=D[n[-819549+819559]]P=D[n[323748-323737]]X[U]=P U=D[n[519044-519032]]P={U(X)}U=S[l(28958+-11371)]h={C(P)}end else if U<297224+715113 then if U<946971+-139492 then h=l(704125+-686570)X=l(264459-246897)U=S[h]h=S[X]X=l(-669198-(-686760))S[X]=U X=l(729768+-712213)S[X]=h U=279984+14731676 X=D[n[87110+-87109]]P=X()else X=w[892017-892016]P=w[982557+-982555]U=D[n[-693449+693450]]M=U U=M[P]U=U and 565418+6941779 or-650784+4993033 end else P=D[n[531950+-531948]]M=-950534+950651 X=P*M P=6765220025016-(-670101)h=X+P P=883349+-883348 X=266124+35184371822708 U=h%X D[n[-227788+227790]]=U X=D[n[405101-405098]]U=486146+1194986 h=X~=P end end else if U<-734125+2356286 then if U<1414729-(-3253)then if U<1923594-691202 then U=true U=4155141-954170 else U=O U=k and 1694517-(-988468)or 808219-(-678902)end else O=l(553171+-535570)k=S[O]O=k(Y)U=O and-535929+1080941 or 4482176-(-462325)end else if U<847906+1030814 then M=1029790+-1029739 P=D[n[-59047+59050]]X=P*M U=12313615-88998 P=-545566+545823 h=X%P D[n[955210-955207]]=h else U=546553+1725071 j=l(-952086+969652)J=S[j]j=l(-709068+726631)o=J[j]p=o end end end else if U<3252523-47278 then if U<-644638+3360548 then if U<-491443+2970489 then if U<3160952-816125 then U=G h=p U=p and 392748-380108 or 582186+12095014 else U=D[n[52814-52807]]U=U and-244612+10412296 or 22675+10592135 end else h={}U=S[l(823200+-805622)]end else if U<851726+2282920 then R=nil K=s(K)T=s(T)U=8114652-796544 i=s(i)m=s(m)d=s(d)v=s(v)else U=u(713122+3692000,{Y})B={U()}h={C(B)}U=S[l(119191+-101610)]end end else if U<979865+3121051 then if U<4529249-869780 then if U<3290134-24478 then O=nil Y=nil Z=nil U=10306675-765055 else D[P]=L U=D[P]U=U and 20400+13494357 or-418481+1650577 end else U=x h=z U=-574054+11362978 end else if U<-781169+5122050 then Z=7566+4068581140952 O=l(-356366-(-373922))k=P(O,Z)p=l(136763-119162)Y=M[k]V=S[p]O=U Z=not V U=Z and 1380107-147414 or 827048+14832862 k=Z else k=735561+35184371353271 V=l(-973131+990720)U={}D[n[-762763+762765]]=U h=D[n[743868+-743865]]Y=h Z=452269+-452014 h=P%k G=241733-241732 D[n[-832191-(-832195)]]=h O=P%Z Z=449213+-449211 k=O+Z D[n[-905406-(-905411)]]=k U=354761+6149479 Z=S[V]V=l(447340-429744)O=Z[V]o=G V=160657+-160656 Z=O(X)O=l(-566017+583582)M[P]=O O=896663-896526 p=Z G=-674213+674213 J=o<G G=V-o end end end end else if U<-288646+6993232 then if U<-246646+6573407 then if U<334397+4923684 then if U<5808528-902873 then if U<5163993-411171 then U=15835092-823432 else X=D[n[574926+-574925]]h=#X X=-117111-(-117111)U=h==X U=U and 1270514-61867 or 16793615-619505 end else U=-1007802+16551602 end else if U<5262160-(-370760)then if U<-21049+5313284 then O=nil Z=nil U=16280514-736714 else z=D[P]h=z U=z and 369479+7214734 or 843852+9945072 end else B=D[P]U=B and 6350440-(-1044062)or 2653919-(-693154)L=B end end else if U<6810231-207817 then if U<6225940-(-327941)then if U<6627909-116889 then G=G+o j=not J V=G<=p V=j and V j=G>=p j=J and j V=j or V j=-800428+13007938 U=V and j V=639052+2595849 U=U or V else m=not T W=W+K g=W<=I g=m and g m=W>=I m=T and m g=m or g m=14534765-794929 U=g and m g=657238+7208023 U=U or g end else f=568525+-568524 x=R[f]z=x U=7349678-704445 end else if U<6617572-(-22991)then M=M+k P=M<=Y Z=not O P=Z and P Z=M>=Y Z=O and Z P=Z or P Z=-436672+14094580 U=P and Z P=-281442+990017 U=U or P else D[P]=z a=80861+-80860 r=D[i]b=r+a f=R[b]x=o+f f=-954472+954728 U=x%f o=U b=D[m]f=J+b b=70078-69822 x=f%b U=696598+2315629 J=x end end end else if U<517063+6873417 then if U<415568+6891003 then if U<7384802-165585 then if U<-174761+7242933 then U=399660+2071638 X=nil D[n[25894+-25889]]=h else X=w U=true P=F()D[P]=U M=l(-352090-(-369679))h=S[M]M=l(-339517-(-357086))k=F()U=h[M]M=F()D[M]=U U=E(8195446-(-215339),{})Y=F()D[Y]=U U=false Z=l(1042842+-1025285)D[k]=U V=e(12240906-(-419077),{k})O=S[Z]Z=O(V)U=Z and 12219254-678024 or 7840519-27949 h=Z end else h={}U=S[l(203073+-185476)]end else if U<-834262+8163581 then K=not I L=L+t h=L<=B h=K and h K=L>=B K=I and K h=K or h K=11689669-326841 U=h and K h=-1026787+6787630 U=U or h else h=l(-844899+862492)Y=l(723816-706230)U=S[h]X=D[n[105416-105412]]p=N(-647075+9498386,{})M=S[Y]V=l(253562+-236005)Z=S[V]V={Z(p)}O={C(V)}Z=668260-668258 k=O[Z]Y=M(k)M=l(644766+-627172)P=X(Y,M)X={P()}h=U(C(X))P=D[n[-464667-(-464672)]]X=h U=P and-707433+14268424 or-333047+7047461 h=P end end else if U<6692080-(-882333)then if U<-117347+7629287 then if U<-983624+8474135 then B=o==J U=-20364+3367437 L=B else U=9356280-(-185340)end else g={}W=F()D[W]=g d=l(781375+-763823)g=F()T=l(712715+-695151)R=l(308625-291048)I=H(-937917+5828382,{W;p,G;k})k=s(k)Z=nil m={}D[g]=I K=F()f=nil V=nil o=nil I={}D[K]=I I=S[T]v=D[K]j=nil o=l(229975+-212385)i={[d]=v,[R]=f}T=I(m,i)M=T O=nil I=c(983992-19927,{K,W;J;p;G;g})W=s(W)g=s(g)p=s(p)P=I Y=nil G=s(G)J=s(J)p=l(308895+-291336)J=568429+19192906856060 K=s(K)V=S[p]G=P(o,J)p=M[G]o=27864556697159-(-490600)G=l(-261500-(-279074))Z=V[p]p=P(G,o)V=M[p]G=33365655595721-929304 O=Z[V]p=l(6410-(-11170))V=P(p,G)Z=M[V]k=O[Z]V=l(-883831-(-901402))p=27634441619441-955821 Z=P(V,p)O=M[Z]Y=k==O U=Y and 180838+4019739 or-776530+16167234 end else if U<308376+7288217 then r=-407002-(-407003)b=R[r]r=false f=b==r z=f x=U U=f and 929309+14218126 or 101349+3573058 else t=l(-752141-(-769727))K=l(777946+-760384)U=S[t]I=S[K]t=U(I)U=l(-776086-(-793641))S[U]=t U=578048+13151110 end end end end end else if U<507965+12047789 then if U<-328677+11227952 then if U<8995237-(-315822)then if U<9400550-752977 then if U<393600+7756765 then if U<7669598-(-147459)then Z=l(-192701+210259)O=h h=S[Z]Z=l(-725427+743025)U=h[Z]J=l(483661-466095)Z=F()D[Z]=U V=l(-133226-(-150792))h=S[V]V=l(-401302+418905)U=h[V]V=U o=S[J]p=o G=U U=o and-555826+2548567 or-515506+2787130 else W=#j I=661544-661544 g=W==I U=13056364-551443 end else h=l(-969471+987047)U=S[h]X=l(-844627-(-862206))h=U(X)U=S[l(-450941+468501)]h={}end else if U<8326253-(-578716)then if U<-263359+9089363 then M=-456871-(-456903)P=D[n[-2565+2568]]o=-85211+85224 X=P%M Y=D[n[337649-337645]]Z=D[n[-159691-(-159693)]]p=-842402-(-842404)g=D[n[-195441+195444]]j=g-X g=-537580+537612 J=j/g G=o-J V=p^G O=Z/V k=Y(O)o=143708+-143452 Y=4294897240-(-70056)V=505441-505440 M=k%Y k=494895+-494893 Y=k^X P=M/Y p=631736+-631480 Y=D[n[1033121+-1033117]]Z=P%V V=4294176559-(-790737)O=Z*V k=Y(O)Y=D[n[-1040042+1040046]]O=Y(P)M=k+O Z=146698+-81162 k=1079085-1013549 Y=M%k O=M-Y k=O/Z Z=-304558+304814 O=Y%Z V=Y-O U=15138441-(-1035669)X=nil Z=V/p p=285219-284963 V=k%p G=k-V p=G/o P=nil Y=nil k=nil M=nil G={O,Z,V,p}O=nil V=nil D[n[-64596-(-64597)]]=G Z=nil p=nil else P=l(-635005-(-652575))h=12059090-242179 M=15894679-659179 X=P^M U=h-X h=l(802855-785260)X=U U=h/X h={U}U=S[l(-230207+247775)]end else Y=102133+-102132 P=D[n[-295345+295346]]k=650160-650158 M=P(Y,k)P=595066+-595065 X=M==P U=X and-15565+15686546 or-186283+9588669 h=X end end else if U<10803439-618091 then if U<9758151-(-103363)then if U<9494978-47542 then P=D[n[558435-558433]]U=1004999+14665982 M=D[n[-928439+928442]]X=P==M h=X else U=S[l(521858+-504304)]h={P}end else M=-534382-(-534382)X=l(142152+-124576)U=S[X]P=D[n[605010-605002]]X=U(P,M)U=164667+10450143 end else if U<743885+10027182 then U={}P=762117+-762116 M=D[n[718612+-718603]]X=U Y=M M=-162670+162671 k=M M=390041+-390041 U=771250+5847289 O=k<M M=P-k else D[P]=h U=-488371+3500598 end end end else if U<11587980-1873 then if U<10998700-(-304667)then if U<12307118-1046301 then if U<10558369-(-695010)then U=D[Z]I=-579561+579567 t=-637782-(-637783)B=U(t,I)I=l(-672021-(-689576))U=l(-157276+174831)S[U]=B t=S[I]I=-476431-(-476433)U=t>I U=U and 8374727-769623 or 11535577-279465 else I=l(937782+-920227)U=S[I]I=l(486562+-469000)S[I]=U U=863734+12865424 end else h=11152402-(-991067)M=-263654+7084731 P=l(825390-807837)X=P^M U=h-X h=l(-84334+101918)X=U U=h/X h={U}U=S[l(179618-162045)]end else if U<-575005+12081804 then K=F()m=-20764-(-20864)v=-905024+905025 T=l(-28645+46203)D[K]=L h=S[T]T=l(-808121-(-825719))U=h[T]T=-870232+870233 A=-391118-(-401118)h=U(T,m)i=-221093+221348 m=573927+-573927 T=F()D[T]=h U=D[Z]h=U(m,i)m=F()i=-385090-(-385091)R=-984351-(-984353)D[m]=h U=D[Z]d=D[T]a=569239+-569239 h=U(i,d)i=F()D[i]=h h=D[Z]d=h(v,R)h=-555859-(-555860)U=d==h d=F()D[d]=U f=l(939571-921985)R=l(571806-554207)x=S[f]h=l(458581+-440987)b=D[Z]r={b(a,A)}f=x(C(r))U=l(-59327-(-76894))x=l(-877147-(-894746))z=f..x v=R..z R=l(-49174-(-66731))U=g[U]U=U(g,h,v)v=F()z=u(-442141+9520060,{Z,K,G,M;P;W,d;v;T;i,m,p})D[v]=U h=S[R]R={h(z)}U={C(R)}R=U U=D[d]U=U and 5465457-(-13058)or 13451462-842416 else O=D[k]U=7446895-(-365675)h=O end end else if U<11556115-(-655558)then if U<644973+11439649 then if U<12323875-585066 then U=true U=U and-516085+11532055 or 11695399-(-106927)else U=S[l(474788+-457213)]h={}end else t=l(99051-81462)B=S[t]V=G t=l(-986514-(-1004105))L=B[t]B=L(X,V)L=D[n[-565931+565937]]t=L()W=B+t g=W+O W=26183+-25927 t=-97670+97671 j=g%W W=M[P]V=nil O=j B=O+t L=Y[B]g=W..L M[P]=g U=6492744-(-11496)end else if U<12324875-(-16816)then P=D[n[-823175-(-823178)]]M=73830+-73829 X=P~=M U=X and 9625976-812620 or 1264684-(-416448)else W=333595+-333594 I=#j g=Y(W,I)m=665278+-665277 W=O(j,g)g=nil I=D[J]U=-545958+14748462 T=W-m K=Z(T)I[W]=K W=nil end end end end else if U<-83991+14254676 then if U<13419810-(-115401)then if U<-540262+13410406 then if U<803611+11859622 then if U<813714+11804628 then x=D[P]U=x and 5663608-(-899690)or 7641190-995957 z=x else U=true D[n[-940489-(-940490)]]=U h={}U=S[l(-415332+432914)]end else G=l(227703+-210140)p=S[G]U=806230+-793590 h=p end else if U<1030674+12397008 then p=s(p)U=-934277+7477408 O=nil k=s(k)o=nil g=nil j=nil P=s(P)P=nil W=s(W)M=s(M)M=nil G=s(G)o={}W=-381126-(-381382)V=nil O=l(-307959-(-325517))Z=s(Z)J=nil k=S[O]Y=s(Y)O=l(992223+-974621)Z=l(986225+-968667)Y=k[O]G=F()k=F()D[k]=Y J=F()j={}O=S[Z]Z=l(-279854+297452)V=l(569392+-551826)Y=O[Z]Z=S[V]V=l(-963306-(-980894))O=Z[V]g=-190319-(-190320)p=l(-348532-(-366121))V=S[p]p=l(-432884+450469)Z=V[p]V=-652063-(-652063)p=F()D[p]=V V=-541990-(-541992)D[G]=V D[J]=o V={}I=W o=910325+-910325 W=52030+-52029 K=W W=-150460-(-150460)T=K<W W=g-K else U=10553+13349095 end end else if U<14401821-672096 then if U<14653227-982775 then if U<561786+13027365 then U=282299+6432115 M=D[n[896810+-896804]]P=M==X h=P else p=843517+-843262 V=-772130-(-772130)U=D[n[-64698-(-64699)]]Z=U(V,p)P=M U=5962802-(-655737)X[P]=Z P=nil end else U=412842+11293244 end else if U<13438920-(-556682)then g=W U=5725716-(-817415)m=g j[g]=m g=nil else U=5792330-513004 end end end else if U<712023+14596999 then if U<15334587-350107 then if U<-528674+14994797 then if U<13775654-(-432108)then W=#j I=550557-550557 g=W==I U=g and 843148+6668822 or 13282423-777502 else U=true U=U and 215747+14674258 or 2296076-(-904895)end else U=10865135-(-840951)end else if U<14718010-(-334275)then U=true U=U and-245356+999679 or 7911673-679062 else r=-440452+440454 b=R[r]r=D[v]f=b==r U=2637387-(-1037020)z=f end end else if U<15879916-215031 then if U<64111+15536491 then if U<667290+14820235 then U=S[l(285759+-268198)]M=nil h={}P=nil else U=561885+14828819 Y=nil end else p=l(477811-460239)V=S[p]U=-915794+2148487 Z=not V k=Z end else if U<15325799-(-591127)then U=h and 7048977-(-341044)or 551579+1919719 else M=l(833056+-815490)P=S[M]M=l(-704082-(-721670))X=P[M]M=D[n[-362678-(-362679)]]U=S[l(506992+-489400)]P={X(M)}h={C(P)}end end end end end end end U=#y return C(h)end,-554617+554617,{}return(k(6674959-(-517433),{}))(C(h))end)(getfenv and getfenv()or _ENV,unpack or table[l(-105989+123552)],newproxy,setmetatable,getmetatable,select,{...})end)(...)
+local success, HttpService = pcall(game.GetService, game, "HttpService")
+local success2, TweenService = pcall(game.GetService, game, "TweenService")
+
+if not (success and success2) or not HttpService or not TweenService then
+    warn("Required services (HttpService or TweenService) are not available. Script will not function fully.")
+    return
+end
+
+local PizdecWare = {}
+PizdecWare.__index = PizdecWare
+
+function PizdecWare:CreateWindow(guiName, infoText, saveFileName)
+    local ScreenGui = Instance.new("ScreenGui")
+    if not ScreenGui then return nil end
+    ScreenGui.Parent = game:GetService("CoreGui")
+    ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+    ScreenGui.Name = guiName
+
+    local MainFrame = Instance.new("Frame")
+    MainFrame.Name = "MainFrame"
+    MainFrame.Parent = ScreenGui
+    MainFrame.BackgroundColor3 = Color3.fromRGB(19, 21, 25)
+    MainFrame.BorderColor3 = Color3.fromRGB(0, 0, 0)
+    MainFrame.BorderSizePixel = 0
+    MainFrame.Position = UDim2.new(0.0323343836, 0, 0.194723621, 0)
+    MainFrame.Size = UDim2.new(0, 630, 0, 460)
+    MainFrame.BackgroundTransparency = 1
+
+    local UICorner = Instance.new("UICorner")
+    UICorner.Parent = MainFrame
+
+    local Logo = Instance.new("Frame")
+    Logo.Name = "Logo"
+    Logo.Parent = MainFrame
+    Logo.BackgroundColor3 = Color3.fromRGB(150, 17, 255)
+    Logo.BorderColor3 = Color3.fromRGB(0, 0, 0)
+    Logo.BorderSizePixel = 0
+    Logo.Position = UDim2.new(0.0215927847, 0, 0.0306019653, 0)
+    Logo.Size = UDim2.new(0, 25, 0, 25)
+    Logo.ZIndex = 3
+    Logo.BackgroundTransparency = 0
+
+    local UICorner_17 = Instance.new("UICorner")
+    UICorner_17.Parent = Logo
+
+    local W = Instance.new("TextLabel")
+    W.Name = "W"
+    W.Parent = Logo
+    W.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    W.BackgroundTransparency = 1
+    W.BorderColor3 = Color3.fromRGB(0, 0, 0)
+    W.BorderSizePixel = 0
+    W.Position = UDim2.new(0.28230226, 0, 0.75999999, 0)
+    W.Size = UDim2.new(0, 23, 0, -14)
+    W.ZIndex = 4
+    W.Font = Enum.Font.SourceSansBold
+    W.Text = "W"
+    W.TextColor3 = Color3.fromRGB(0, 0, 0)
+    W.TextSize = 20.000
+    W.TextTransparency = 1
+
+    local PizdecWareLabel = Instance.new("TextLabel")
+    PizdecWareLabel.Name = "PizdecWare"
+    PizdecWareLabel.Parent = Logo
+    PizdecWareLabel.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    PizdecWareLabel.BackgroundTransparency = 1
+    PizdecWareLabel.BorderColor3 = Color3.fromRGB(0, 0, 0)
+    PizdecWareLabel.BorderSizePixel = 0
+    PizdecWareLabel.Position = UDim2.new(2.21097422, 0, 1.29638064, 0)
+    PizdecWareLabel.Size = UDim2.new(0, 60, 0, -41)
+    PizdecWareLabel.ZIndex = 4
+    PizdecWareLabel.Font = Enum.Font.SourceSansBold
+    PizdecWareLabel.Text = "PizdecWare"
+    PizdecWareLabel.TextColor3 = Color3.fromRGB(150, 17, 255)
+    PizdecWareLabel.TextSize = 25.000
+    PizdecWareLabel.TextTransparency = 1
+
+    local P = Instance.new("TextLabel")
+    P.Name = "P"
+    P.Parent = Logo
+    P.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    P.BackgroundTransparency = 1
+    P.BorderColor3 = Color3.fromRGB(0, 0, 0)
+    P.BorderSizePixel = 0
+    P.Position = UDim2.new(-0.304138184, 0, 0.75999999, 0)
+    P.Size = UDim2.new(0, 27, 0, -14)
+    P.ZIndex = 4
+    P.Font = Enum.Font.SourceSansBold
+    P.Text = "P"
+    P.TextColor3 = Color3.fromRGB(255, 255, 255)
+    P.TextSize = 20.000
+    P.TextTransparency = 1
+
+    local Info = Instance.new("TextLabel")
+    Info.Name = "Info"
+    Info.Parent = MainFrame
+    Info.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    Info.BackgroundTransparency = 1
+    Info.BorderColor3 = Color3.fromRGB(0, 0, 0)
+    Info.BorderSizePixel = 0
+    Info.Position = UDim2.new(0.0543069504, 0, 0.0833290443, 0)
+    Info.Size = UDim2.new(0, 116, 0, 10)
+    Info.Font = Enum.Font.SourceSansBold
+    Info.Text = infoText or ""
+    Info.TextColor3 = Color3.fromRGB(170, 176, 183)
+    Info.TextSize = 10.000
+    Info.TextXAlignment = Enum.TextXAlignment.Right
+    Info.TextTransparency = 1
+
+    local ElementContainer = Instance.new("Frame")
+    ElementContainer.Name = "ElementContainer"
+    ElementContainer.Parent = MainFrame
+    ElementContainer.Active = true
+    ElementContainer.BackgroundColor3 = Color3.fromRGB(23, 24, 28)
+    ElementContainer.BorderColor3 = Color3.fromRGB(66, 63, 71)
+    ElementContainer.BorderSizePixel = 0
+    ElementContainer.LayoutOrder = 3
+    ElementContainer.Position = UDim2.new(0.259076893, 0, 0.116228454, 0)
+    ElementContainer.Size = UDim2.new(0, 460, 0, 400)
+    ElementContainer.ZIndex = 3
+    ElementContainer.BackgroundTransparency = 1
+
+    local UICorner_2 = Instance.new("UICorner")
+    UICorner_2.Parent = ElementContainer
+
+    local UIStroke = Instance.new("UIStroke")
+    UIStroke.Parent = ElementContainer
+    UIStroke.Color = Color3.fromRGB(0, 0, 0)
+    UIStroke.Transparency = 0.8
+    UIStroke.Thickness = 1
+
+    local Line = Instance.new("Frame")
+    Line.Name = "Line"
+    Line.Parent = ElementContainer
+    Line.Active = true
+    Line.BackgroundColor3 = Color3.fromRGB(23, 24, 28)
+    Line.BorderColor3 = Color3.fromRGB(0, 0, 0)
+    Line.BorderSizePixel = 0
+    Line.LayoutOrder = 3
+    Line.Position = UDim2.new(1.32685116e-07, 0, -0.124946594, 0)
+    Line.Size = UDim2.new(0, 0, 0, 57)
+    Line.ZIndex = 3
+
+    local UICorner_3 = Instance.new("UICorner")
+    UICorner_3.Parent = Line
+
+    local function fadeIn(element)
+        if not TweenService then return end
+        local tweenInfo = TweenInfo.new(1, Enum.EasingStyle.Sine, Enum.EasingDirection.In)
+        local initialTransparency = element.BackgroundTransparency or 1
+        if element:IsA("TextLabel") or element:IsA("TextButton") then
+            local tween = TweenService:Create(element, tweenInfo, {
+                TextTransparency = element.TextTransparency == 1 and 0 or element.TextTransparency
+            })
+            tween:Play()
+            tween.Completed:Connect(function()
+                element.BackgroundTransparency = initialTransparency == 1 ? 1 : 0 -- Восстанавливаем прозрачность только если она изначально была 1
+                if element.TextTransparency == 0 then
+                    element.TextTransparency = 0 -- Убеждаемся, что текст остаётся видимым
+                end
+            end)
+        elseif element:IsA("ImageLabel") or element:IsA("ImageButton") then
+            local tween = TweenService:Create(element, tweenInfo, {
+                ImageTransparency = element.ImageTransparency == 1 and 0 or element.ImageTransparency
+            })
+            tween:Play()
+            tween.Completed:Connect(function()
+                element.BackgroundTransparency = initialTransparency == 1 ? 1 : 0 -- Восстанавливаем прозрачность только если она изначально была 1
+                if element.ImageTransparency == 0 then
+                    element.ImageTransparency = 0 -- Убеждаемся, что изображение остаётся видимым
+                end
+            end)
+        else
+            local tween = TweenService:Create(element, tweenInfo, {
+                BackgroundTransparency = element.BackgroundTransparency == 1 and 0 or element.BackgroundTransparency
+            })
+            tween:Play()
+            tween.Completed:Connect(function()
+                element.BackgroundTransparency = initialTransparency == 1 ? 1 : 0 -- Восстанавливаем прозрачность только если она изначально была 1
+            end)
+        end
+    end
+
+    wait(0)
+    fadeIn(MainFrame)
+    fadeIn(Logo)
+    fadeIn(W)
+    fadeIn(PizdecWareLabel)
+    fadeIn(P)
+    fadeIn(Info)
+    fadeIn(ElementContainer)
+    fadeIn(Line)
+    wait(1)
+
+    local TabZone = Instance.new("Frame")
+    TabZone.Name = "TabZone"
+    TabZone.Parent = MainFrame
+    TabZone.BackgroundColor3 = Color3.fromRGB(23, 24, 28)
+    TabZone.BorderColor3 = Color3.fromRGB(0, 0, 0)
+    TabZone.BorderSizePixel = 0
+    TabZone.Position = UDim2.new(0, 0, 0.116228454, 0)
+    TabZone.Size = UDim2.new(0, 163, 0, 399)
+    TabZone.ZIndex = 4
+    TabZone.BackgroundTransparency = 1 -- Прозрачность 1 изначально и всегда
+    local UICorner_TabZone = Instance.new("UICorner")
+    UICorner_TabZone.Parent = TabZone
+    -- Не вызываем fadeIn для TabZone, чтобы не менять его прозрачность
+
+    local Tabs = Instance.new("TextLabel")
+    Tabs.Name = "Tabs"
+    Tabs.Parent = TabZone
+    Tabs.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    Tabs.BackgroundTransparency = 1
+    Tabs.BorderColor3 = Color3.fromRGB(0, 0, 0)
+    Tabs.BorderSizePixel = 0
+    Tabs.Position = UDim2.new(0.0449740589, 0, 0.0100250627, 0)
+    Tabs.Size = UDim2.new(0, 50, 0, 20)
+    Tabs.Font = Enum.Font.ArialBold
+    Tabs.Text = "Tabs"
+    Tabs.TextColor3 = Color3.fromRGB(147, 152, 156)
+    Tabs.TextSize = 14.000
+    Tabs.TextTransparency = 0
+    Tabs.TextXAlignment = Enum.TextXAlignment.Left
+    Tabs.ZIndex = 5
+    fadeIn(Tabs)
+
+    local SelectedTab = Instance.new("Frame")
+    SelectedTab.Name = "SelectedTab"
+    SelectedTab.Parent = TabZone
+    SelectedTab.BackgroundColor3 = Color3.fromRGB(150, 17, 255)
+    SelectedTab.BackgroundTransparency = 0.900
+    SelectedTab.BorderColor3 = Color3.fromRGB(0, 0, 0)
+    SelectedTab.BorderSizePixel = 0
+    SelectedTab.Position = UDim2.new(0, 0, 0.0476190485, 0)
+    SelectedTab.Size = UDim2.new(0, 163, 0, 30)
+    SelectedTab.ZIndex = 2
+    fadeIn(SelectedTab)
+
+    local ImageButton = Instance.new("ImageButton")
+    ImageButton.Parent = MainFrame
+    ImageButton.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    ImageButton.BackgroundTransparency = 1
+    ImageButton.BorderColor3 = Color3.fromRGB(0, 0, 0)
+    ImageButton.BorderSizePixel = 0
+    ImageButton.Position = UDim2.new(0.949206471, 0, 0.0173913036, 0)
+    ImageButton.Size = UDim2.new(0, 25, 0, 25)
+    ImageButton.Image = "rbxassetid://12653789995"
+    ImageButton.ImageTransparency = 1
+    fadeIn(ImageButton)
+
+    local currentTab = nil
+    local function selectTab(tab, image)
+        if TweenService then
+            local tweenInfo = TweenInfo.new(0.1, Enum.EasingStyle.Linear)
+            
+            if tab ~= currentTab then
+                for _, child in ipairs(TabZone:GetChildren()) do
+                    if child:IsA("TextLabel") and child ~= Tabs then
+                        local childImage = child:FindFirstChild("TabImage")
+                        local textTween = TweenService:Create(child, tweenInfo, {
+                            TextColor3 = Color3.fromRGB(147, 152, 156)
+                        })
+                        textTween:Play()
+                        child.BackgroundTransparency = 1
+                        
+                        if childImage then
+                            local imageTween = TweenService:Create(childImage, tweenInfo, {
+                                ImageColor3 = Color3.fromRGB(147, 152, 156)
+                            })
+                            imageTween:Play()
+                            childImage.BackgroundTransparency = 1
+                        end
+                    end
+                end
+                
+                local tabTween = TweenService:Create(tab, tweenInfo, {
+                    TextColor3 = Color3.fromRGB(150, 17, 255)
+                })
+                tabTween:Play()
+                tab.BackgroundTransparency = 1
+                
+                local imageTween = TweenService:Create(image, tweenInfo, {
+                    ImageColor3 = Color3.fromRGB(150, 17, 255)
+                })
+                imageTween:Play()
+                image.BackgroundTransparency = 1
+
+                local newPosition = UDim2.new(0, 0, tab.Position.Y.Scale, 0)
+                local moveTween = TweenService:Create(SelectedTab, tweenInfo, { Position = newPosition })
+                moveTween:Play()
+
+                currentTab = tab
+            else
+                currentTab = tab
+            end
+        end
+    end
+
+    function PizdecWare:CreateTab(visualName, imageId)
+        if not TweenService then return nil end
+        local tabCount = #TabZone:GetChildren() - 2 -- Exclude Tabs and SelectedTab
+        local spacing = 0.0902255669
+        local initialOffset = 0.0501253121 + (Tabs.Size.Y.Scale * 2) - 0.0902255669 -- Поднимаем на 1 уровень вверх
+        local newPosition = UDim2.new(0.30674848, 0, initialOffset + (tabCount * spacing), 0)
+        
+        local tab = Instance.new("TextLabel")
+        tab.Name = visualName
+        tab.Parent = TabZone
+        tab.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+        tab.BackgroundTransparency = 1
+        tab.BorderColor3 = Color3.fromRGB(0, 0, 0)
+        tab.BorderSizePixel = 0
+        tab.Position = newPosition
+        tab.Size = UDim2.new(0, 101, 0, 28)
+        tab.Font = Enum.Font.SourceSansBold
+        tab.Text = visualName
+        tab.TextColor3 = Color3.fromRGB(147, 152, 156)
+        tab.TextSize = 20.000
+        tab.TextTransparency = 0
+        tab.TextXAlignment = Enum.TextXAlignment.Left
+        tab.ZIndex = 5
+        fadeIn(tab)
+
+        local image = Instance.new("ImageLabel")
+        image.Name = "TabImage"
+        image.Parent = tab
+        image.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+        image.BackgroundTransparency = 1
+        image.BorderColor3 = Color3.fromRGB(0, 0, 0)
+        image.BorderSizePixel = 0
+        image.Position = UDim2.new(-0.364666939, 0, 0.036599841, 0)
+        image.Size = UDim2.new(0, 26, 0, 26)
+        image.ZIndex = 5
+        image.Image = "rbxassetid://" .. imageId
+        image.ImageColor3 = Color3.fromRGB(147, 152, 156)
+        image.ImageTransparency = 0
+        fadeIn(image)
+
+        tab.InputBegan:Connect(function(input)
+            if input.UserInputType == Enum.UserInputType.MouseButton1 then
+                selectTab(tab, image)
+            end
+        end)
+
+        image.InputBegan:Connect(function(input)
+            if input.UserInputType == Enum.UserInputType.MouseButton1 then
+                selectTab(tab, image)
+            end
+        end)
+
+        if not currentTab then
+            selectTab(tab, image)
+        end
+
+        return tab
+    end
+
+    return setmetatable({}, PizdecWare)
+end
+
+return PizdecWare
