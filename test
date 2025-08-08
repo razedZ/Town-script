@@ -237,7 +237,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveFileName)
     Tabs.BackgroundTransparency = 1
     Tabs.BorderColor3 = Color3.fromRGB(0, 0, 0)
     Tabs.BorderSizePixel = 0
-    Tabs.Position = UDim2.new(0.30674848, 0, 0.0100250627, 0) -- Сдвинут вправо вровень с иконками
+    Tabs.Position = UDim2.new(0.0449740589, 0, 0.036599841 + (26/399/2) - (20/399/2), 0) -- Центр Tabs выравнивается с центром иконок (26 пикселей высота иконки, 20 пикселей высота Tabs)
     Tabs.Size = UDim2.new(0, 50, 0, 20)
     Tabs.Font = Enum.Font.ArialBold
     Tabs.Text = "Tabs"
@@ -324,7 +324,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveFileName)
         if not TweenService then return nil end
         local tabCount = #TabZone:GetChildren() - 2 -- Exclude Tabs and SelectedTab
         local spacing = 0.0902255669
-        local initialOffset = 0.0100250627 + (Tabs.Size.Y.Scale * 2) + 0.008 -- Увеличиваем расстояние до 4 пикселей (примерно 0.008 в Scale)
+        local initialOffset = 0.0100250627 + (Tabs.Size.Y.Scale * 2) + 0.004 -- Уменьшаем на половину от 0.008 (2 пикселя из 4)
         local newPosition = UDim2.new(0.30674848, 0, initialOffset + (tabCount * spacing), 2) -- Смещение на 2 пикселя вниз
         
         local tab = Instance.new("TextLabel")
