@@ -427,7 +427,12 @@ function PizdecWare:CreateWindow(guiName, infoText, saveFileName)
     function PizdecWare:CreateSection(sectionName, tab, side)
         if not TweenService then return nil end
         local container = (side == "left" and LeftContainer) or (side == "right" and RightContainer) or LeftContainer
-        local sectionCount = #container:GetChildren()
+        local totalHeight = 0
+        for _, child in pairs(container:GetChildren()) do
+            if child:IsA("Frame") then
+                totalHeight = totalHeight + (child.Size.Y.Offset or 0) + 5 -- Добавляем отступ 5 пикселей
+            end
+        end
 
         local section = Instance.new("Frame")
         section.Name = sectionName
@@ -435,7 +440,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveFileName)
         section.BackgroundColor3 = Color3.fromRGB(17, 19, 23)
         section.BorderColor3 = Color3.fromRGB(0, 0, 0)
         section.BorderSizePixel = 0
-        section.Position = UDim2.new(0, 5, 0, sectionCount * 160)
+        section.Position = UDim2.new(0, 5, 0, totalHeight)
         section.Size = UDim2.new(0, 200, 0, 150)
         section.BackgroundTransparency = 0
         section.ZIndex = 4
@@ -503,6 +508,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveFileName)
         Button.TextColor3 = Color3.fromRGB(0, 0, 0)
         Button.TextSize = 14.000
         Button.ZIndex = 5
+        Button.BackgroundTransparency = 0 -- Убедимся, что кнопка видна
 
         local UICornerButton = Instance.new("UICorner")
         UICornerButton.CornerRadius = UDim.new(0, 4)
@@ -523,6 +529,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveFileName)
         ButtonText.TextSize = 17.000
         ButtonText.TextXAlignment = Enum.TextXAlignment.Left
         ButtonText.ZIndex = 6
+        ButtonText.TextTransparency = 0 -- Убедимся, что текст виден
         fadeIn(ButtonText)
 
         -- Логика сворачивания/разворачивания секции
@@ -546,7 +553,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveFileName)
                         local moveTween = TweenService:Create(section, TweenInfo.new(0.1, Enum.EasingStyle.Quad), { Position = UDim2.new(0, 5, 0, section.Position.Y.Offset + 120) })
                         moveTween:Play()
                     else
-                        local moveTween = TweenService:Create(section, TweenInfo.new(0.1, Enum.EasingStyle.Quad), { Position = UDim2.new(0, 5, 0, sectionCount * 160) })
+                        local moveTween = TweenService:Create(section, TweenInfo.new(0.1, Enum.EasingStyle.Quad), { Position = UDim2.new(0, 5, 0, totalHeight) })
                         moveTween:Play()
                     end
                 end
