@@ -189,6 +189,12 @@ function PizdecWare:CreateWindow(guiName, infoText)
     -- Create window instance to return
     local windowInstance = setmetatable({}, PizdecWare)
 
+    -- Tab management variables
+    local TabZone = nil
+    local SelectedTab = nil
+    local currentTab = nil
+    local tabSections = {}
+
     -- Initial fade in animation for main elements
     coroutine.wrap(function()
         -- First fade in MainFrame and ElementContainer
@@ -205,7 +211,7 @@ function PizdecWare:CreateWindow(guiName, infoText)
         wait(0.3)
         
         -- Tab zone with correct positioning
-        local TabZone = Instance.new("Frame")
+        TabZone = Instance.new("Frame")
         TabZone.Name = "TabZone"
         TabZone.Parent = MainFrame
         TabZone.BackgroundTransparency = 1
@@ -229,7 +235,7 @@ function PizdecWare:CreateWindow(guiName, infoText)
         fadeIn(Tabs)
 
         -- SelectedTab (Layer 2) with fixed 0.9 transparency
-        local SelectedTab = Instance.new("Frame")
+        SelectedTab = Instance.new("Frame")
         SelectedTab.Name = "SelectedTab"
         SelectedTab.Parent = TabZone
         SelectedTab.BackgroundColor3 = Color3.fromRGB(150, 17, 255)
@@ -252,218 +258,222 @@ function PizdecWare:CreateWindow(guiName, infoText)
         CloseButton.MouseButton1Click:Connect(function()
             ScreenGui:Destroy()
         end)
+    end)()
 
-        -- Tab management
-        local currentTab = nil
-        local tabSections = {}
-
-        local function selectTab(tab, image)
-            if not TweenService then return end
-            
-            local tweenInfo = TweenInfo.new(0.1, Enum.EasingStyle.Linear)
-            
-            -- Reset all tabs style
-            for _, child in ipairs(TabZone:GetChildren()) do
-                if child:IsA("TextLabel") and child ~= Tabs then
-                    local childImage = child:FindFirstChild("TabImage")
-                    TweenService:Create(child, tweenInfo, {TextColor3 = Color3.fromRGB(147, 152, 156)}):Play()
-                    
-                    if childImage then
-                        TweenService:Create(childImage, tweenInfo, {ImageColor3 = Color3.fromRGB(147, 152, 156)}):Play()
-                    end
+    local function selectTab(tab, image)
+        if not TweenService or not SelectedTab then return end
+        
+        local tweenInfo = TweenInfo.new(0.1, Enum.EasingStyle.Linear)
+        
+        -- Reset all tabs style
+        for _, child in ipairs(TabZone:GetChildren()) do
+            if child:IsA("TextLabel") and child.Name ~= "Tabs" then
+                local childImage = child:FindFirstChild("TabImage")
+                TweenService:Create(child, tweenInfo, {TextColor3 = Color3.fromRGB(147, 152, 156)}):Play()
+                
+                if childImage then
+                    TweenService:Create(childImage, tweenInfo, {ImageColor3 = Color3.fromRGB(147, 152, 156)}):Play()
                 end
             end
-            
-            -- Apply style to selected tab (Layer 3)
-            TweenService:Create(tab, tweenInfo, {TextColor3 = Color3.fromRGB(150, 17, 255)}):Play()
-            if image then
-                TweenService:Create(image, tweenInfo, {ImageColor3 = Color3.fromRGB(150, 17, 255)}):Play()
-            end
-
-            -- Move selection indicator (maintain transparency)
-            local newPosition = UDim2.new(0, 0, tab.Position.Y.Scale, 0)
-            local moveTween = TweenService:Create(SelectedTab, tweenInfo, {Position = newPosition})
-            moveTween:Play()
-            
-            -- Force transparency to stay at 0.9 after animation
-            moveTween.Completed:Connect(function()
-                SelectedTab.BackgroundTransparency = 0.9
-            end)
-
-            -- Manage sections visibility
-            for tabName, sections in pairs(tabSections) do
-                for _, section in ipairs(sections) do
-                    section.Visible = (tabName == tab.Name)
-                end
-            end
-
-            currentTab = tab
+        end
+        
+        -- Apply style to selected tab (Layer 3)
+        TweenService:Create(tab, tweenInfo, {TextColor3 = Color3.fromRGB(150, 17, 255)}):Play()
+        if image then
+            TweenService:Create(image, tweenInfo, {ImageColor3 = Color3.fromRGB(150, 17, 255)}):Play()
         end
 
-        function windowInstance:CreateTab(visualName, imageId)
-            local tabCount = #TabZone:GetChildren() - 2
-            local spacing = 0.090
-            local initialOffset = (23 + (tabCount * 30)) / TabZone.AbsoluteSize.Y
-            
-            local tab = Instance.new("TextLabel")
-            tab.Name = visualName
-            tab.Parent = TabZone
-            tab.BackgroundTransparency = 1
-            tab.Position = UDim2.new(0.307, 0, initialOffset, 0)
-            tab.Size = UDim2.new(0, 101, 0, 28)
-            tab.Font = Enum.Font.SourceSansBold
-            tab.Text = visualName
-            tab.TextColor3 = Color3.fromRGB(147, 152, 156)
-            tab.TextSize = 20
-            tab.TextXAlignment = Enum.TextXAlignment.Left
-            tab.ZIndex = 3
-            fadeIn(tab)
+        -- Move selection indicator (maintain transparency)
+        local newPosition = UDim2.new(0, 0, tab.Position.Y.Scale, 0)
+        local moveTween = TweenService:Create(SelectedTab, tweenInfo, {Position = newPosition})
+        moveTween:Play()
+        
+        -- Force transparency to stay at 0.9 after animation
+        coroutine.wrap(function()
+            wait(0.1) -- Wait for tween to complete
+            SelectedTab.BackgroundTransparency = 0.9
+        end)
 
-            local image = Instance.new("ImageLabel")
-            image.Name = "TabImage"
-            image.Parent = tab
-            image.BackgroundTransparency = 1
-            image.Position = UDim2.new(-0.365, 0, 0.037, 0)
-            image.Size = UDim2.new(0, 26, 0, 26)
-            image.ZIndex = 3
-            image.Image = "rbxassetid://" .. imageId
-            image.ImageColor3 = Color3.fromRGB(147, 152, 156)
-            fadeIn(image)
+        -- Manage sections visibility
+        for tabName, sections in pairs(tabSections) do
+            for _, section in ipairs(sections) do
+                section.Visible = (tabName == tab.Name)
+            end
+        end
 
-            tab.InputBegan:Connect(function(input)
-                if input.UserInputType == Enum.UserInputType.MouseButton1 then
-                    selectTab(tab, image)
-                end
-            end)
+        currentTab = tab
+    end
 
-            image.InputBegan:Connect(function(input)
-                if input.UserInputType == Enum.UserInputType.MouseButton1 then
-                    selectTab(tab, image)
-                end
-            end)
+    function windowInstance:CreateTab(visualName, imageId)
+        if not TabZone then return nil end
+        
+        local tabCount = 0
+        for _, child in ipairs(TabZone:GetChildren()) do
+            if child:IsA("TextLabel") and child.Name ~= "Tabs" then
+                tabCount = tabCount + 1
+            end
+        end
+        
+        local initialOffset = (23 + (tabCount * 30)) / TabZone.AbsoluteSize.Y
+        
+        local tab = Instance.new("TextLabel")
+        tab.Name = visualName
+        tab.Parent = TabZone
+        tab.BackgroundTransparency = 1
+        tab.Position = UDim2.new(0.307, 0, initialOffset, 0)
+        tab.Size = UDim2.new(0, 101, 0, 28)
+        tab.Font = Enum.Font.SourceSansBold
+        tab.Text = visualName
+        tab.TextColor3 = Color3.fromRGB(147, 152, 156)
+        tab.TextSize = 20
+        tab.TextXAlignment = Enum.TextXAlignment.Left
+        tab.ZIndex = 3
+        fadeIn(tab)
 
-            if not currentTab then
+        local image = Instance.new("ImageLabel")
+        image.Name = "TabImage"
+        image.Parent = tab
+        image.BackgroundTransparency = 1
+        image.Position = UDim2.new(-0.365, 0, 0.037, 0)
+        image.Size = UDim2.new(0, 26, 0, 26)
+        image.ZIndex = 3
+        image.Image = "rbxassetid://" .. imageId
+        image.ImageColor3 = Color3.fromRGB(147, 152, 156)
+        fadeIn(image)
+
+        tab.InputBegan:Connect(function(input)
+            if input.UserInputType == Enum.UserInputType.MouseButton1 then
                 selectTab(tab, image)
             end
+        end)
 
-            tabSections[tab.Name] = {}
+        image.InputBegan:Connect(function(input)
+            if input.UserInputType == Enum.UserInputType.MouseButton1 then
+                selectTab(tab, image)
+            end
+        end)
 
-            return tab
+        if not currentTab then
+            selectTab(tab, image)
         end
 
-        function windowInstance:CreateSection(sectionName, tab, side)
-            if not tab then return nil end
+        tabSections[tab.Name] = {}
+
+        return tab
+    end
+
+    function windowInstance:CreateSection(sectionName, tab, side)
+        if not tab then return nil end
+        
+        local container = (side == "left" and LeftContainer) or (side == "right" and RightContainer) or LeftContainer
+        local sectionCount = #container:GetChildren()
+
+        local section = Instance.new("Frame")
+        section.Name = sectionName
+        section.Parent = container
+        section.BackgroundColor3 = Color3.fromRGB(17, 19, 23)
+        section.Position = UDim2.new(0, 0, 0, sectionCount * 40)
+        section.Size = UDim2.new(1, 0, 0, 150)
+        section.ZIndex = 4
+        section.Visible = (tab.Name == (currentTab and currentTab.Name or ""))
+        section.ClipsDescendants = true
+        fadeIn(section)
+
+        local UICornerSection = Instance.new("UICorner")
+        UICornerSection.CornerRadius = UDim.new(0, 3)
+        UICornerSection.Parent = section
+
+        -- Static header container (won't move during animation)
+        local HeaderContainer = Instance.new("Frame")
+        HeaderContainer.Name = "HeaderContainer"
+        HeaderContainer.Parent = section
+        HeaderContainer.BackgroundTransparency = 1
+        HeaderContainer.Size = UDim2.new(1, 0, 0, 30)
+        HeaderContainer.ZIndex = 5
+
+        -- Section title (centered vertically in collapsed state)
+        local SectionLabel = Instance.new("TextLabel")
+        SectionLabel.Name = "Label"
+        SectionLabel.Parent = HeaderContainer
+        SectionLabel.BackgroundTransparency = 1
+        SectionLabel.Position = UDim2.new(0.085, 0, 0.15, 0)
+        SectionLabel.Size = UDim2.new(0, 100, 0, 20)
+        SectionLabel.Font = Enum.Font.ArialBold
+        SectionLabel.Text = sectionName
+        SectionLabel.TextColor3 = Color3.fromRGB(147, 152, 156)
+        SectionLabel.TextSize = 14
+        SectionLabel.TextXAlignment = Enum.TextXAlignment.Left
+        SectionLabel.ZIndex = 5
+        fadeIn(SectionLabel)
+
+        -- Collapse button (centered vertically in collapsed state)
+        local ShowSectionButton = Instance.new("TextButton")
+        ShowSectionButton.Name = "ShowSection"
+        ShowSectionButton.Parent = HeaderContainer
+        ShowSectionButton.BackgroundTransparency = 1
+        ShowSectionButton.Position = UDim2.new(0.86, 0, 0.15, 0)
+        ShowSectionButton.Size = UDim2.new(0, 20, 0, 20)
+        ShowSectionButton.Font = Enum.Font.SourceSans
+        ShowSectionButton.Text = "▼"
+        ShowSectionButton.TextColor3 = Color3.fromRGB(147, 152, 156)
+        ShowSectionButton.TextSize = 14
+        ShowSectionButton.ZIndex = 5
+        fadeIn(ShowSectionButton)
+
+        -- Separator line (will be hidden when collapsed)
+        local SectionLine = Instance.new("Frame")
+        SectionLine.Name = "Line"
+        SectionLine.Parent = section
+        SectionLine.BackgroundColor3 = Color3.fromRGB(66, 63, 71)
+        SectionLine.Position = UDim2.new(0.045, 0, 0.2, 0)
+        SectionLine.Size = UDim2.new(0, 180, 0, 1)
+        SectionLine.ZIndex = 4
+        fadeIn(SectionLine)
+
+        -- Content frame (will be collapsed)
+        local ContentFrame = Instance.new("Frame")
+        ContentFrame.Name = "ContentFrame"
+        ContentFrame.Parent = section
+        ContentFrame.BackgroundTransparency = 1
+        ContentFrame.Position = UDim2.new(0, 0, 0.2, 0)
+        ContentFrame.Size = UDim2.new(1, 0, 0.8, 0)
+        ContentFrame.ZIndex = 4
+
+        -- Collapse animation
+        local expandedSize = UDim2.new(1, 0, 0, 150)
+        local collapsedSize = UDim2.new(1, 0, 0, 30)
+        local isExpanded = true
+
+        local function toggleSection()
+            if not TweenService then return end
             
-            local container = (side == "left" and LeftContainer) or (side == "right" and RightContainer) or LeftContainer
-            local sectionCount = #container:GetChildren()
-
-            local section = Instance.new("Frame")
-            section.Name = sectionName
-            section.Parent = container
-            section.BackgroundColor3 = Color3.fromRGB(17, 19, 23)
-            section.Position = UDim2.new(0, 0, 0, sectionCount * 40)
-            section.Size = UDim2.new(1, 0, 0, 150)
-            section.ZIndex = 4
-            section.Visible = (tab.Name == (currentTab and currentTab.Name or ""))
-            section.ClipsDescendants = true
-            fadeIn(section)
-
-            local UICornerSection = Instance.new("UICorner")
-            UICornerSection.CornerRadius = UDim.new(0, 3)
-            UICornerSection.Parent = section
-
-            -- Static header container (won't move during animation)
-            local HeaderContainer = Instance.new("Frame")
-            HeaderContainer.Name = "HeaderContainer"
-            HeaderContainer.Parent = section
-            HeaderContainer.BackgroundTransparency = 1
-            HeaderContainer.Size = UDim2.new(1, 0, 0, 30)
-            HeaderContainer.ZIndex = 5
-
-            -- Section title (centered vertically in collapsed state)
-            local SectionLabel = Instance.new("TextLabel")
-            SectionLabel.Name = "Label"
-            SectionLabel.Parent = HeaderContainer
-            SectionLabel.BackgroundTransparency = 1
-            SectionLabel.Position = UDim2.new(0.085, 0, 0.15, 0)
-            SectionLabel.Size = UDim2.new(0, 100, 0, 20)
-            SectionLabel.Font = Enum.Font.ArialBold
-            SectionLabel.Text = sectionName
-            SectionLabel.TextColor3 = Color3.fromRGB(147, 152, 156)
-            SectionLabel.TextSize = 14
-            SectionLabel.TextXAlignment = Enum.TextXAlignment.Left
-            SectionLabel.ZIndex = 5
-            fadeIn(SectionLabel)
-
-            -- Collapse button (centered vertically in collapsed state)
-            local ShowSectionButton = Instance.new("TextButton")
-            ShowSectionButton.Name = "ShowSection"
-            ShowSectionButton.Parent = HeaderContainer
-            ShowSectionButton.BackgroundTransparency = 1
-            ShowSectionButton.Position = UDim2.new(0.86, 0, 0.15, 0)
-            ShowSectionButton.Size = UDim2.new(0, 20, 0, 20)
-            ShowSectionButton.Font = Enum.Font.SourceSans
-            ShowSectionButton.Text = "▼"
-            ShowSectionButton.TextColor3 = Color3.fromRGB(147, 152, 156)
-            ShowSectionButton.TextSize = 14
-            ShowSectionButton.ZIndex = 5
-            fadeIn(ShowSectionButton)
-
-            -- Separator line (will be hidden when collapsed)
-            local SectionLine = Instance.new("Frame")
-            SectionLine.Name = "Line"
-            SectionLine.Parent = section
-            SectionLine.BackgroundColor3 = Color3.fromRGB(66, 63, 71)
-            SectionLine.Position = UDim2.new(0.045, 0, 0.2, 0)
-            SectionLine.Size = UDim2.new(0, 180, 0, 1)
-            SectionLine.ZIndex = 4
-            fadeIn(SectionLine)
-
-            -- Content frame (will be collapsed)
-            local ContentFrame = Instance.new("Frame")
-            ContentFrame.Name = "ContentFrame"
-            ContentFrame.Parent = section
-            ContentFrame.BackgroundTransparency = 1
-            ContentFrame.Position = UDim2.new(0, 0, 0.2, 0)
-            ContentFrame.Size = UDim2.new(1, 0, 0.8, 0)
-            ContentFrame.ZIndex = 4
-
-            -- Collapse animation
-            local expandedSize = UDim2.new(1, 0, 0, 150)
-            local collapsedSize = UDim2.new(1, 0, 0, 30)
-            local isExpanded = true
-
-            local function toggleSection()
-                if not TweenService then return end
-                
-                isExpanded = not isExpanded
-                
-                if isExpanded then
-                    -- Expand
-                    ShowSectionButton.Text = "▼"
-                    TweenService:Create(SectionLine, TweenInfo.new(0.2), {BackgroundTransparency = 0}):Play()
-                    TweenService:Create(ContentFrame, TweenInfo.new(0.3), {Size = UDim2.new(1, 0, 0.8, 0)}):Play()
-                    TweenService:Create(section, TweenInfo.new(0.3), {Size = expandedSize}):Play()
-                else
-                    -- Collapse
-                    ShowSectionButton.Text = "▲"
-                    TweenService:Create(SectionLine, TweenInfo.new(0.2), {BackgroundTransparency = 1}):Play()
-                    TweenService:Create(ContentFrame, TweenInfo.new(0.3), {Size = UDim2.new(1, 0, 0, 0)}):Play()
-                    TweenService:Create(section, TweenInfo.new(0.3), {Size = collapsedSize}):Play()
-                end
+            isExpanded = not isExpanded
+            
+            if isExpanded then
+                -- Expand
+                ShowSectionButton.Text = "▼"
+                TweenService:Create(SectionLine, TweenInfo.new(0.2), {BackgroundTransparency = 0}):Play()
+                TweenService:Create(ContentFrame, TweenInfo.new(0.3), {Size = UDim2.new(1, 0, 0.8, 0)}):Play()
+                TweenService:Create(section, TweenInfo.new(0.3), {Size = expandedSize}):Play()
+            else
+                -- Collapse
+                ShowSectionButton.Text = "▲"
+                TweenService:Create(SectionLine, TweenInfo.new(0.2), {BackgroundTransparency = 1}):Play()
+                TweenService:Create(ContentFrame, TweenInfo.new(0.3), {Size = UDim2.new(1, 0, 0, 0)}):Play()
+                TweenService:Create(section, TweenInfo.new(0.3), {Size = collapsedSize}):Play()
             end
-
-            ShowSectionButton.MouseButton1Click:Connect(toggleSection)
-
-            -- Add section to tab's sections list
-            if not tabSections[tab.Name] then
-                tabSections[tab.Name] = {}
-            end
-            table.insert(tabSections[tab.Name], section)
-
-            return section
         end
-    end)()
+
+        ShowSectionButton.MouseButton1Click:Connect(toggleSection)
+
+        -- Add section to tab's sections list
+        if not tabSections[tab.Name] then
+            tabSections[tab.Name] = {}
+        end
+        table.insert(tabSections[tab.Name], section)
+
+        return section
+    end
 
     return windowInstance
 end
