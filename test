@@ -510,12 +510,12 @@ function PizdecWare:CreateWindow(guiName, infoText, saveName)
         ShowSectionButton.ZIndex = 5
         fadeIn(ShowSectionButton)
 
-        -- Separator line
+        -- Separator line (static position)
         local SectionLine = Instance.new("Frame")
         SectionLine.Name = "Line"
         SectionLine.Parent = section
         SectionLine.BackgroundColor3 = Color3.fromRGB(66, 63, 71)
-        SectionLine.Position = UDim2.new(0.045, 0, 0.2, 0)
+        SectionLine.Position = UDim2.new(0.045, 0, 1, 0) -- Always at bottom of header
         SectionLine.Size = UDim2.new(0, 180, 0, 1)
         SectionLine.ZIndex = 4
         fadeIn(SectionLine)
@@ -525,8 +525,8 @@ function PizdecWare:CreateWindow(guiName, infoText, saveName)
         ContentFrame.Name = "ContentFrame"
         ContentFrame.Parent = section
         ContentFrame.BackgroundTransparency = 1
-        ContentFrame.Position = UDim2.new(0, 0, 0.2, 0)
-        ContentFrame.Size = UDim2.new(1, 0, 0.8, 0)
+        ContentFrame.Position = UDim2.new(0, 0, 1, 0) -- Below the line
+        ContentFrame.Size = UDim2.new(1, 0, 0, 0) -- Will be updated when elements are added
         ContentFrame.ZIndex = 4
 
         -- Collapse animation
@@ -545,8 +545,16 @@ function PizdecWare:CreateWindow(guiName, infoText, saveName)
             if not isExpanded then
                 -- Expand
                 ShowSectionButton.Text = "▼"
+                
+                -- First fade in elements
+                for _, element in pairs(self._toggleElements) do
+                    if element.Parent == ContentFrame then
+                        fadeIn(element)
+                    end
+                end
+                
+                -- Then expand
                 lineTween = TweenService:Create(SectionLine, TweenInfo.new(0.2), {BackgroundTransparency = 0})
-                contentTween = TweenService:Create(ContentFrame, TweenInfo.new(0.3), {Size = UDim2.new(1, 0, 0.8, 0)})
                 
                 -- Calculate expanded size based on elements
                 local elementCount = 0
@@ -558,18 +566,30 @@ function PizdecWare:CreateWindow(guiName, infoText, saveName)
                 
                 expandedSize = UDim2.new(1, 0, 0, 30 + (elementCount * 25) + 10)
                 sizeTween = TweenService:Create(section, TweenInfo.new(0.3), {Size = expandedSize})
+                contentTween = TweenService:Create(ContentFrame, TweenInfo.new(0.3), {Size = UDim2.new(1, 0, 0, elementCount * 25 + 10)})
             else
                 -- Collapse
                 ShowSectionButton.Text = "▲"
+                
+                -- First fade out elements
+                for _, element in pairs(self._toggleElements) do
+                    if element.Parent == ContentFrame then
+                        local tween = TweenService:Create(element, TweenInfo.new(0.2), {BackgroundTransparency = 1})
+                        tween:Play()
+                    end
+                end
+                
+                -- Then collapse after fade out
+                wait(0.2)
                 lineTween = TweenService:Create(SectionLine, TweenInfo.new(0.2), {BackgroundTransparency = 1})
                 contentTween = TweenService:Create(ContentFrame, TweenInfo.new(0.3), {Size = UDim2.new(1, 0, 0, 0)})
                 sizeTween = TweenService:Create(section, TweenInfo.new(0.3), {Size = collapsedSize})
             end
             
             -- Play animations
-            sizeTween:Play()
-            lineTween:Play()
-            contentTween:Play()
+            if sizeTween then sizeTween:Play() end
+            if lineTween then lineTween:Play() end
+            if contentTween then contentTween:Play() end
             
             -- Update positions of all sections
             updateSectionPositions(container, sectionsList)
@@ -696,6 +716,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveName)
         if windowInstance._sectionStates[section] then
             -- Only update if section is expanded
             section.Size = UDim2.new(1, 0, 0, sectionHeight)
+            ContentFrame.Size = UDim2.new(1, 0, 0, elementCount * 25 + 10)
         end
         
         updateSectionPositions(container, sectionsList)
