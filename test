@@ -10,7 +10,7 @@ end
 local PizdecWare = {}
 PizdecWare.__index = PizdecWare
 
-function PizdecWare:CreateWindow(guiName, infoText)
+function PizdecWare:CreateWindow(guiName, infoText, saveName)
     local ScreenGui = Instance.new("ScreenGui")
     ScreenGui.Parent = game:GetService("CoreGui")
     ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
@@ -187,15 +187,15 @@ function PizdecWare:CreateWindow(guiName, infoText)
     end
 
     -- Create window instance to return
-    local windowInstance = setmetatable({}, PizdecWare)
+    local windowInstance = setmetatable({
+        _tabZone = nil,
+        _selectedTab = nil,
+        _currentTab = nil,
+        _tabSections = {},
+        _initialized = false
+    }, PizdecWare)
 
-    -- Tab management variables
-    local TabZone = nil
-    local SelectedTab = nil
-    local currentTab = nil
-    local tabSections = {}
-
-    -- Initial fade in animation for main elements
+    -- Initialize UI elements
     coroutine.wrap(function()
         -- First fade in MainFrame and ElementContainer
         fadeIn(MainFrame)
@@ -211,18 +211,18 @@ function PizdecWare:CreateWindow(guiName, infoText)
         wait(0.3)
         
         -- Tab zone with correct positioning
-        TabZone = Instance.new("Frame")
-        TabZone.Name = "TabZone"
-        TabZone.Parent = MainFrame
-        TabZone.BackgroundTransparency = 1
-        TabZone.Position = UDim2.new(0, 0, 0.116, 0)
-        TabZone.Size = UDim2.new(0, 163, 0, 399)
-        TabZone.ZIndex = 1
+        windowInstance._tabZone = Instance.new("Frame")
+        windowInstance._tabZone.Name = "TabZone"
+        windowInstance._tabZone.Parent = MainFrame
+        windowInstance._tabZone.BackgroundTransparency = 1
+        windowInstance._tabZone.Position = UDim2.new(0, 0, 0.116, 0)
+        windowInstance._tabZone.Size = UDim2.new(0, 163, 0, 399)
+        windowInstance._tabZone.ZIndex = 1
 
         -- Tabs label (50x20, centered text, left-aligned to MainFrame)
         local Tabs = Instance.new("TextLabel")
         Tabs.Name = "Tabs"
-        Tabs.Parent = TabZone
+        Tabs.Parent = windowInstance._tabZone
         Tabs.BackgroundTransparency = 1
         Tabs.Position = UDim2.new(0.045, 0, 0, 0)
         Tabs.Size = UDim2.new(0, 50, 0, 20)
@@ -235,15 +235,15 @@ function PizdecWare:CreateWindow(guiName, infoText)
         fadeIn(Tabs)
 
         -- SelectedTab (Layer 2) with fixed 0.9 transparency
-        SelectedTab = Instance.new("Frame")
-        SelectedTab.Name = "SelectedTab"
-        SelectedTab.Parent = TabZone
-        SelectedTab.BackgroundColor3 = Color3.fromRGB(150, 17, 255)
-        SelectedTab.BackgroundTransparency = 0.9
-        SelectedTab.Position = UDim2.new(0, 0, 0, 23)
-        SelectedTab.Size = UDim2.new(0, 163, 0, 30)
-        SelectedTab.ZIndex = 2
-        fadeIn(SelectedTab)
+        windowInstance._selectedTab = Instance.new("Frame")
+        windowInstance._selectedTab.Name = "SelectedTab"
+        windowInstance._selectedTab.Parent = windowInstance._tabZone
+        windowInstance._selectedTab.BackgroundColor3 = Color3.fromRGB(150, 17, 255)
+        windowInstance._selectedTab.BackgroundTransparency = 0.9
+        windowInstance._selectedTab.Position = UDim2.new(0, 0, 0, 23)
+        windowInstance._selectedTab.Size = UDim2.new(0, 163, 0, 30)
+        windowInstance._selectedTab.ZIndex = 2
+        fadeIn(windowInstance._selectedTab)
 
         -- Close button
         local CloseButton = Instance.new("ImageButton")
@@ -258,67 +258,25 @@ function PizdecWare:CreateWindow(guiName, infoText)
         CloseButton.MouseButton1Click:Connect(function()
             ScreenGui:Destroy()
         end)
+
+        windowInstance._initialized = true
     end)()
 
-    local function selectTab(tab, image)
-        if not TweenService or not SelectedTab then return end
-        
-        local tweenInfo = TweenInfo.new(0.1, Enum.EasingStyle.Linear)
-        
-        -- Reset all tabs style
-        for _, child in ipairs(TabZone:GetChildren()) do
-            if child:IsA("TextLabel") and child.Name ~= "Tabs" then
-                local childImage = child:FindFirstChild("TabImage")
-                TweenService:Create(child, tweenInfo, {TextColor3 = Color3.fromRGB(147, 152, 156)}):Play()
-                
-                if childImage then
-                    TweenService:Create(childImage, tweenInfo, {ImageColor3 = Color3.fromRGB(147, 152, 156)}):Play()
-                end
-            end
-        end
-        
-        -- Apply style to selected tab (Layer 3)
-        TweenService:Create(tab, tweenInfo, {TextColor3 = Color3.fromRGB(150, 17, 255)}):Play()
-        if image then
-            TweenService:Create(image, tweenInfo, {ImageColor3 = Color3.fromRGB(150, 17, 255)}):Play()
-        end
-
-        -- Move selection indicator (maintain transparency)
-        local newPosition = UDim2.new(0, 0, tab.Position.Y.Scale, 0)
-        local moveTween = TweenService:Create(SelectedTab, tweenInfo, {Position = newPosition})
-        moveTween:Play()
-        
-        -- Force transparency to stay at 0.9 after animation
-        coroutine.wrap(function()
-            wait(0.1) -- Wait for tween to complete
-            SelectedTab.BackgroundTransparency = 0.9
-        end)
-
-        -- Manage sections visibility
-        for tabName, sections in pairs(tabSections) do
-            for _, section in ipairs(sections) do
-                section.Visible = (tabName == tab.Name)
-            end
-        end
-
-        currentTab = tab
-    end
-
     function windowInstance:CreateTab(visualName, imageId)
-        if not TabZone then return nil end
+        while not self._initialized do wait() end
         
         local tabCount = 0
-        for _, child in ipairs(TabZone:GetChildren()) do
+        for _, child in ipairs(self._tabZone:GetChildren()) do
             if child:IsA("TextLabel") and child.Name ~= "Tabs" then
                 tabCount = tabCount + 1
             end
         end
         
-        local initialOffset = (23 + (tabCount * 30)) / TabZone.AbsoluteSize.Y
+        local initialOffset = (23 + (tabCount * 30)) / self._tabZone.AbsoluteSize.Y
         
         local tab = Instance.new("TextLabel")
         tab.Name = visualName
-        tab.Parent = TabZone
+        tab.Parent = self._tabZone
         tab.BackgroundTransparency = 1
         tab.Position = UDim2.new(0.307, 0, initialOffset, 0)
         tab.Size = UDim2.new(0, 101, 0, 28)
@@ -341,23 +299,64 @@ function PizdecWare:CreateWindow(guiName, infoText)
         image.ImageColor3 = Color3.fromRGB(147, 152, 156)
         fadeIn(image)
 
+        local function selectTab()
+            if not TweenService or not self._selectedTab then return end
+            
+            local tweenInfo = TweenInfo.new(0.1, Enum.EasingStyle.Linear)
+            
+            -- Reset all tabs style
+            for _, child in ipairs(self._tabZone:GetChildren()) do
+                if child:IsA("TextLabel") and child ~= tab and child.Name ~= "Tabs" then
+                    local childImage = child:FindFirstChild("TabImage")
+                    TweenService:Create(child, tweenInfo, {TextColor3 = Color3.fromRGB(147, 152, 156)}):Play()
+                    
+                    if childImage then
+                        TweenService:Create(childImage, tweenInfo, {ImageColor3 = Color3.fromRGB(147, 152, 156)}):Play()
+                    end
+                end
+            end
+            
+            -- Apply style to selected tab
+            TweenService:Create(tab, tweenInfo, {TextColor3 = Color3.fromRGB(150, 17, 255)}):Play()
+            TweenService:Create(image, tweenInfo, {ImageColor3 = Color3.fromRGB(150, 17, 255)}):Play()
+
+            -- Move selection indicator
+            local newPosition = UDim2.new(0, 0, tab.Position.Y.Scale, 0)
+            local moveTween = TweenService:Create(self._selectedTab, tweenInfo, {Position = newPosition})
+            moveTween:Play()
+            
+            -- Force transparency to stay at 0.9 after animation
+            moveTween.Completed:Connect(function()
+                self._selectedTab.BackgroundTransparency = 0.9
+            end)
+
+            -- Manage sections visibility
+            for tabName, sections in pairs(self._tabSections) do
+                for _, section in ipairs(sections) do
+                    section.Visible = (tabName == tab.Name)
+                end
+            end
+
+            self._currentTab = tab
+        end
+
         tab.InputBegan:Connect(function(input)
             if input.UserInputType == Enum.UserInputType.MouseButton1 then
-                selectTab(tab, image)
+                selectTab()
             end
         end)
 
         image.InputBegan:Connect(function(input)
             if input.UserInputType == Enum.UserInputType.MouseButton1 then
-                selectTab(tab, image)
+                selectTab()
             end
         end)
 
-        if not currentTab then
-            selectTab(tab, image)
+        if not self._currentTab then
+            selectTab()
         end
 
-        tabSections[tab.Name] = {}
+        self._tabSections[tab.Name] = {}
 
         return tab
     end
@@ -375,7 +374,7 @@ function PizdecWare:CreateWindow(guiName, infoText)
         section.Position = UDim2.new(0, 0, 0, sectionCount * 40)
         section.Size = UDim2.new(1, 0, 0, 150)
         section.ZIndex = 4
-        section.Visible = (tab.Name == (currentTab and currentTab.Name or ""))
+        section.Visible = (tab == self._currentTab)
         section.ClipsDescendants = true
         fadeIn(section)
 
@@ -383,7 +382,7 @@ function PizdecWare:CreateWindow(guiName, infoText)
         UICornerSection.CornerRadius = UDim.new(0, 3)
         UICornerSection.Parent = section
 
-        -- Static header container (won't move during animation)
+        -- Static header container
         local HeaderContainer = Instance.new("Frame")
         HeaderContainer.Name = "HeaderContainer"
         HeaderContainer.Parent = section
@@ -391,7 +390,7 @@ function PizdecWare:CreateWindow(guiName, infoText)
         HeaderContainer.Size = UDim2.new(1, 0, 0, 30)
         HeaderContainer.ZIndex = 5
 
-        -- Section title (centered vertically in collapsed state)
+        -- Section title
         local SectionLabel = Instance.new("TextLabel")
         SectionLabel.Name = "Label"
         SectionLabel.Parent = HeaderContainer
@@ -406,7 +405,7 @@ function PizdecWare:CreateWindow(guiName, infoText)
         SectionLabel.ZIndex = 5
         fadeIn(SectionLabel)
 
-        -- Collapse button (centered vertically in collapsed state)
+        -- Collapse button
         local ShowSectionButton = Instance.new("TextButton")
         ShowSectionButton.Name = "ShowSection"
         ShowSectionButton.Parent = HeaderContainer
@@ -420,7 +419,7 @@ function PizdecWare:CreateWindow(guiName, infoText)
         ShowSectionButton.ZIndex = 5
         fadeIn(ShowSectionButton)
 
-        -- Separator line (will be hidden when collapsed)
+        -- Separator line
         local SectionLine = Instance.new("Frame")
         SectionLine.Name = "Line"
         SectionLine.Parent = section
@@ -430,7 +429,7 @@ function PizdecWare:CreateWindow(guiName, infoText)
         SectionLine.ZIndex = 4
         fadeIn(SectionLine)
 
-        -- Content frame (will be collapsed)
+        -- Content frame
         local ContentFrame = Instance.new("Frame")
         ContentFrame.Name = "ContentFrame"
         ContentFrame.Parent = section
@@ -467,10 +466,10 @@ function PizdecWare:CreateWindow(guiName, infoText)
         ShowSectionButton.MouseButton1Click:Connect(toggleSection)
 
         -- Add section to tab's sections list
-        if not tabSections[tab.Name] then
-            tabSections[tab.Name] = {}
+        if not self._tabSections[tab.Name] then
+            self._tabSections[tab.Name] = {}
         end
-        table.insert(tabSections[tab.Name], section)
+        table.insert(self._tabSections[tab.Name], section)
 
         return section
     end
