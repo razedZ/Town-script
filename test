@@ -190,37 +190,38 @@ function PizdecWare:CreateWindow(guiName, infoText)
     end
     wait(1)
 
-    -- Tab zone with correct z-index layers
+    -- Tab zone with correct positioning
     local TabZone = Instance.new("Frame")
     TabZone.Name = "TabZone"
     TabZone.Parent = MainFrame
     TabZone.BackgroundTransparency = 1
-    TabZone.Position = UDim2.new(0, 0, 0.116, 0)
+    TabZone.Position = UDim2.new(0, 0, 0.116, 0) -- Aligned with ElementContainer top
     TabZone.Size = UDim2.new(0, 163, 0, 399)
-    TabZone.ZIndex = 1  -- Layer 1
+    TabZone.ZIndex = 1
 
+    -- Tabs label with correct size and positioning
     local Tabs = Instance.new("TextLabel")
     Tabs.Name = "Tabs"
     Tabs.Parent = TabZone
     Tabs.BackgroundTransparency = 1
-    Tabs.Position = UDim2.new(0.045, 0, 0.037, 0)
-    Tabs.Size = UDim2.new(0, 50, 0, 20)
+    Tabs.Position = UDim2.new(0.045, 0, 0, 0) -- Top aligned
+    Tabs.Size = UDim2.new(0, 50, 0, 20) -- 50x20 size
     Tabs.Font = Enum.Font.ArialBold
     Tabs.Text = "Tabs"
     Tabs.TextColor3 = Color3.fromRGB(147, 152, 156)
     Tabs.TextSize = 14
-    Tabs.TextXAlignment = Enum.TextXAlignment.Left
+    Tabs.TextXAlignment = Enum.TextXAlignment.Left -- Left aligned text
     fadeIn(Tabs)
 
-    -- SelectedTab with original transparency (Layer 2)
+    -- SelectedTab with 0.9 transparency (90% transparent)
     local SelectedTab = Instance.new("Frame")
     SelectedTab.Name = "SelectedTab"
     SelectedTab.Parent = TabZone
     SelectedTab.BackgroundColor3 = Color3.fromRGB(150, 17, 255)
-    SelectedTab.BackgroundTransparency = 0.9  -- Original transparency
-    SelectedTab.Position = UDim2.new(0, 0, 0.048, 0)
+    SelectedTab.BackgroundTransparency = 0.9 -- 90% transparency
+    SelectedTab.Position = UDim2.new(0, 0, 0, 23) -- 3 pixels below Tabs (20 + 3)
     SelectedTab.Size = UDim2.new(0, 163, 0, 30)
-    SelectedTab.ZIndex = 2  -- Layer 2
+    SelectedTab.ZIndex = 2
     fadeIn(SelectedTab)
 
     -- Close button
@@ -259,7 +260,7 @@ function PizdecWare:CreateWindow(guiName, infoText)
             end
         end
         
-        -- Apply style to selected tab (Layer 3)
+        -- Apply style to selected tab
         TweenService:Create(tab, tweenInfo, {TextColor3 = Color3.fromRGB(150, 17, 255)}):Play()
         if image then
             TweenService:Create(image, tweenInfo, {ImageColor3 = Color3.fromRGB(150, 17, 255)}):Play()
@@ -282,20 +283,20 @@ function PizdecWare:CreateWindow(guiName, infoText)
     function PizdecWare:CreateTab(visualName, imageId)
         local tabCount = #TabZone:GetChildren() - 2
         local spacing = 0.090
-        local initialOffset = 0.01 + (Tabs.Size.Y.Scale * 2) + 0.004
+        local initialOffset = 0.023 + (Tabs.Size.Y.Offset + 3) / TabZone.AbsoluteSize.Y -- 3 pixels below Tabs
         
         local tab = Instance.new("TextLabel")
         tab.Name = visualName
         tab.Parent = TabZone
         tab.BackgroundTransparency = 1
-        tab.Position = UDim2.new(0.307, 0, initialOffset + (tabCount * spacing), 2)
+        tab.Position = UDim2.new(0.307, 0, initialOffset + (tabCount * spacing), 0)
         tab.Size = UDim2.new(0, 101, 0, 28)
         tab.Font = Enum.Font.SourceSansBold
         tab.Text = visualName
         tab.TextColor3 = Color3.fromRGB(147, 152, 156)
         tab.TextSize = 20
         tab.TextXAlignment = Enum.TextXAlignment.Left
-        tab.ZIndex = 3  -- Layer 3 (above SelectedTab)
+        tab.ZIndex = 3
         fadeIn(tab)
 
         local image = Instance.new("ImageLabel")
@@ -304,7 +305,7 @@ function PizdecWare:CreateWindow(guiName, infoText)
         image.BackgroundTransparency = 1
         image.Position = UDim2.new(-0.365, 0, 0.037, 0)
         image.Size = UDim2.new(0, 26, 0, 26)
-        image.ZIndex = 3  -- Same layer as tab text
+        image.ZIndex = 3
         image.Image = "rbxassetid://" .. imageId
         image.ImageColor3 = Color3.fromRGB(147, 152, 156)
         fadeIn(image)
@@ -387,7 +388,7 @@ function PizdecWare:CreateWindow(guiName, infoText)
         ShowSectionButton.ZIndex = 5
         fadeIn(ShowSectionButton)
 
-        -- Separator line (below static header)
+        -- Separator line (will be hidden when collapsed)
         local SectionLine = Instance.new("Frame")
         SectionLine.Name = "Line"
         SectionLine.Parent = section
@@ -419,11 +420,13 @@ function PizdecWare:CreateWindow(guiName, infoText)
             if isExpanded then
                 -- Expand
                 ShowSectionButton.Text = "▼"
+                TweenService:Create(SectionLine, TweenInfo.new(0.2), {BackgroundTransparency = 0}):Play()
                 TweenService:Create(ContentFrame, TweenInfo.new(0.3), {Size = UDim2.new(1, 0, 0.8, 0)}):Play()
                 TweenService:Create(section, TweenInfo.new(0.3), {Size = expandedSize}):Play()
             else
                 -- Collapse
                 ShowSectionButton.Text = "▲"
+                TweenService:Create(SectionLine, TweenInfo.new(0.2), {BackgroundTransparency = 1}):Play()
                 TweenService:Create(ContentFrame, TweenInfo.new(0.3), {Size = UDim2.new(1, 0, 0, 0)}):Play()
                 TweenService:Create(section, TweenInfo.new(0.3), {Size = collapsedSize}):Play()
             end
