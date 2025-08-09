@@ -16,6 +16,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveName)
     ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
     ScreenGui.Name = guiName
 
+    -- Main window frame (Layer 1) - initially transparent
     local MainFrame = Instance.new("Frame")
     MainFrame.Name = "MainFrame"
     MainFrame.Parent = ScreenGui
@@ -23,13 +24,14 @@ function PizdecWare:CreateWindow(guiName, infoText, saveName)
     MainFrame.BorderSizePixel = 0
     MainFrame.Position = UDim2.new(0.032, 0, 0.195, 0)
     MainFrame.Size = UDim2.new(0, 630, 0, 460)
-    MainFrame.BackgroundTransparency = 1
+    MainFrame.BackgroundTransparency = 1 -- Start transparent
     MainFrame.Active = true
     MainFrame.ZIndex = 1
 
     local UICorner = Instance.new("UICorner")
     UICorner.Parent = MainFrame
 
+    -- Improved dragging functionality
     local dragging = false
     local dragInput
     local dragStart
@@ -66,6 +68,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveName)
         end
     end)
 
+    -- Logo with P and W letters
     local Logo = Instance.new("Frame")
     Logo.Name = "Logo"
     Logo.Parent = MainFrame
@@ -73,11 +76,12 @@ function PizdecWare:CreateWindow(guiName, infoText, saveName)
     Logo.Size = UDim2.new(0, 25, 0, 25)
     Logo.Position = UDim2.new(0.022, 0, 0.031, 0)
     Logo.ZIndex = 3
-    Logo.BackgroundTransparency = 1
+    Logo.BackgroundTransparency = 1 -- Start transparent
 
     local UICorner_17 = Instance.new("UICorner")
     UICorner_17.Parent = Logo
 
+    -- W letter
     local W = Instance.new("TextLabel")
     W.Name = "W"
     W.Parent = Logo
@@ -89,8 +93,9 @@ function PizdecWare:CreateWindow(guiName, infoText, saveName)
     W.Text = "W"
     W.TextColor3 = Color3.fromRGB(0, 0, 0)
     W.TextSize = 20
-    W.TextTransparency = 1
+    W.TextTransparency = 1 -- Start transparent
 
+    -- P letter
     local P = Instance.new("TextLabel")
     P.Name = "P"
     P.Parent = Logo
@@ -102,8 +107,9 @@ function PizdecWare:CreateWindow(guiName, infoText, saveName)
     P.Text = "P"
     P.TextColor3 = Color3.fromRGB(255, 255, 255)
     P.TextSize = 20
-    P.TextTransparency = 1
+    P.TextTransparency = 1 -- Start transparent
 
+    -- PizdecWare label
     local PizdecWareLabel = Instance.new("TextLabel")
     PizdecWareLabel.Name = "PizdecWare"
     PizdecWareLabel.Parent = Logo
@@ -114,7 +120,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveName)
     PizdecWareLabel.Text = "PizdecWare"
     PizdecWareLabel.TextColor3 = Color3.fromRGB(150, 17, 255)
     PizdecWareLabel.TextSize = 25
-    PizdecWareLabel.TextTransparency = 1
+    PizdecWareLabel.TextTransparency = 1 -- Start transparent
 
     local Info = Instance.new("TextLabel")
     Info.Name = "Info"
@@ -127,8 +133,9 @@ function PizdecWare:CreateWindow(guiName, infoText, saveName)
     Info.TextColor3 = Color3.fromRGB(170, 176, 183)
     Info.TextSize = 10
     Info.TextXAlignment = Enum.TextXAlignment.Right
-    Info.TextTransparency = 1
+    Info.TextTransparency = 1 -- Start transparent
 
+    -- Main container - initially transparent
     local ElementContainer = Instance.new("ScrollingFrame")
     ElementContainer.Name = "ElementContainer"
     ElementContainer.Parent = MainFrame
@@ -136,7 +143,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveName)
     ElementContainer.Position = UDim2.new(0.259, 0, 0.116, 0)
     ElementContainer.Size = UDim2.new(0, 460, 0, 400)
     ElementContainer.ZIndex = 1
-    ElementContainer.BackgroundTransparency = 1
+    ElementContainer.BackgroundTransparency = 1 -- Start transparent
     ElementContainer.ScrollBarThickness = 8
     ElementContainer.ScrollBarImageColor3 = Color3.fromRGB(100, 100, 100)
     ElementContainer.CanvasSize = UDim2.new(0, 0, 0, 0)
@@ -151,6 +158,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveName)
     UIStroke.Thickness = 1
     UIStroke.Transparency = 0.8
 
+    -- Section containers
     local LeftContainer = Instance.new("Frame")
     LeftContainer.Name = "LeftContainer"
     LeftContainer.Parent = ElementContainer
@@ -165,6 +173,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveName)
     RightContainer.Position = UDim2.new(0.5, 10, 0, 20)
     RightContainer.Size = UDim2.new(0.5, -30, 1, -40)
 
+    -- Fade in animation function
     local function fadeIn(element)
         if not TweenService then return end
         local tweenInfo = TweenInfo.new(1, Enum.EasingStyle.Sine, Enum.EasingDirection.In)
@@ -175,12 +184,16 @@ function PizdecWare:CreateWindow(guiName, infoText, saveName)
         elseif element:IsA("ImageLabel") or element:IsA("ImageButton") then
             local tween = TweenService:Create(element, tweenInfo, {ImageTransparency = 0})
             tween:Play()
+        elseif element:IsA("Frame") and element.Name:find("Toggle_") then
+            -- Skip transparency animation for toggle containers
+            return
         else
             local tween = TweenService:Create(element, tweenInfo, {BackgroundTransparency = 0})
             tween:Play()
         end
     end
 
+    -- Create window instance to return
     local windowInstance = setmetatable({
         _tabZone = nil,
         _selectedTab = nil,
@@ -190,22 +203,27 @@ function PizdecWare:CreateWindow(guiName, infoText, saveName)
         _leftSections = {},
         _rightSections = {},
         _elementContainer = ElementContainer,
-        _sectionStates = {},
-        _toggleElements = {}
+        _sectionStates = {}, -- Track expanded/collapsed state
+        _toggleElements = {} -- Track toggle elements
     }, PizdecWare)
 
+    -- Function to update positions of all sections with synchronized animation
     local function updateSectionPositions(container, sections)
         local yOffset = 0
         local totalHeight = 0
         
+        -- First pass: calculate target positions
         local targetPositions = {}
         for i, section in ipairs(sections) do
             if section.Visible then
+                -- Store target position
                 targetPositions[section] = UDim2.new(0, 0, 0, yOffset)
                 
-                if windowInstance._sectionStates[section] == false then
-                    yOffset = yOffset + 30 + 25 -- Увеличено с 20 до 25
-                else
+                -- Calculate next yOffset based on current state
+                if windowInstance._sectionStates[section] == false then -- Collapsed
+                    yOffset = yOffset + 30 + 20
+                else -- Expanded
+                    -- Calculate section height based on number of elements
                     local elementCount = 0
                     for _, element in pairs(windowInstance._toggleElements) do
                         if element.Parent == section:FindFirstChild("ContentFrame") then
@@ -213,13 +231,14 @@ function PizdecWare:CreateWindow(guiName, infoText, saveName)
                         end
                     end
                     
-                    local sectionHeight = 30 + (elementCount * 25) + 15
-                    yOffset = yOffset + sectionHeight + 25 -- Увеличено с 20 до 25
+                    local sectionHeight = 30 + (elementCount * 25) + 15 -- Header + elements + padding
+                    yOffset = yOffset + sectionHeight + 20
                 end
                 totalHeight = yOffset
             end
         end
         
+        -- Second pass: apply new positions
         for section, position in pairs(targetPositions) do
             local tween = TweenService:Create(
                 section,
@@ -229,14 +248,18 @@ function PizdecWare:CreateWindow(guiName, infoText, saveName)
             tween:Play()
         end
         
+        -- Update scroll container size
         windowInstance._elementContainer.CanvasSize = UDim2.new(0, 0, 0, totalHeight + 40)
     end
 
+    -- Initialize UI elements
     coroutine.wrap(function()
+        -- First fade in MainFrame and ElementContainer
         fadeIn(MainFrame)
         fadeIn(ElementContainer)
         wait(0.2)
         
+        -- Then fade in logo and its elements
         fadeIn(Logo)
         fadeIn(W)
         fadeIn(P)
@@ -244,6 +267,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveName)
         fadeIn(Info)
         wait(0.3)
         
+        -- Tab zone with correct positioning
         windowInstance._tabZone = Instance.new("Frame")
         windowInstance._tabZone.Name = "TabZone"
         windowInstance._tabZone.Parent = MainFrame
@@ -252,6 +276,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveName)
         windowInstance._tabZone.Size = UDim2.new(0, 163, 0, 399)
         windowInstance._tabZone.ZIndex = 1
 
+        -- Tabs label (50x20, centered text, left-aligned to MainFrame)
         local Tabs = Instance.new("TextLabel")
         Tabs.Name = "Tabs"
         Tabs.Parent = windowInstance._tabZone
@@ -266,6 +291,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveName)
         Tabs.ZIndex = 1
         fadeIn(Tabs)
 
+        -- SelectedTab (Layer 2) with fixed 0.9 transparency
         windowInstance._selectedTab = Instance.new("Frame")
         windowInstance._selectedTab.Name = "SelectedTab"
         windowInstance._selectedTab.Parent = windowInstance._tabZone
@@ -276,6 +302,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveName)
         windowInstance._selectedTab.ZIndex = 2
         fadeIn(windowInstance._selectedTab)
 
+        -- Close button
         local CloseButton = Instance.new("ImageButton")
         CloseButton.Name = "CloseButton"
         CloseButton.Parent = MainFrame
@@ -334,6 +361,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveName)
             
             local tweenInfo = TweenInfo.new(0.1, Enum.EasingStyle.Linear)
             
+            -- Reset all tabs style
             for _, child in ipairs(self._tabZone:GetChildren()) do
                 if child:IsA("TextLabel") and child ~= tab and child.Name ~= "Tabs" then
                     local childImage = child:FindFirstChild("TabImage")
@@ -345,9 +373,11 @@ function PizdecWare:CreateWindow(guiName, infoText, saveName)
                 end
             end
             
+            -- Apply style to selected tab
             TweenService:Create(tab, tweenInfo, {TextColor3 = Color3.fromRGB(150, 17, 255)}):Play()
             TweenService:Create(image, tweenInfo, {ImageColor3 = Color3.fromRGB(150, 17, 255)}):Play()
 
+            -- Move selection indicator
             local newPosition = UDim2.new(0, 0, tab.Position.Y.Scale, 0)
             local moveTween = TweenService:Create(
                 self._selectedTab, 
@@ -363,12 +393,14 @@ function PizdecWare:CreateWindow(guiName, infoText, saveName)
                 self._selectedTab.BackgroundTransparency = 0.9
             end)
 
+            -- Manage sections visibility
             for tabName, sections in pairs(self._tabSections) do
                 for _, section in ipairs(sections) do
                     section.Visible = (tabName == tab.Name)
                 end
             end
 
+            -- Update positions for all sections
             for _, sections in pairs({self._leftSections, self._rightSections}) do
                 updateSectionPositions(nil, sections)
             end
@@ -403,12 +435,14 @@ function PizdecWare:CreateWindow(guiName, infoText, saveName)
         local container = (side == "left" and LeftContainer) or (side == "right" and RightContainer) or LeftContainer
         local sectionsList = (side == "left" and self._leftSections) or (side == "right" and self._rightSections) or self._leftSections
         
+        -- Calculate initial position based on existing sections
         local yOffset = 0
         for _, section in ipairs(sectionsList) do
             if section.Visible then
-                if windowInstance._sectionStates[section] == false then
-                    yOffset = yOffset + 30 + 25 -- Увеличено с 20 до 25
-                else
+                if windowInstance._sectionStates[section] == false then -- Collapsed
+                    yOffset = yOffset + 30 + 20
+                else -- Expanded
+                    -- Calculate section height based on number of elements
                     local elementCount = 0
                     for _, element in pairs(self._toggleElements) do
                         if element.Parent == section:FindFirstChild("ContentFrame") then
@@ -416,8 +450,8 @@ function PizdecWare:CreateWindow(guiName, infoText, saveName)
                         end
                     end
                     
-                    local sectionHeight = 30 + (elementCount * 25) + 15
-                    yOffset = yOffset + sectionHeight + 25 -- Увеличено с 20 до 25
+                    local sectionHeight = 30 + (elementCount * 25) + 15 -- Header + elements + padding
+                    yOffset = yOffset + sectionHeight + 20
                 end
             end
         end
@@ -427,18 +461,22 @@ function PizdecWare:CreateWindow(guiName, infoText, saveName)
         section.Parent = container
         section.BackgroundColor3 = Color3.fromRGB(17, 19, 23)
         section.Position = UDim2.new(0, 0, 0, yOffset)
+        
+        -- Initial size (will be updated when elements are added)
         section.Size = UDim2.new(1, 0, 0, 30)
         section.ZIndex = 4
         section.Visible = (tab == self._currentTab)
         section.ClipsDescendants = true
         fadeIn(section)
 
+        -- Set initial state to expanded
         windowInstance._sectionStates[section] = true
 
         local UICornerSection = Instance.new("UICorner")
         UICornerSection.CornerRadius = UDim.new(0, 3)
         UICornerSection.Parent = section
 
+        -- Static header container
         local HeaderContainer = Instance.new("Frame")
         HeaderContainer.Name = "HeaderContainer"
         HeaderContainer.Parent = section
@@ -446,6 +484,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveName)
         HeaderContainer.Size = UDim2.new(1, 0, 0, 30)
         HeaderContainer.ZIndex = 5
 
+        -- Section title
         local SectionLabel = Instance.new("TextLabel")
         SectionLabel.Name = "Label"
         SectionLabel.Parent = HeaderContainer
@@ -460,6 +499,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveName)
         SectionLabel.ZIndex = 5
         fadeIn(SectionLabel)
 
+        -- Collapse button
         local ShowSectionButton = Instance.new("TextButton")
         ShowSectionButton.Name = "ShowSection"
         ShowSectionButton.Parent = HeaderContainer
@@ -473,26 +513,29 @@ function PizdecWare:CreateWindow(guiName, infoText, saveName)
         ShowSectionButton.ZIndex = 5
         fadeIn(ShowSectionButton)
 
+        -- Separator line (static position)
         local SectionLine = Instance.new("Frame")
         SectionLine.Name = "Line"
         SectionLine.Parent = HeaderContainer
         SectionLine.BackgroundColor3 = Color3.fromRGB(66, 63, 71)
-        SectionLine.Position = UDim2.new(0.045, 0, 1, 0)
+        SectionLine.Position = UDim2.new(0.045, 0, 1, 0) -- Always at bottom of header
         SectionLine.Size = UDim2.new(0.91, 0, 0, 1)
         SectionLine.ZIndex = 4
         fadeIn(SectionLine)
 
+        -- Content frame
         local ContentFrame = Instance.new("Frame")
         ContentFrame.Name = "ContentFrame"
         ContentFrame.Parent = section
-        ContentFrame.BackgroundColor3 = Color3.fromRGB(17, 19, 23)
+        ContentFrame.BackgroundColor3 = Color3.fromRGB(17, 19, 23) -- Same as section background
         ContentFrame.BackgroundTransparency = 1
-        ContentFrame.Position = UDim2.new(0, 0, 0, 31)
-        ContentFrame.Size = UDim2.new(1, 0, 0, 0)
+        ContentFrame.Position = UDim2.new(0, 0, 0, 31) -- Below the header and line
+        ContentFrame.Size = UDim2.new(1, 0, 0, 0) -- Will be updated when elements are added
         ContentFrame.ZIndex = 4
         ContentFrame.ClipsDescendants = true
 
-        local expandedSize = UDim2.new(1, 0, 0, 30)
+        -- Collapse animation
+        local expandedSize = UDim2.new(1, 0, 0, 30) -- Will be updated when elements are added
         local collapsedSize = UDim2.new(1, 0, 0, 30)
 
         local function toggleSection()
@@ -502,17 +545,21 @@ function PizdecWare:CreateWindow(guiName, infoText, saveName)
             windowInstance._sectionStates[section] = not isExpanded
             
             if not isExpanded then
+                -- Expand
                 ShowSectionButton.Text = "▼"
                 
+                -- First make sure content frame is visible
                 ContentFrame.BackgroundTransparency = 1
                 
+                -- Then show elements (without animation)
                 for _, element in pairs(self._toggleElements) do
                     if element.Parent == ContentFrame then
                         element.Visible = true
-                        fadeIn(element)
+                        element.BackgroundTransparency = 1
                     end
                 end
                 
+                -- Then expand
                 local elementCount = 0
                 for _, element in pairs(self._toggleElements) do
                     if element.Parent == ContentFrame then
@@ -530,29 +577,18 @@ function PizdecWare:CreateWindow(guiName, infoText, saveName)
                 )
                 sizeTween:Play()
             else
+                -- Collapse
                 ShowSectionButton.Text = "▲"
                 
-                local fadeOutTweens = {}
-                for _, element in pairs(self._toggleElements) do
-                    if element.Parent == ContentFrame then
-                        table.insert(fadeOutTweens, TweenService:Create(element, TweenInfo.new(0.3), {
-                            BackgroundTransparency = 1,
-                            TextTransparency = 1
-                        }))
-                    end
-                end
-                
-                for _, tween in ipairs(fadeOutTweens) do
-                    tween:Play()
-                end
-                
-                wait(0.3)
+                -- First hide elements (without animation)
                 for _, element in pairs(self._toggleElements) do
                     if element.Parent == ContentFrame then
                         element.Visible = false
+                        element.BackgroundTransparency = 1
                     end
                 end
                 
+                -- Then collapse
                 ContentFrame.Size = UDim2.new(1, 0, 0, 0)
                 local sizeTween = TweenService:Create(
                     section,
@@ -562,36 +598,43 @@ function PizdecWare:CreateWindow(guiName, infoText, saveName)
                 sizeTween:Play()
             end
             
+            -- Update positions of all sections
             updateSectionPositions(container, sectionsList)
         end
 
         ShowSectionButton.MouseButton1Click:Connect(toggleSection)
 
+        -- Add section to tab's sections list
         if not self._tabSections[tab.Name] then
             self._tabSections[tab.Name] = {}
         end
         table.insert(self._tabSections[tab.Name], section)
         
+        -- Add to side sections list
         table.insert(sectionsList, section)
         
+        -- Update scroll container size
         updateSectionPositions(container, sectionsList)
 
         return section
     end
 
+    -- New function to create Toggle elements
     function windowInstance:CreateToggle(section, toggleName, defaultValue, callback)
         if not section then return nil end
         
         local ContentFrame = section:FindFirstChild("ContentFrame")
         if not ContentFrame then return nil end
         
-        local yOffset = 10
+        -- Calculate position based on existing toggles in this section
+        local yOffset = 10 -- Start 10 pixels below the separator line
         for _, element in pairs(self._toggleElements) do
             if element.Parent == ContentFrame then
-                yOffset = yOffset + 25
+                yOffset = yOffset + 25 -- Each toggle is 25 pixels tall
             end
         end
         
+        -- Toggle container
         local ToggleContainer = Instance.new("Frame")
         ToggleContainer.Name = "Toggle_" .. toggleName
         ToggleContainer.Parent = ContentFrame
@@ -600,12 +643,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveName)
         ToggleContainer.Position = UDim2.new(0, 0, 0, yOffset)
         ToggleContainer.ZIndex = 5
         
-        -- Сделаем все элементы Toggle_Toggle 1 полностью прозрачными
-        if toggleName == "Toggle 1" then
-            ToggleContainer.BackgroundTransparency = 1
-            ToggleContainer.Visible = false
-        end
-        
+        -- Toggle button (the square)
         local ToggleButton = Instance.new("TextButton")
         ToggleButton.Name = "Button"
         ToggleButton.Parent = ToggleContainer
@@ -615,12 +653,12 @@ function PizdecWare:CreateWindow(guiName, infoText, saveName)
         ToggleButton.Size = UDim2.new(0, 20, 0, 20)
         ToggleButton.Text = ""
         ToggleButton.ZIndex = 6
-        ToggleButton.Visible = toggleName ~= "Toggle 1"
         
         local UICornerToggle = Instance.new("UICorner")
         UICornerToggle.CornerRadius = UDim.new(0, 4)
         UICornerToggle.Parent = ToggleButton
         
+        -- Checkmark (only visible when toggle is on)
         local Checkmark = Instance.new("TextLabel")
         Checkmark.Name = "Checkmark"
         Checkmark.Parent = ToggleButton
@@ -630,8 +668,9 @@ function PizdecWare:CreateWindow(guiName, infoText, saveName)
         Checkmark.TextColor3 = Color3.fromRGB(24, 29, 32)
         Checkmark.TextSize = 16
         Checkmark.ZIndex = 7
-        Checkmark.Visible = defaultValue and toggleName ~= "Toggle 1"
+        Checkmark.Visible = defaultValue
         
+        -- Toggle text
         local ToggleText = Instance.new("TextLabel")
         ToggleText.Name = "Text"
         ToggleText.Parent = ToggleContainer
@@ -644,8 +683,8 @@ function PizdecWare:CreateWindow(guiName, infoText, saveName)
         ToggleText.TextSize = 17
         ToggleText.TextXAlignment = Enum.TextXAlignment.Left
         ToggleText.ZIndex = 6
-        ToggleText.Visible = toggleName ~= "Toggle 1"
         
+        -- Toggle functionality
         local isToggled = defaultValue or false
         
         ToggleButton.MouseButton1Click:Connect(function()
@@ -664,14 +703,17 @@ function PizdecWare:CreateWindow(guiName, infoText, saveName)
             end
         end)
         
+        -- Add to elements list
         table.insert(self._toggleElements, ToggleContainer)
         
+        -- Update section size and positions
         local sectionsList = table.find(self._leftSections, section) and self._leftSections or self._rightSections
         local container = sectionsList == self._leftSections and LeftContainer or RightContainer
         
+        -- Calculate new section height
         local elementCount = 0
         for _, element in pairs(self._toggleElements) do
-            if element.Parent == ContentFrame and element.Name ~= "Toggle_Toggle 1" then
+            if element.Parent == ContentFrame then
                 elementCount = elementCount + 1
             end
         end
@@ -679,6 +721,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveName)
         local sectionHeight = 30 + (elementCount * 25) + 15
         
         if windowInstance._sectionStates[section] then
+            -- Only update if section is expanded
             section.Size = UDim2.new(1, 0, 0, sectionHeight)
             ContentFrame.Size = UDim2.new(1, 0, 0, elementCount * 25 + 15)
         end
