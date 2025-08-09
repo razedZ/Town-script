@@ -1,262 +1,28 @@
--- Полностью исправленный PizdecWare UI (с сохранением стиля и функционала)
 local success, HttpService = pcall(game.GetService, game, "HttpService")
 local success2, TweenService = pcall(game.GetService, game, "TweenService")
 local success3, UserInputService = pcall(game.GetService, game, "UserInputService")
 
 if not (success and success2 and success3) or not HttpService or not TweenService or not UserInputService then
-    warn("Не удалось получить необходимые сервисы (HttpService, TweenService или UserInputService). Скрипт может работать не полностью.")
+    warn("Required services (HttpService, TweenService or UserInputService) are not available. Script may not function fully.")
     return
 end
 
 local PizdecWare = {}
 PizdecWare.__index = PizdecWare
 
--- Регистр секций: key = frame (Instance), value = wrapper (table с методами)
--- Используем слабые ключи, чтобы не мешать сборщику мусора
-local SectionRegistry = setmetatable({}, { __mode = "k" })
-
--- Вспомогательная функция: создаёт плавный fade-in (сохраняем стиль)
-local function fadeIn(element)
-    if not TweenService then return end
-    local tweenInfo = TweenInfo.new(1, Enum.EasingStyle.Sine, Enum.EasingDirection.In)
-    if element:IsA("TextLabel") or element:IsA("TextButton") then
-        local initialTransparency = element.TextTransparency
-        local tween = TweenService:Create(element, tweenInfo, {
-            TextTransparency = initialTransparency == 1 and 0 or initialTransparency
-        })
-        tween:Play()
-    elseif element:IsA("ImageLabel") or element:IsA("ImageButton") then
-        local initialTransparency = element.ImageTransparency
-        local tween = TweenService:Create(element, tweenInfo, {
-            ImageTransparency = initialTransparency == 1 and 0 or initialTransparency
-        })
-        tween:Play()
-    else
-        local initialTransparency = element.BackgroundTransparency
-        local tween = TweenService:Create(element, tweenInfo, {
-            BackgroundTransparency = initialTransparency == 1 and 0 or initialTransparency
-        })
-        tween:Play()
-    end
-end
-
--- Вспомог: создаём "обёртку" секции (wrapper) с методами: CreateButton, Toggle, и проксируем доступ к Frame
-local function makeSectionWrapper(frame, initialParams)
-    -- Если уже есть, вернуть
-    if SectionRegistry[frame] then
-        return SectionRegistry[frame]
-    end
-
-    local wrapper = {}
-    wrapper._frame = frame
-    wrapper._elements = initialParams and initialParams.sectionElements or {} -- массив Instances, которые нужно скрывать/показывать
-    wrapper._buttons = initialParams and initialParams.sectionButtons or {}
-    wrapper._expandedSize = initialParams and initialParams.expandedSize or UDim2.new(1,0,0,150)
-    wrapper._collapsedSize = initialParams and initialParams.collapsedSize or UDim2.new(1,0,0,30)
-    wrapper._isExpanded = true
-    wrapper._tweenTime = initialParams and initialParams.tweenTime or 0.3
-
-    -- прокси: если не нашли в wrapper, пробуем в реальном frame
-    setmetatable(wrapper, {
-        __index = function(t, k)
-            -- методы/поля wrapper
-            if rawget(t, "_" .. k) ~= nil then
-                return rawget(t, "_" .. k)
-            end
-            if rawget(t, k) ~= nil then
-                return rawget(t, k)
-            end
-            -- пропустить на frame
-            return frame[k]
-        end,
-        __newindex = function(t, k, v)
-            -- если поле существует в wrapper, ставим туда, иначе устанавливаем на frame, если это свойство Instance
-            rawset(t, k, v)
-        end
-    })
-
-    -- Обновление layout позиции кнопок (вызывается после добавления кнопки)
-    local function refreshButtonsPositions()
-        for i, btn in ipairs(wrapper._buttons) do
-            -- позиционируем по той же формуле, что и в оригинале
-            local yScale = 0.25999999 + ((i - 1) * 0.15)
-            pcall(function()
-                btn.Position = UDim2.new(0.0599743649, 0, yScale, 0)
-            end)
-        end
-    end
-
-    -- CreateButton метод
-    function wrapper:CreateButton(buttonName, callback)
-        local section = self._frame
-        if not section or not section.Parent then return nil end
-
-        local button = Instance.new("TextButton")
-        button.Name = tostring(buttonName)
-        button.Parent = section
-        button.BackgroundColor3 = Color3.fromRGB(24, 29, 32)
-        button.BorderColor3 = Color3.fromRGB(0, 0, 0)
-        button.BorderSizePixel = 0
-        -- позиция установим ниже, потом вызовем refresh
-        button.Position = UDim2.new(0.0599743649, 0, 0.25999999 + (#self._buttons * 0.15), 0)
-        button.Size = UDim2.new(0, 30, 0, 20)
-        button.Font = Enum.Font.SourceSans
-        button.Text = ""
-        button.TextColor3 = Color3.fromRGB(0, 0, 0)
-        button.TextSize = 14.000
-        button.ZIndex = 5
-
-        local UICornerButton = Instance.new("UICorner")
-        UICornerButton.CornerRadius = UDim.new(0, 4)
-        UICornerButton.Parent = button
-
-        local ButtonText = Instance.new("TextLabel")
-        ButtonText.Name = "ToggleText"
-        ButtonText.Parent = button
-        ButtonText.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-        ButtonText.BackgroundTransparency = 1
-        ButtonText.BorderColor3 = Color3.fromRGB(0, 0, 0)
-        ButtonText.BorderSizePixel = 0
-        ButtonText.Position = UDim2.new(1.35000002, 0, -0.200000003, 0)
-        ButtonText.Size = UDim2.new(0, 100, 0, 24)
-        ButtonText.Font = Enum.Font.SourceSansBold
-        ButtonText.Text = buttonName
-        ButtonText.TextColor3 = Color3.fromRGB(147, 152, 156)
-        ButtonText.TextSize = 17.000
-        ButtonText.TextXAlignment = Enum.TextXAlignment.Left
-        ButtonText.ZIndex = 6
-
-        fadeIn(ButtonText)
-
-        if callback then
-            button.MouseButton1Click:Connect(function()
-                pcall(callback)
-            end)
-        end
-
-        table.insert(self._elements, button)
-        table.insert(self._elements, ButtonText)
-        table.insert(self._buttons, button)
-
-        refreshButtonsPositions()
-        return button
-    end
-
-    -- toggle метод (с анимацией)
-    function wrapper:Toggle()
-        local section = self._frame
-        if not section then return end
-        self._isExpanded = not self._isExpanded
-
-        if self._isExpanded then
-            -- Разворачиваем
-            -- Сначала показываем элементы (TextTransparency -> 0)
-            for _, element in ipairs(self._elements) do
-                if element and element:IsA("TextLabel") or (element and element:IsA("TextButton")) then
-                    pcall(function()
-                        TweenService:Create(element, TweenInfo.new(0.2), { TextTransparency = 0 }):Play()
-                    end)
-                elseif element and element:IsA("Frame") then
-                    pcall(function()
-                        TweenService:Create(element, TweenInfo.new(0.2), { BackgroundTransparency = 0 }):Play()
-                    end)
-                end
-            end
-            -- Затем увеличиваем размер
-            task.delay(0.2, function()
-                pcall(function()
-                    TweenService:Create(section, TweenInfo.new(self._tweenTime), { Size = self._expandedSize }):Play()
-                end)
-            end)
-        else
-            -- Сворачиваем: сначала скрываем элементы, потом уменьшаем размер
-            for _, element in ipairs(self._elements) do
-                if element and (element:IsA("TextLabel") or element:IsA("TextButton")) then
-                    pcall(function()
-                        TweenService:Create(element, TweenInfo.new(0.2), { TextTransparency = 1 }):Play()
-                    end)
-                elseif element and element:IsA("Frame") then
-                    pcall(function()
-                        TweenService:Create(element, TweenInfo.new(0.2), { BackgroundTransparency = 1 }):Play()
-                    end)
-                end
-            end
-            task.delay(0.2, function()
-                pcall(function()
-                    TweenService:Create(section, TweenInfo.new(self._tweenTime), { Size = self._collapsedSize }):Play()
-                end)
-            end)
-        end
-    end
-
-    -- helper: get frame
-    function wrapper:GetFrame()
-        return frame
-    end
-
-    SectionRegistry[frame] = wrapper
-    return wrapper
-end
-
--- helper: получение wrapper по Frame (если у тебя есть Frame, возвращает wrapper с методами)
-function PizdecWare.GetSection(frame)
-    if not frame then return nil end
-    if SectionRegistry[frame] then
-        return SectionRegistry[frame]
-    end
-    -- Попробуем воссоздать wrapper по найденному Frame: считаем, что он был создан этим модулем (совпадение структуры)
-    -- Найдём основные элементы внутри (Label, ShowSection, Line) и создадим обёртку с ними
-    local SectionLabel = frame:FindFirstChild("Label")
-    local ShowSectionButton = frame:FindFirstChild("ShowSection")
-    local SectionLine = frame:FindFirstChild("Line")
-
-    -- Соберём элементы; если нет — это нормально, wrapper всё равно создастся
-    local sectionElements = {}
-    if SectionLabel then table.insert(sectionElements, SectionLabel) end
-    if ShowSectionButton then table.insert(sectionElements, ShowSectionButton) end
-    if SectionLine then table.insert(sectionElements, SectionLine) end
-
-    -- Получим sizes из frame (попытка использовать ожидаемые значения)
-    local expandedSize = UDim2.new(1, 0, 0, 150)
-    local collapsedSize = UDim2.new(1, 0, 0, 30)
-
-    local wrapper = makeSectionWrapper(frame, {
-        sectionElements = sectionElements,
-        sectionButtons = {},
-        expandedSize = expandedSize,
-        collapsedSize = collapsedSize,
-        tweenTime = 0.3
-    })
-
-    -- Если в рамках нашли кнопку ShowSection, подключаем её click к wrapper.Toggle (если она ещё не подключена)
-    if ShowSectionButton then
-        -- Чтобы не дублировать коннекты, удаляем существующие (не всегда возможно), поэтому используем флаг attribute
-        if not ShowSectionButton:GetAttribute("PW_ToggleConnected") then
-            ShowSectionButton.MouseButton1Click:Connect(function()
-                pcall(function() wrapper:Toggle() end)
-            end)
-            ShowSectionButton:SetAttribute("PW_ToggleConnected", true)
-        end
-    end
-
-    return wrapper
-end
-
--- Начало основной функции CreateWindow (с сохранением твоей структуры и стиля)
 function PizdecWare:CreateWindow(guiName, infoText, saveFileName)
     local ScreenGui = Instance.new("ScreenGui")
-    if not ScreenGui then return nil end
     ScreenGui.Parent = game:GetService("CoreGui")
     ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
     ScreenGui.Name = guiName
 
+    -- Main window frame
     local MainFrame = Instance.new("Frame")
     MainFrame.Name = "MainFrame"
     MainFrame.Parent = ScreenGui
     MainFrame.BackgroundColor3 = Color3.fromRGB(19, 21, 25)
-    MainFrame.BorderColor3 = Color3.fromRGB(0, 0, 0)
     MainFrame.BorderSizePixel = 0
-    MainFrame.Position = UDim2.new(0.0323343836, 0, 0.194723621, 0)
+    MainFrame.Position = UDim2.new(0.032, 0, 0.195, 0)
     MainFrame.Size = UDim2.new(0, 630, 0, 460)
     MainFrame.BackgroundTransparency = 1
     MainFrame.Active = true
@@ -264,33 +30,23 @@ function PizdecWare:CreateWindow(guiName, infoText, saveFileName)
     local UICorner = Instance.new("UICorner")
     UICorner.Parent = MainFrame
 
-    -- Функционал перетаскивания окна
-    local dragging
-    local dragInput
-    local dragStart
-    local startPos
-
+    -- Dragging functionality
+    local dragging, dragInput, dragStart, startPos
     local function update(input)
         local delta = input.Position - dragStart
         MainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
     end
 
     MainFrame.InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
             dragging = true
             dragStart = input.Position
             startPos = MainFrame.Position
-
-            input.Changed:Connect(function()
-                if input.UserInputState == Enum.UserInputState.End then
-                    dragging = false
-                end
-            end)
         end
     end)
 
     MainFrame.InputChanged:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+        if input.UserInputType == Enum.UserInputType.MouseMovement then
             dragInput = input
         end
     end)
@@ -301,95 +57,49 @@ function PizdecWare:CreateWindow(guiName, infoText, saveFileName)
         end
     end)
 
-    -- Логотип и заголовок
+    -- Logo and title
     local Logo = Instance.new("Frame")
     Logo.Name = "Logo"
     Logo.Parent = MainFrame
     Logo.BackgroundColor3 = Color3.fromRGB(150, 17, 255)
-    Logo.BorderColor3 = Color3.fromRGB(0, 0, 0)
-    Logo.BorderSizePixel = 0
-    Logo.Position = UDim2.new(0.0215927847, 0, 0.0306019653, 0)
     Logo.Size = UDim2.new(0, 25, 0, 25)
+    Logo.Position = UDim2.new(0.022, 0, 0.031, 0)
     Logo.ZIndex = 3
-    Logo.BackgroundTransparency = 0
 
     local UICorner_17 = Instance.new("UICorner")
     UICorner_17.Parent = Logo
 
-    local W = Instance.new("TextLabel")
-    W.Name = "W"
-    W.Parent = Logo
-    W.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-    W.BackgroundTransparency = 1
-    W.BorderColor3 = Color3.fromRGB(0, 0, 0)
-    W.BorderSizePixel = 0
-    W.Position = UDim2.new(0.28230226, 0, 0.75999999, 0)
-    W.Size = UDim2.new(0, 23, 0, -14)
-    W.ZIndex = 4
-    W.Font = Enum.Font.SourceSansBold
-    W.Text = "W"
-    W.TextColor3 = Color3.fromRGB(0, 0, 0)
-    W.TextSize = 20.000
-    W.TextTransparency = 1
-
     local PizdecWareLabel = Instance.new("TextLabel")
     PizdecWareLabel.Name = "PizdecWare"
     PizdecWareLabel.Parent = Logo
-    PizdecWareLabel.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
     PizdecWareLabel.BackgroundTransparency = 1
-    PizdecWareLabel.BorderColor3 = Color3.fromRGB(0, 0, 0)
-    PizdecWareLabel.BorderSizePixel = 0
-    PizdecWareLabel.Position = UDim2.new(2.21097422, 0, 1.29638064, 0)
+    PizdecWareLabel.Position = UDim2.new(2.2, 0, 1.3, 0)
     PizdecWareLabel.Size = UDim2.new(0, 60, 0, -41)
-    PizdecWareLabel.ZIndex = 4
     PizdecWareLabel.Font = Enum.Font.SourceSansBold
     PizdecWareLabel.Text = "PizdecWare"
     PizdecWareLabel.TextColor3 = Color3.fromRGB(150, 17, 255)
-    PizdecWareLabel.TextSize = 25.000
+    PizdecWareLabel.TextSize = 25
     PizdecWareLabel.TextTransparency = 1
-
-    local P = Instance.new("TextLabel")
-    P.Name = "P"
-    P.Parent = Logo
-    P.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-    P.BackgroundTransparency = 1
-    P.BorderColor3 = Color3.fromRGB(0, 0, 0)
-    P.BorderSizePixel = 0
-    P.Position = UDim2.new(-0.304138184, 0, 0.75999999, 0)
-    P.Size = UDim2.new(0, 27, 0, -14)
-    P.ZIndex = 4
-    P.Font = Enum.Font.SourceSansBold
-    P.Text = "P"
-    P.TextColor3 = Color3.fromRGB(255, 255, 255)
-    P.TextSize = 20.000
-    P.TextTransparency = 1
 
     local Info = Instance.new("TextLabel")
     Info.Name = "Info"
     Info.Parent = MainFrame
-    Info.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
     Info.BackgroundTransparency = 1
-    Info.BorderColor3 = Color3.fromRGB(0, 0, 0)
-    Info.BorderSizePixel = 0
-    Info.Position = UDim2.new(0.0543069504, 0, 0.0833290443, 0)
+    Info.Position = UDim2.new(0.054, 0, 0.083, 0)
     Info.Size = UDim2.new(0, 116, 0, 10)
     Info.Font = Enum.Font.SourceSansBold
     Info.Text = infoText or ""
     Info.TextColor3 = Color3.fromRGB(170, 176, 183)
-    Info.TextSize = 10.000
+    Info.TextSize = 10
     Info.TextXAlignment = Enum.TextXAlignment.Right
     Info.TextTransparency = 1
 
-    -- Основной контейнер для элементов
+    -- Main container
     local ElementContainer = Instance.new("Frame")
     ElementContainer.Name = "ElementContainer"
     ElementContainer.Parent = MainFrame
-    ElementContainer.Active = true
     ElementContainer.BackgroundColor3 = Color3.fromRGB(23, 24, 28)
-    ElementContainer.BorderColor3 = Color3.fromRGB(66, 63, 71)
-    ElementContainer.BorderSizePixel = 0
-    ElementContainer.LayoutOrder = 3
-    ElementContainer.Position = UDim2.new(0.259076893, 0, 0.116228454, 0)
+    ElementContainer.Position = UDim2.new(0.259, 0, 0.116, 0)
     ElementContainer.Size = UDim2.new(0, 460, 0, 400)
     ElementContainer.ZIndex = 3
     ElementContainer.BackgroundTransparency = 1
@@ -400,213 +110,150 @@ function PizdecWare:CreateWindow(guiName, infoText, saveFileName)
     local UIStroke = Instance.new("UIStroke")
     UIStroke.Parent = ElementContainer
     UIStroke.Color = Color3.fromRGB(0, 0, 0)
-    UIStroke.Transparency = 0.8
     UIStroke.Thickness = 1
+    UIStroke.Transparency = 0.8
 
-    -- Контейнеры для левой и правой сторон
+    -- Section containers
     local LeftContainer = Instance.new("Frame")
     LeftContainer.Name = "LeftContainer"
     LeftContainer.Parent = ElementContainer
-    LeftContainer.BackgroundColor3 = Color3.fromRGB(23, 24, 28)
-    LeftContainer.BorderColor3 = Color3.fromRGB(0, 0, 0)
-    LeftContainer.BorderSizePixel = 0
+    LeftContainer.BackgroundTransparency = 1
     LeftContainer.Position = UDim2.new(0, 20, 0, 20)
     LeftContainer.Size = UDim2.new(0.5, -30, 1, -40)
-    LeftContainer.BackgroundTransparency = 1
 
     local RightContainer = Instance.new("Frame")
     RightContainer.Name = "RightContainer"
     RightContainer.Parent = ElementContainer
-    RightContainer.BackgroundColor3 = Color3.fromRGB(23, 24, 28)
-    RightContainer.BorderColor3 = Color3.fromRGB(0, 0, 0)
-    RightContainer.BorderSizePixel = 0
+    RightContainer.BackgroundTransparency = 1
     RightContainer.Position = UDim2.new(0.5, 10, 0, 20)
     RightContainer.Size = UDim2.new(0.5, -30, 1, -40)
-    RightContainer.BackgroundTransparency = 1
 
-    local Line = Instance.new("Frame")
-    Line.Name = "Line"
-    Line.Parent = ElementContainer
-    Line.Active = true
-    Line.BackgroundColor3 = Color3.fromRGB(23, 24, 28)
-    Line.BorderColor3 = Color3.fromRGB(0, 0, 0)
-    Line.BorderSizePixel = 0
-    Line.LayoutOrder = 3
-    Line.Position = UDim2.new(1.32685116e-07, 0, -0.124946594, 0)
-    Line.Size = UDim2.new(0, 0, 0, 57)
-    Line.ZIndex = 3
+    -- Fade in animation
+    local function fadeIn(element)
+        if not TweenService then return end
+        local tweenInfo = TweenInfo.new(1, Enum.EasingStyle.Sine, Enum.EasingDirection.In)
+        
+        if element:IsA("TextLabel") or element:IsA("TextButton") then
+            local tween = TweenService:Create(element, tweenInfo, {TextTransparency = 0})
+            tween:Play()
+        elseif element:IsA("ImageLabel") or element:IsA("ImageButton") then
+            local tween = TweenService:Create(element, tweenInfo, {ImageTransparency = 0})
+            tween:Play()
+        else
+            local tween = TweenService:Create(element, tweenInfo, {BackgroundTransparency = 0})
+            tween:Play()
+        end
+    end
 
-    local UICorner_3 = Instance.new("UICorner")
-    UICorner_3.Parent = Line
-
-    -- Анимация появления интерфейса
-    wait(0)
-    fadeIn(MainFrame)
-    fadeIn(Logo)
-    fadeIn(W)
-    fadeIn(PizdecWareLabel)
-    fadeIn(P)
-    fadeIn(Info)
-    fadeIn(ElementContainer)
-    fadeIn(Line)
+    -- Apply fade in to all elements
+    for _, element in ipairs({MainFrame, Logo, PizdecWareLabel, Info, ElementContainer}) do
+        fadeIn(element)
+    end
     wait(1)
 
-    -- Зона вкладок
+    -- Tab zone
     local TabZone = Instance.new("Frame")
     TabZone.Name = "TabZone"
     TabZone.Parent = MainFrame
-    TabZone.BackgroundColor3 = Color3.fromRGB(23, 24, 28)
-    TabZone.BorderColor3 = Color3.fromRGB(0, 0, 0)
-    TabZone.BorderSizePixel = 0
-    TabZone.Position = UDim2.new(0, 0, 0.116228454, 0)
+    TabZone.BackgroundTransparency = 1
+    TabZone.Position = UDim2.new(0, 0, 0.116, 0)
     TabZone.Size = UDim2.new(0, 163, 0, 399)
     TabZone.ZIndex = 4
-    TabZone.BackgroundTransparency = 1
-    local UICorner_TabZone = Instance.new("UICorner")
-    UICorner_TabZone.Parent = TabZone
 
     local Tabs = Instance.new("TextLabel")
     Tabs.Name = "Tabs"
     Tabs.Parent = TabZone
-    Tabs.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
     Tabs.BackgroundTransparency = 1
-    Tabs.BorderColor3 = Color3.fromRGB(0, 0, 0)
-    Tabs.BorderSizePixel = 0
-    Tabs.Position = UDim2.new(0.0449740589, 0, 0.036599841 + (26/399/2) - (20/399/2), 0)
+    Tabs.Position = UDim2.new(0.045, 0, 0.037, 0)
     Tabs.Size = UDim2.new(0, 50, 0, 20)
     Tabs.Font = Enum.Font.ArialBold
     Tabs.Text = "Tabs"
     Tabs.TextColor3 = Color3.fromRGB(147, 152, 156)
-    Tabs.TextSize = 14.000
-    Tabs.TextTransparency = 0
+    Tabs.TextSize = 14
     Tabs.TextXAlignment = Enum.TextXAlignment.Left
-    Tabs.ZIndex = 5
     fadeIn(Tabs)
 
     local SelectedTab = Instance.new("Frame")
     SelectedTab.Name = "SelectedTab"
     SelectedTab.Parent = TabZone
     SelectedTab.BackgroundColor3 = Color3.fromRGB(150, 17, 255)
-    SelectedTab.BackgroundTransparency = 0.900
-    SelectedTab.BorderColor3 = Color3.fromRGB(0, 0, 0)
-    SelectedTab.BorderSizePixel = 0
-    SelectedTab.Position = UDim2.new(0, 0, 0.0476190485, 0)
+    SelectedTab.BackgroundTransparency = 0.9
+    SelectedTab.Position = UDim2.new(0, 0, 0.048, 0)
     SelectedTab.Size = UDim2.new(0, 163, 0, 30)
     SelectedTab.ZIndex = 2
     fadeIn(SelectedTab)
 
-    local ImageButton = Instance.new("ImageButton")
-    ImageButton.Parent = MainFrame
-    ImageButton.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-    ImageButton.BackgroundTransparency = 1
-    ImageButton.BorderColor3 = Color3.fromRGB(0, 0, 0)
-    ImageButton.BorderSizePixel = 0
-    ImageButton.Position = UDim2.new(0.949206471, 0, 0.0173913036, 0)
-    ImageButton.Size = UDim2.new(0, 25, 0, 25)
-    ImageButton.Image = "rbxassetid://12653789995"
-    ImageButton.ImageTransparency = 1
-    fadeIn(ImageButton)
+    -- Close button
+    local CloseButton = Instance.new("ImageButton")
+    CloseButton.Name = "CloseButton"
+    CloseButton.Parent = MainFrame
+    CloseButton.BackgroundTransparency = 1
+    CloseButton.Position = UDim2.new(0.949, 0, 0.017, 0)
+    CloseButton.Size = UDim2.new(0, 25, 0, 25)
+    CloseButton.Image = "rbxassetid://12653789995"
+    CloseButton.ImageTransparency = 1
+    fadeIn(CloseButton)
 
-    -- Переменные для управления вкладками
+    CloseButton.MouseButton1Click:Connect(function()
+        ScreenGui:Destroy()
+    end)
+
+    -- Tab management
     local currentTab = nil
-    local tabSections = {} -- key = tab.Name, value = array of wrappers (not raw Frames)
+    local tabSections = {}
 
-    -- Функция выбора вкладки (показываем/скрываем только wrapper._frame)
     local function selectTab(tab, image)
-        if TweenService then
-            local tweenInfo = TweenInfo.new(0.1, Enum.EasingStyle.Linear)
-            
-            if tab ~= currentTab then
-                -- Сбрасываем стиль всех вкладок
-                for _, child in ipairs(TabZone:GetChildren()) do
-                    if child:IsA("TextLabel") and child ~= Tabs then
-                        local childImage = child:FindFirstChild("TabImage")
-                        local textTween = TweenService:Create(child, tweenInfo, {
-                            TextColor3 = Color3.fromRGB(147, 152, 156)
-                        })
-                        textTween:Play()
-                        child.BackgroundTransparency = 1
-                        
-                        if childImage then
-                            local imageTween = TweenService:Create(childImage, tweenInfo, {
-                                ImageColor3 = Color3.fromRGB(147, 152, 156)
-                            })
-                            imageTween:Play()
-                            childImage.BackgroundTransparency = 1
-                        end
-                    end
-                end
+        if not TweenService then return end
+        
+        local tweenInfo = TweenInfo.new(0.1, Enum.EasingStyle.Linear)
+        
+        -- Reset all tabs style
+        for _, child in ipairs(TabZone:GetChildren()) do
+            if child:IsA("TextLabel") and child ~= Tabs then
+                local childImage = child:FindFirstChild("TabImage")
+                TweenService:Create(child, tweenInfo, {TextColor3 = Color3.fromRGB(147, 152, 156)}):Play()
                 
-                -- Применяем стиль к выбранной вкладке
-                local tabTween = TweenService:Create(tab, tweenInfo, {
-                    TextColor3 = Color3.fromRGB(150, 17, 255)
-                })
-                tabTween:Play()
-                tab.BackgroundTransparency = 1
-                
-                local imageTween = TweenService:Create(image, tweenInfo, {
-                    ImageColor3 = Color3.fromRGB(150, 17, 255)
-                })
-                imageTween:Play()
-                image.BackgroundTransparency = 1
-
-                -- Перемещаем индикатор выбранной вкладки
-                local newPosition = UDim2.new(0, 0, tab.Position.Y.Scale, 0)
-                local moveTween = TweenService:Create(SelectedTab, tweenInfo, { Position = newPosition })
-                moveTween:Play()
-
-                -- Скрываем все секции (все wrappers' frames)
-                for tabName, wrappers in pairs(tabSections) do
-                    for _, wrapper in ipairs(wrappers) do
-                        pcall(function()
-                            local f = wrapper._frame or (type(wrapper) == "table" and wrapper:GetFrame and wrapper:GetFrame())
-                            if f then f.Visible = false end
-                        end)
-                    end
+                if childImage then
+                    TweenService:Create(childImage, tweenInfo, {ImageColor3 = Color3.fromRGB(147, 152, 156)}):Play()
                 end
-                
-                -- Показываем только секции выбранной вкладки
-                if tabSections[tab.Name] then
-                    for _, wrapper in ipairs(tabSections[tab.Name]) do
-                        pcall(function()
-                            local f = wrapper._frame or (type(wrapper) == "table" and wrapper:GetFrame and wrapper:GetFrame())
-                            if f then f.Visible = true end
-                        end)
-                    end
-                end
-
-                currentTab = tab
             end
         end
+        
+        -- Apply style to selected tab
+        TweenService:Create(tab, tweenInfo, {TextColor3 = Color3.fromRGB(150, 17, 255)}):Play()
+        if image then
+            TweenService:Create(image, tweenInfo, {ImageColor3 = Color3.fromRGB(150, 17, 255)}):Play()
+        end
+
+        -- Move selection indicator
+        local newPosition = UDim2.new(0, 0, tab.Position.Y.Scale, 0)
+        TweenService:Create(SelectedTab, tweenInfo, {Position = newPosition}):Play()
+
+        -- Manage sections visibility
+        for tabName, sections in pairs(tabSections) do
+            for _, section in ipairs(sections) do
+                section.Visible = (tabName == tab.Name)
+            end
+        end
+
+        currentTab = tab
     end
 
-    -- Функция создания вкладки
     function PizdecWare:CreateTab(visualName, imageId)
-        if not TweenService then return nil end
-        local tabCount = 0
-        for _, c in ipairs(TabZone:GetChildren()) do
-            if c:IsA("TextLabel") and c ~= Tabs then
-                tabCount = tabCount + 1
-            end
-        end
-        local spacing = 0.0902255669
-        local initialOffset = 0.0100250627 + (Tabs.Size.Y.Scale * 2) + 0.004
-        local newPosition = UDim2.new(0.30674848, 0, initialOffset + (tabCount * spacing), 2)
+        local tabCount = #TabZone:GetChildren() - 2
+        local spacing = 0.090
+        local initialOffset = 0.01 + (Tabs.Size.Y.Scale * 2) + 0.004
         
         local tab = Instance.new("TextLabel")
         tab.Name = visualName
         tab.Parent = TabZone
-        tab.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
         tab.BackgroundTransparency = 1
-        tab.BorderColor3 = Color3.fromRGB(0, 0, 0)
-        tab.BorderSizePixel = 0
-        tab.Position = newPosition
+        tab.Position = UDim2.new(0.307, 0, initialOffset + (tabCount * spacing), 2)
         tab.Size = UDim2.new(0, 101, 0, 28)
         tab.Font = Enum.Font.SourceSansBold
         tab.Text = visualName
         tab.TextColor3 = Color3.fromRGB(147, 152, 156)
-        tab.TextSize = 20.000
-        tab.TextTransparency = 0
+        tab.TextSize = 20
         tab.TextXAlignment = Enum.TextXAlignment.Left
         tab.ZIndex = 5
         fadeIn(tab)
@@ -614,19 +261,14 @@ function PizdecWare:CreateWindow(guiName, infoText, saveFileName)
         local image = Instance.new("ImageLabel")
         image.Name = "TabImage"
         image.Parent = tab
-        image.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
         image.BackgroundTransparency = 1
-        image.BorderColor3 = Color3.fromRGB(0, 0, 0)
-        image.BorderSizePixel = 0
-        image.Position = UDim2.new(-0.364666939, 0, 0.036599841, 0)
+        image.Position = UDim2.new(-0.365, 0, 0.037, 0)
         image.Size = UDim2.new(0, 26, 0, 26)
         image.ZIndex = 5
-        image.Image = "rbxassetid://" .. tostring(imageId or 0)
+        image.Image = "rbxassetid://" .. imageId
         image.ImageColor3 = Color3.fromRGB(147, 152, 156)
-        image.ImageTransparency = 0
         fadeIn(image)
 
-        -- Обработчики кликов по вкладке
         tab.InputBegan:Connect(function(input)
             if input.UserInputType == Enum.UserInputType.MouseButton1 then
                 selectTab(tab, image)
@@ -639,131 +281,120 @@ function PizdecWare:CreateWindow(guiName, infoText, saveFileName)
             end
         end)
 
-        -- Инициализируем список секций для этой вкладки (как лист wrappers)
-        tabSections[tab.Name] = tabSections[tab.Name] or {}
-
-        -- Выбираем первую вкладку по умолчанию
         if not currentTab then
             selectTab(tab, image)
         end
 
+        tabSections[tab.Name] = {}
+
         return tab
     end
 
-    -- Функция создания секции (создаёт Frame и wrapper; возвращает wrapper)
     function PizdecWare:CreateSection(sectionName, tab, side)
-        if not TweenService or not tab then return nil end
+        if not tab then return nil end
+        
         local container = (side == "left" and LeftContainer) or (side == "right" and RightContainer) or LeftContainer
         local sectionCount = #container:GetChildren()
 
-        -- Создаем основную рамку секции
         local section = Instance.new("Frame")
         section.Name = sectionName
         section.Parent = container
         section.BackgroundColor3 = Color3.fromRGB(17, 19, 23)
-        section.BorderColor3 = Color3.fromRGB(0, 0, 0)
-        section.BorderSizePixel = 0
         section.Position = UDim2.new(0, 0, 0, sectionCount * 40)
         section.Size = UDim2.new(1, 0, 0, 150)
-        section.BackgroundTransparency = 0
         section.ZIndex = 4
         section.Visible = (tab == currentTab)
         section.ClipsDescendants = true
 
-        -- Размеры для анимации сворачивания/разворачивания
-        local expandedSize = UDim2.new(1, 0, 0, 150)
-        local collapsedSize = UDim2.new(1, 0, 0, 30)
-        local isExpanded = true
-
-        -- Скругление углов
         local UICornerSection = Instance.new("UICorner")
         UICornerSection.CornerRadius = UDim.new(0, 3)
         UICornerSection.Parent = section
 
-        -- Заголовок секции
+        -- Section title
         local SectionLabel = Instance.new("TextLabel")
         SectionLabel.Name = "Label"
         SectionLabel.Parent = section
-        SectionLabel.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
         SectionLabel.BackgroundTransparency = 1
-        SectionLabel.BorderColor3 = Color3.fromRGB(0, 0, 0)
-        SectionLabel.BorderSizePixel = 0
-        SectionLabel.Position = UDim2.new(0.0849743634, 0, 0.05, 0)
+        SectionLabel.Position = UDim2.new(0.085, 0, 0.05, 0)
         SectionLabel.Size = UDim2.new(0, 100, 0, 20)
         SectionLabel.Font = Enum.Font.ArialBold
         SectionLabel.Text = sectionName
         SectionLabel.TextColor3 = Color3.fromRGB(147, 152, 156)
-        SectionLabel.TextSize = 14.000
+        SectionLabel.TextSize = 14
         SectionLabel.TextXAlignment = Enum.TextXAlignment.Left
         SectionLabel.ZIndex = 5
         fadeIn(SectionLabel)
 
-        -- Кнопка сворачивания/разворачивания
+        -- Collapse button
         local ShowSectionButton = Instance.new("TextButton")
         ShowSectionButton.Name = "ShowSection"
         ShowSectionButton.Parent = section
-        ShowSectionButton.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
         ShowSectionButton.BackgroundTransparency = 1
-        ShowSectionButton.BorderColor3 = Color3.fromRGB(0, 0, 0)
-        ShowSectionButton.BorderSizePixel = 0
-        ShowSectionButton.Position = UDim2.new(0.860000014, 0, 0.05, 0)
+        ShowSectionButton.Position = UDim2.new(0.86, 0, 0.05, 0)
         ShowSectionButton.Size = UDim2.new(0, 20, 0, 20)
         ShowSectionButton.Font = Enum.Font.SourceSans
         ShowSectionButton.Text = "▼"
         ShowSectionButton.TextColor3 = Color3.fromRGB(147, 152, 156)
-        ShowSectionButton.TextSize = 14.000
+        ShowSectionButton.TextSize = 14
         ShowSectionButton.ZIndex = 5
         fadeIn(ShowSectionButton)
 
-        -- Разделительная линия
+        -- Separator line
         local SectionLine = Instance.new("Frame")
         SectionLine.Name = "Line"
         SectionLine.Parent = section
         SectionLine.BackgroundColor3 = Color3.fromRGB(66, 63, 71)
-        SectionLine.BorderColor3 = Color3.fromRGB(20, 21, 25)
-        SectionLine.BorderSizePixel = 0
-        SectionLine.Position = UDim2.new(0.0449740589, 0, 0.200355425, 0)
+        SectionLine.Position = UDim2.new(0.045, 0, 0.2, 0)
         SectionLine.Size = UDim2.new(0, 180, 0, 1)
         SectionLine.ZIndex = 4
         fadeIn(SectionLine)
 
-        -- Таблица для хранения элементов секции
+        -- Collapse animation
+        local expandedSize = UDim2.new(1, 0, 0, 150)
+        local collapsedSize = UDim2.new(1, 0, 0, 30)
+        local isExpanded = true
         local sectionElements = {SectionLabel, ShowSectionButton, SectionLine}
-        local sectionButtons = {}
 
-        -- Создаём wrapper для этой секции (чтобы методы были доступны)
-        local wrapper = makeSectionWrapper(section, {
-            sectionElements = sectionElements,
-            sectionButtons = sectionButtons,
-            expandedSize = expandedSize,
-            collapsedSize = collapsedSize,
-            tweenTime = 0.3
-        })
-
-        -- Назначаем обработчик клика на кнопку сворачивания
-        -- Подключаем к wrapper:Toggle — но делаем защиту от двойных коннектов
-        if not ShowSectionButton:GetAttribute("PW_ToggleConnected") then
-            ShowSectionButton.MouseButton1Click:Connect(function()
-                pcall(function()
-                    wrapper:Toggle()
-                    -- обновим текст кнопки (у wrapper есть флаг _isExpanded)
-                    ShowSectionButton.Text = wrapper._isExpanded and "▼" or "▲"
-                end)
-            end)
-            ShowSectionButton:SetAttribute("PW_ToggleConnected", true)
+        local function toggleSection()
+            if not TweenService then return end
+            
+            isExpanded = not isExpanded
+            
+            if isExpanded then
+                -- Expand
+                ShowSectionButton.Text = "▼"
+                for _, element in ipairs(sectionElements) do
+                    if element:IsA("TextLabel") or element:IsA("TextButton") then
+                        TweenService:Create(element, TweenInfo.new(0.2), {TextTransparency = 0}):Play()
+                    else
+                        TweenService:Create(element, TweenInfo.new(0.2), {BackgroundTransparency = 0}):Play()
+                    end
+                end
+                TweenService:Create(section, TweenInfo.new(0.3), {Size = expandedSize}):Play()
+            else
+                -- Collapse
+                for _, element in ipairs(sectionElements) do
+                    if element:IsA("TextLabel") or element:IsA("TextButton") then
+                        TweenService:Create(element, TweenInfo.new(0.2), {TextTransparency = 1}):Play()
+                    else
+                        TweenService:Create(element, TweenInfo.new(0.2), {BackgroundTransparency = 1}):Play()
+                    end
+                end
+                ShowSectionButton.Text = "▲"
+                TweenService:Create(section, TweenInfo.new(0.3), {Size = collapsedSize}):Play()
+            end
         end
 
-        -- Добавляем секцию в список секций вкладки (сохраняем wrapper, а не raw frame)
+        ShowSectionButton.MouseButton1Click:Connect(toggleSection)
+
+        -- Add section to tab's sections list
         if not tabSections[tab.Name] then
             tabSections[tab.Name] = {}
         end
-        table.insert(tabSections[tab.Name], wrapper)
-
-        -- Сохраним свойство для внешнего доступа, если кто-то возьмёт raw frame и вызовет PizdecWare.GetSection(frame)
-        SectionRegistry[section] = wrapper
+        table.insert(tabSections[tab.Name], section)
 
         fadeIn(section)
-        return wrapper
+        return section
     end
 
     return setmetatable({}, PizdecWare)
