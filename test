@@ -322,10 +322,17 @@ function PizdecWare:CreateWindow(guiName, infoText, saveName)
 
             -- Move selection indicator
             local newPosition = UDim2.new(0, 0, tab.Position.Y.Scale, 0)
-            local moveTween = TweenService:Create(self._selectedTab, tweenInfo, {Position = newPosition})
+            local moveTween = TweenService:Create(
+                self._selectedTab, 
+                TweenInfo.new(0.1, Enum.EasingStyle.Linear),
+                {
+                    Position = newPosition,
+                    BackgroundTransparency = 0.9 -- Явно сохраняем прозрачность
+                }
+            )
             moveTween:Play()
             
-            -- Force transparency to stay at 0.9 after animation
+            -- Дополнительная гарантия сохранения прозрачности
             moveTween.Completed:Connect(function()
                 self._selectedTab.BackgroundTransparency = 0.9
             end)
