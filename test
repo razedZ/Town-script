@@ -192,8 +192,28 @@ function PizdecWare:CreateWindow(guiName, infoText, saveName)
         _selectedTab = nil,
         _currentTab = nil,
         _tabSections = {},
-        _initialized = false
+        _initialized = false,
+        _leftSections = {},
+        _rightSections = {}
     }, PizdecWare)
+
+    -- Function to update positions of sections after a section is toggled
+    local function updateSectionPositions(container, sections)
+        local yOffset = 0
+        for i, section in ipairs(sections) do
+            local tweenInfo = TweenInfo.new(0.3, Enum.EasingStyle.Quad)
+            local newPosition = UDim2.new(0, 0, 0, yOffset)
+            
+            TweenService:Create(section, tweenInfo, {Position = newPosition}):Play()
+            
+            -- Update yOffset for next section
+            if section.Size.Y.Offset == 150 then -- Expanded
+                yOffset = yOffset + 150 + 20
+            else -- Collapsed
+                yOffset = yOffset + 30 + 20
+            end
+        end
+    end
 
     -- Initialize UI elements
     coroutine.wrap(function()
@@ -327,12 +347,11 @@ function PizdecWare:CreateWindow(guiName, infoText, saveName)
                 TweenInfo.new(0.1, Enum.EasingStyle.Linear),
                 {
                     Position = newPosition,
-                    BackgroundTransparency = 0.9 -- Явно сохраняем прозрачность
+                    BackgroundTransparency = 0.9
                 }
             )
             moveTween:Play()
             
-            -- Дополнительная гарантия сохранения прозрачности
             moveTween.Completed:Connect(function()
                 self._selectedTab.BackgroundTransparency = 0.9
             end)
@@ -372,13 +391,23 @@ function PizdecWare:CreateWindow(guiName, infoText, saveName)
         if not tab then return nil end
         
         local container = (side == "left" and LeftContainer) or (side == "right" and RightContainer) or LeftContainer
-        local sectionCount = #container:GetChildren()
+        local sectionsList = (side == "left" and self._leftSections) or (side == "right" and self._rightSections) or self._leftSections
+        
+        -- Calculate initial position based on existing sections
+        local yOffset = 0
+        for _, section in ipairs(sectionsList) do
+            if section.Size.Y.Offset == 150 then -- Expanded
+                yOffset = yOffset + 150 + 20
+            else -- Collapsed
+                yOffset = yOffset + 30 + 20
+            end
+        end
 
         local section = Instance.new("Frame")
         section.Name = sectionName
         section.Parent = container
         section.BackgroundColor3 = Color3.fromRGB(17, 19, 23)
-        section.Position = UDim2.new(0, 0, 0, sectionCount * 40)
+        section.Position = UDim2.new(0, 0, 0, yOffset)
         section.Size = UDim2.new(1, 0, 0, 150)
         section.ZIndex = 4
         section.Visible = (tab == self._currentTab)
@@ -468,6 +497,10 @@ function PizdecWare:CreateWindow(guiName, infoText, saveName)
                 TweenService:Create(ContentFrame, TweenInfo.new(0.3), {Size = UDim2.new(1, 0, 0, 0)}):Play()
                 TweenService:Create(section, TweenInfo.new(0.3), {Size = collapsedSize}):Play()
             end
+            
+            -- Update positions of all sections below this one
+            wait(0.3) -- Wait for animation to complete
+            updateSectionPositions(container, sectionsList)
         end
 
         ShowSectionButton.MouseButton1Click:Connect(toggleSection)
@@ -477,6 +510,9 @@ function PizdecWare:CreateWindow(guiName, infoText, saveName)
             self._tabSections[tab.Name] = {}
         end
         table.insert(self._tabSections[tab.Name], section)
+        
+        -- Add to side sections list
+        table.insert(sectionsList, section)
 
         return section
     end
