@@ -202,30 +202,26 @@ function PizdecWare:CreateWindow(guiName, infoText, saveName)
         _elementContainer = ElementContainer
     }, PizdecWare)
 
-    -- Function to calculate target positions for all sections
-    local function calculateSectionPositions(sections)
-        local positions = {}
+    -- Function to update positions of all sections with animation
+    local function updateSectionPositions(container, sections)
         local yOffset = 0
+        local totalHeight = 0
         
-        for _, section in ipairs(sections) do
-            positions[section] = UDim2.new(0, 0, 0, yOffset)
+        -- First calculate all target positions
+        local targetPositions = {}
+        for i, section in ipairs(sections) do
+            targetPositions[section] = UDim2.new(0, 0, 0, yOffset)
             
             if section.Size.Y.Offset == 150 then -- Expanded
                 yOffset = yOffset + 150 + 20
             else -- Collapsed
                 yOffset = yOffset + 30 + 20
             end
+            totalHeight = yOffset
         end
         
-        return positions, yOffset
-    end
-
-    -- Function to update positions of all sections with animation
-    local function updateSectionPositions(container, sections)
-        local positions, totalHeight = calculateSectionPositions(sections)
-        
-        -- Apply new positions with animation
-        for section, position in pairs(positions) do
+        -- Then apply animations to all sections simultaneously
+        for section, position in pairs(targetPositions) do
             TweenService:Create(
                 section,
                 TweenInfo.new(0.3, Enum.EasingStyle.Quad),
@@ -506,21 +502,29 @@ function PizdecWare:CreateWindow(guiName, infoText, saveName)
             
             isExpanded = not isExpanded
             
+            -- Start both animations simultaneously
+            local sizeTween, lineTween, contentTween
+            
             if isExpanded then
                 -- Expand
                 ShowSectionButton.Text = "▼"
-                TweenService:Create(SectionLine, TweenInfo.new(0.2), {BackgroundTransparency = 0}):Play()
-                TweenService:Create(ContentFrame, TweenInfo.new(0.3), {Size = UDim2.new(1, 0, 0.8, 0)}):Play()
-                TweenService:Create(section, TweenInfo.new(0.3), {Size = expandedSize}):Play()
+                lineTween = TweenService:Create(SectionLine, TweenInfo.new(0.2), {BackgroundTransparency = 0})
+                contentTween = TweenService:Create(ContentFrame, TweenInfo.new(0.3), {Size = UDim2.new(1, 0, 0.8, 0)})
+                sizeTween = TweenService:Create(section, TweenInfo.new(0.3), {Size = expandedSize})
             else
                 -- Collapse
                 ShowSectionButton.Text = "▲"
-                TweenService:Create(SectionLine, TweenInfo.new(0.2), {BackgroundTransparency = 1}):Play()
-                TweenService:Create(ContentFrame, TweenInfo.new(0.3), {Size = UDim2.new(1, 0, 0, 0)}):Play()
-                TweenService:Create(section, TweenInfo.new(0.3), {Size = collapsedSize}):Play()
+                lineTween = TweenService:Create(SectionLine, TweenInfo.new(0.2), {BackgroundTransparency = 1})
+                contentTween = TweenService:Create(ContentFrame, TweenInfo.new(0.3), {Size = UDim2.new(1, 0, 0, 0)})
+                sizeTween = TweenService:Create(section, TweenInfo.new(0.3), {Size = collapsedSize})
             end
             
-            -- Immediately update all section positions
+            -- Start all animations
+            sizeTween:Play()
+            lineTween:Play()
+            contentTween:Play()
+            
+            -- Immediately update positions of all sections
             updateSectionPositions(container, sectionsList)
         end
 
