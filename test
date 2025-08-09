@@ -335,9 +335,17 @@ function PizdecWare:CreateWindow(guiName, infoText, saveFileName)
                 local moveTween = TweenService:Create(SelectedTab, tweenInfo, { Position = newPosition })
                 moveTween:Play()
 
+                -- Hide all sections first
                 for tabName, sections in pairs(tabSections) do
                     for _, section in ipairs(sections) do
-                        section.Visible = (tabName == tab.Name)
+                        section.Visible = false
+                    end
+                end
+                
+                -- Show only sections for the selected tab
+                if tabSections[tab.Name] then
+                    for _, section in ipairs(tabSections[tab.Name]) do
+                        section.Visible = true
                     end
                 end
 
@@ -484,13 +492,14 @@ function PizdecWare:CreateWindow(guiName, infoText, saveFileName)
         fadeIn(SectionLine)
 
         -- Таблица для хранения элементов секции
-        local sectionElements = {SectionLine}
+        local sectionElements = {}
         local sectionButtons = {}
 
         -- Метод для создания кнопки
         function section:CreateButton(buttonName, callback)
             local button = Instance.new("TextButton")
             button.Name = buttonName
+            button.Parent = section
             button.BackgroundColor3 = Color3.fromRGB(24, 29, 32)
             button.BorderColor3 = Color3.fromRGB(0, 0, 0)
             button.BorderSizePixel = 0
@@ -529,9 +538,6 @@ function PizdecWare:CreateWindow(guiName, infoText, saveFileName)
             table.insert(sectionElements, button)
             table.insert(sectionElements, ButtonText)
             table.insert(sectionButtons, button)
-
-            button.Parent = section
-            ButtonText.Parent = section
 
             return button
         end
@@ -589,6 +595,17 @@ function PizdecWare:CreateWindow(guiName, infoText, saveFileName)
         end
 
         ShowSectionButton.MouseButton1Click:Connect(toggleSection)
+
+        -- Добавляем все элементы секции в таблицу
+        table.insert(sectionElements, SectionLabel)
+        table.insert(sectionElements, ShowSectionButton)
+        table.insert(sectionElements, SectionLine)
+
+        -- Добавляем секцию в таблицу tabSections
+        if not tabSections[tab.Name] then
+            tabSections[tab.Name] = {}
+        end
+        table.insert(tabSections[tab.Name], section)
 
         fadeIn(section)
         return section
