@@ -136,7 +136,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveName)
     Info.TextTransparency = 1 -- Start transparent
 
     -- Main container - initially transparent
-    local ElementContainer = Instance.new("Frame")
+    local ElementContainer = Instance.new("ScrollingFrame")
     ElementContainer.Name = "ElementContainer"
     ElementContainer.Parent = MainFrame
     ElementContainer.BackgroundColor3 = Color3.fromRGB(23, 24, 28)
@@ -144,6 +144,10 @@ function PizdecWare:CreateWindow(guiName, infoText, saveName)
     ElementContainer.Size = UDim2.new(0, 460, 0, 400)
     ElementContainer.ZIndex = 1
     ElementContainer.BackgroundTransparency = 1 -- Start transparent
+    ElementContainer.ScrollBarThickness = 8
+    ElementContainer.ScrollBarImageColor3 = Color3.fromRGB(100, 100, 100)
+    ElementContainer.CanvasSize = UDim2.new(0, 0, 0, 0)
+    ElementContainer.AutomaticCanvasSize = Enum.AutomaticSize.Y
 
     local UICorner_2 = Instance.new("UICorner")
     UICorner_2.Parent = ElementContainer
@@ -194,17 +198,16 @@ function PizdecWare:CreateWindow(guiName, infoText, saveName)
         _tabSections = {},
         _initialized = false,
         _leftSections = {},
-        _rightSections = {}
+        _rightSections = {},
+        _elementContainer = ElementContainer
     }, PizdecWare)
 
     -- Function to update positions of sections after a section is toggled
     local function updateSectionPositions(container, sections)
         local yOffset = 0
         for i, section in ipairs(sections) do
-            local tweenInfo = TweenInfo.new(0.3, Enum.EasingStyle.Quad)
-            local newPosition = UDim2.new(0, 0, 0, yOffset)
-            
-            TweenService:Create(section, tweenInfo, {Position = newPosition}):Play()
+            -- Мгновенное обновление позиции без анимации
+            section.Position = UDim2.new(0, 0, 0, yOffset)
             
             -- Update yOffset for next section
             if section.Size.Y.Offset == 150 then -- Expanded
@@ -213,6 +216,10 @@ function PizdecWare:CreateWindow(guiName, infoText, saveName)
                 yOffset = yOffset + 30 + 20
             end
         end
+        
+        -- Обновляем размер Canvas для скролла
+        local totalHeight = yOffset - 20 -- Убираем последний отступ
+        windowInstance._elementContainer.CanvasSize = UDim2.new(0, 0, 0, totalHeight + 40) -- +40 для отступов сверху/снизу
     end
 
     -- Initialize UI elements
@@ -498,8 +505,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveName)
                 TweenService:Create(section, TweenInfo.new(0.3), {Size = collapsedSize}):Play()
             end
             
-            -- Update positions of all sections below this one
-            wait(0.3) -- Wait for animation to complete
+            -- Мгновенное обновление позиций без анимации
             updateSectionPositions(container, sectionsList)
         end
 
@@ -513,6 +519,9 @@ function PizdecWare:CreateWindow(guiName, infoText, saveName)
         
         -- Add to side sections list
         table.insert(sectionsList, section)
+        
+        -- Обновляем размер Canvas для скролла
+        updateSectionPositions(container, sectionsList)
 
         return section
     end
