@@ -3,7 +3,7 @@ local success2, TweenService = pcall(game.GetService, game, "TweenService")
 local success3, UserInputService = pcall(game.GetService, game, "UserInputService")
 
 if not (success and success2 and success3) or not HttpService or not TweenService or not UserInputService then
-    warn("Required services (HttpService, TweenService, or UserInputService) are not available. Script will not function fully.")
+    warn("Не удалось получить необходимые сервисы (HttpService, TweenService или UserInputService). Скрипт может работать не полностью.")
     return
 end
 
@@ -31,6 +31,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveFileName)
     local UICorner = Instance.new("UICorner")
     UICorner.Parent = MainFrame
 
+    -- Функционал перетаскивания окна
     local dragging
     local dragInput
     local dragStart
@@ -67,6 +68,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveFileName)
         end
     end)
 
+    -- Логотип и заголовок
     local Logo = Instance.new("Frame")
     Logo.Name = "Logo"
     Logo.Parent = MainFrame
@@ -145,6 +147,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveFileName)
     Info.TextXAlignment = Enum.TextXAlignment.Right
     Info.TextTransparency = 1
 
+    -- Основной контейнер для элементов
     local ElementContainer = Instance.new("Frame")
     ElementContainer.Name = "ElementContainer"
     ElementContainer.Parent = MainFrame
@@ -167,6 +170,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveFileName)
     UIStroke.Transparency = 0.8
     UIStroke.Thickness = 1
 
+    -- Контейнеры для левой и правой сторон
     local LeftContainer = Instance.new("Frame")
     LeftContainer.Name = "LeftContainer"
     LeftContainer.Parent = ElementContainer
@@ -202,6 +206,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveFileName)
     local UICorner_3 = Instance.new("UICorner")
     UICorner_3.Parent = Line
 
+    -- Анимация появления элементов
     local function fadeIn(element)
         if not TweenService then return end
         local tweenInfo = TweenInfo.new(1, Enum.EasingStyle.Sine, Enum.EasingDirection.In)
@@ -226,6 +231,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveFileName)
         end
     end
 
+    -- Анимация появления интерфейса
     wait(0)
     fadeIn(MainFrame)
     fadeIn(Logo)
@@ -237,6 +243,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveFileName)
     fadeIn(Line)
     wait(1)
 
+    -- Зона вкладок
     local TabZone = Instance.new("Frame")
     TabZone.Name = "TabZone"
     TabZone.Parent = MainFrame
@@ -292,14 +299,17 @@ function PizdecWare:CreateWindow(guiName, infoText, saveFileName)
     ImageButton.ImageTransparency = 1
     fadeIn(ImageButton)
 
+    -- Переменные для управления вкладками
     local currentTab = nil
     local tabSections = {}
 
+    -- Функция выбора вкладки
     local function selectTab(tab, image)
         if TweenService then
             local tweenInfo = TweenInfo.new(0.1, Enum.EasingStyle.Linear)
             
             if tab ~= currentTab then
+                -- Сбрасываем стиль всех вкладок
                 for _, child in ipairs(TabZone:GetChildren()) do
                     if child:IsA("TextLabel") and child ~= Tabs then
                         local childImage = child:FindFirstChild("TabImage")
@@ -319,6 +329,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveFileName)
                     end
                 end
                 
+                -- Применяем стиль к выбранной вкладке
                 local tabTween = TweenService:Create(tab, tweenInfo, {
                     TextColor3 = Color3.fromRGB(150, 17, 255)
                 })
@@ -331,18 +342,19 @@ function PizdecWare:CreateWindow(guiName, infoText, saveFileName)
                 imageTween:Play()
                 image.BackgroundTransparency = 1
 
+                -- Перемещаем индикатор выбранной вкладки
                 local newPosition = UDim2.new(0, 0, tab.Position.Y.Scale, 0)
                 local moveTween = TweenService:Create(SelectedTab, tweenInfo, { Position = newPosition })
                 moveTween:Play()
 
-                -- Hide all sections first
+                -- Скрываем все секции
                 for tabName, sections in pairs(tabSections) do
                     for _, section in ipairs(sections) do
                         section.Visible = false
                     end
                 end
                 
-                -- Show only sections for the selected tab
+                -- Показываем только секции выбранной вкладки
                 if tabSections[tab.Name] then
                     for _, section in ipairs(tabSections[tab.Name]) do
                         section.Visible = true
@@ -350,12 +362,11 @@ function PizdecWare:CreateWindow(guiName, infoText, saveFileName)
                 end
 
                 currentTab = tab
-            else
-                currentTab = tab
             end
         end
     end
 
+    -- Функция создания вкладки
     function PizdecWare:CreateTab(visualName, imageId)
         if not TweenService then return nil end
         local tabCount = #TabZone:GetChildren() - 2
@@ -396,6 +407,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveFileName)
         image.ImageTransparency = 0
         fadeIn(image)
 
+        -- Обработчики кликов по вкладке
         tab.InputBegan:Connect(function(input)
             if input.UserInputType == Enum.UserInputType.MouseButton1 then
                 selectTab(tab, image)
@@ -408,20 +420,24 @@ function PizdecWare:CreateWindow(guiName, infoText, saveFileName)
             end
         end)
 
+        -- Выбираем первую вкладку по умолчанию
         if not currentTab then
             selectTab(tab, image)
         end
 
+        -- Инициализируем список секций для этой вкладки
         tabSections[tab.Name] = {}
 
         return tab
     end
 
+    -- Функция создания секции
     function PizdecWare:CreateSection(sectionName, tab, side)
         if not TweenService or not tab then return nil end
         local container = (side == "left" and LeftContainer) or (side == "right" and RightContainer) or LeftContainer
         local sectionCount = #container:GetChildren()
 
+        -- Создаем основную рамку секции
         local section = Instance.new("Frame")
         section.Name = sectionName
         section.Parent = container
@@ -435,16 +451,17 @@ function PizdecWare:CreateWindow(guiName, infoText, saveFileName)
         section.Visible = (tab == currentTab)
         section.ClipsDescendants = true
 
-        -- Сохраняем размеры для анимации
+        -- Размеры для анимации сворачивания/разворачивания
         local expandedSize = UDim2.new(1, 0, 0, 150)
         local collapsedSize = UDim2.new(1, 0, 0, 30)
         local isExpanded = true
 
+        -- Скругление углов
         local UICornerSection = Instance.new("UICorner")
         UICornerSection.CornerRadius = UDim.new(0, 3)
         UICornerSection.Parent = section
 
-        -- Название секции (выровнено с кнопкой сворачивания)
+        -- Заголовок секции
         local SectionLabel = Instance.new("TextLabel")
         SectionLabel.Name = "Label"
         SectionLabel.Parent = section
@@ -462,7 +479,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveFileName)
         SectionLabel.ZIndex = 5
         fadeIn(SectionLabel)
 
-        -- Кнопка сворачивания (выровнена с названием секции)
+        -- Кнопка сворачивания/разворачивания
         local ShowSectionButton = Instance.new("TextButton")
         ShowSectionButton.Name = "ShowSection"
         ShowSectionButton.Parent = section
@@ -479,7 +496,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveFileName)
         ShowSectionButton.ZIndex = 5
         fadeIn(ShowSectionButton)
 
-        -- Серая линия разделитель
+        -- Разделительная линия
         local SectionLine = Instance.new("Frame")
         SectionLine.Name = "Line"
         SectionLine.Parent = section
@@ -492,10 +509,10 @@ function PizdecWare:CreateWindow(guiName, infoText, saveFileName)
         fadeIn(SectionLine)
 
         -- Таблица для хранения элементов секции
-        local sectionElements = {}
+        local sectionElements = {SectionLabel, ShowSectionButton, SectionLine}
         local sectionButtons = {}
 
-        -- Метод для создания кнопки
+        -- Метод для создания кнопки в секции
         function section:CreateButton(buttonName, callback)
             local button = Instance.new("TextButton")
             button.Name = buttonName
@@ -532,6 +549,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveFileName)
             ButtonText.ZIndex = 6
             fadeIn(ButtonText)
 
+            -- Обработчик клика
             button.MouseButton1Click:Connect(callback)
 
             -- Добавляем элементы в таблицы
@@ -542,6 +560,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveFileName)
             return button
         end
 
+        -- Функция сворачивания/разворачивания секции
         local function toggleSection()
             if not TweenService then return end
             
@@ -551,7 +570,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveFileName)
                 -- Разворачиваем секцию
                 ShowSectionButton.Text = "▼"
                 
-                -- Показываем элементы с задержкой
+                -- Анимация появления элементов
                 for _, element in ipairs(sectionElements) do
                     if element:IsA("TextLabel") or element:IsA("TextButton") then
                         TweenService:Create(element, TweenInfo.new(0.2), {
@@ -559,18 +578,19 @@ function PizdecWare:CreateWindow(guiName, infoText, saveFileName)
                         }):Play()
                     elseif element:IsA("Frame") then
                         TweenService:Create(element, TweenInfo.new(0.2), {
-                            BackgroundTransparency = 0
+                            BackgroundTransparency = element == SectionLine and 0 or (element.BackgroundTransparency == 1 and 1 or 0)
                         }):Play()
                     end
                 end
                 
-                -- Затем анимируем размер
+                -- Анимация размера
                 task.delay(0.2, function()
                     TweenService:Create(section, TweenInfo.new(0.3), {
                         Size = expandedSize
                     }):Play()
                 end)
             else
+                -- Сворачиваем секцию
                 -- Сначала скрываем элементы
                 for _, element in ipairs(sectionElements) do
                     if element:IsA("TextLabel") or element:IsA("TextButton") then
@@ -579,12 +599,12 @@ function PizdecWare:CreateWindow(guiName, infoText, saveFileName)
                         }):Play()
                     elseif element:IsA("Frame") then
                         TweenService:Create(element, TweenInfo.new(0.2), {
-                            BackgroundTransparency = 1
+                            BackgroundTransparency = element == SectionLine and 1 or (element.BackgroundTransparency == 0 and 1 or 0)
                         }):Play()
                     end
                 end
                 
-                -- Затем анимируем размер
+                -- Затем изменяем размер
                 task.delay(0.2, function()
                     ShowSectionButton.Text = "▲"
                     TweenService:Create(section, TweenInfo.new(0.3), {
@@ -594,14 +614,10 @@ function PizdecWare:CreateWindow(guiName, infoText, saveFileName)
             end
         end
 
+        -- Назначаем обработчик клика на кнопку сворачивания
         ShowSectionButton.MouseButton1Click:Connect(toggleSection)
 
-        -- Добавляем все элементы секции в таблицу
-        table.insert(sectionElements, SectionLabel)
-        table.insert(sectionElements, ShowSectionButton)
-        table.insert(sectionElements, SectionLine)
-
-        -- Добавляем секцию в таблицу tabSections
+        -- Добавляем секцию в список секций вкладки
         if not tabSections[tab.Name] then
             tabSections[tab.Name] = {}
         end
