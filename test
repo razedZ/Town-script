@@ -200,7 +200,8 @@ function PizdecWare:CreateWindow(guiName, infoText, saveName)
         _leftSections = {},
         _rightSections = {},
         _elementContainer = ElementContainer,
-        _sectionStates = {} -- Track expanded/collapsed state
+        _sectionStates = {}, -- Track expanded/collapsed state
+        _toggleElements = {} -- Track toggle elements
     }, PizdecWare)
 
     -- Function to update positions of all sections with synchronized animation
@@ -219,7 +220,16 @@ function PizdecWare:CreateWindow(guiName, infoText, saveName)
                 if windowInstance._sectionStates[section] == false then -- Collapsed
                     yOffset = yOffset + 30 + 20
                 else -- Expanded
-                    yOffset = yOffset + 150 + 20
+                    -- Calculate section height based on number of elements
+                    local elementCount = 0
+                    for _, element in pairs(windowInstance._toggleElements) do
+                        if element.Parent == section:FindFirstChild("ContentFrame") then
+                            elementCount = elementCount + 1
+                        end
+                    end
+                    
+                    local sectionHeight = 30 + (elementCount * 25) + 10 -- Header + elements + padding
+                    yOffset = yOffset + sectionHeight + 20
                 end
                 totalHeight = yOffset
             end
@@ -429,7 +439,16 @@ function PizdecWare:CreateWindow(guiName, infoText, saveName)
                 if windowInstance._sectionStates[section] == false then -- Collapsed
                     yOffset = yOffset + 30 + 20
                 else -- Expanded
-                    yOffset = yOffset + 150 + 20
+                    -- Calculate section height based on number of elements
+                    local elementCount = 0
+                    for _, element in pairs(self._toggleElements) do
+                        if element.Parent == section:FindFirstChild("ContentFrame") then
+                            elementCount = elementCount + 1
+                        end
+                    end
+                    
+                    local sectionHeight = 30 + (elementCount * 25) + 10 -- Header + elements + padding
+                    yOffset = yOffset + sectionHeight + 20
                 end
             end
         end
@@ -439,7 +458,9 @@ function PizdecWare:CreateWindow(guiName, infoText, saveName)
         section.Parent = container
         section.BackgroundColor3 = Color3.fromRGB(17, 19, 23)
         section.Position = UDim2.new(0, 0, 0, yOffset)
-        section.Size = UDim2.new(1, 0, 0, 150)
+        
+        -- Initial size (will be updated when elements are added)
+        section.Size = UDim2.new(1, 0, 0, 30)
         section.ZIndex = 4
         section.Visible = (tab == self._currentTab)
         section.ClipsDescendants = true
@@ -509,7 +530,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveName)
         ContentFrame.ZIndex = 4
 
         -- Collapse animation
-        local expandedSize = UDim2.new(1, 0, 0, 150)
+        local expandedSize = UDim2.new(1, 0, 0, 30) -- Will be updated when elements are added
         local collapsedSize = UDim2.new(1, 0, 0, 30)
 
         local function toggleSection()
@@ -526,6 +547,16 @@ function PizdecWare:CreateWindow(guiName, infoText, saveName)
                 ShowSectionButton.Text = "▼"
                 lineTween = TweenService:Create(SectionLine, TweenInfo.new(0.2), {BackgroundTransparency = 0})
                 contentTween = TweenService:Create(ContentFrame, TweenInfo.new(0.3), {Size = UDim2.new(1, 0, 0.8, 0)})
+                
+                -- Calculate expanded size based on elements
+                local elementCount = 0
+                for _, element in pairs(self._toggleElements) do
+                    if element.Parent == ContentFrame then
+                        elementCount = elementCount + 1
+                    end
+                end
+                
+                expandedSize = UDim2.new(1, 0, 0, 30 + (elementCount * 25) + 10)
                 sizeTween = TweenService:Create(section, TweenInfo.new(0.3), {Size = expandedSize})
             else
                 -- Collapse
@@ -559,6 +590,136 @@ function PizdecWare:CreateWindow(guiName, infoText, saveName)
         updateSectionPositions(container, sectionsList)
 
         return section
+    end
+
+    -- New function to create Toggle elements
+    function windowInstance:CreateToggle(section, toggleName, defaultValue, callback)
+        if not section then return nil end
+        
+        local ContentFrame = section:FindFirstChild("ContentFrame")
+        if not ContentFrame then return nil end
+        
+        -- Calculate position based on existing toggles in this section
+        local yOffset = 5 -- Start 5 pixels below the separator line
+        for _, element in pairs(self._toggleElements) do
+            if element.Parent == ContentFrame then
+                yOffset = yOffset + 25 -- Each toggle is 25 pixels tall
+            end
+        end
+        
+        -- Toggle container
+        local ToggleContainer = Instance.new("Frame")
+        ToggleContainer.Name = "Toggle_" .. toggleName
+        ToggleContainer.Parent = ContentFrame
+        ToggleContainer.BackgroundTransparency = 1
+        ToggleContainer.Size = UDim2.new(1, 0, 0, 25)
+        ToggleContainer.Position = UDim2.new(0, 0, 0, yOffset)
+        ToggleContainer.ZIndex = 5
+        
+        -- Toggle button (the square)
+        local ToggleButton = Instance.new("TextButton")
+        ToggleButton.Name = "Button"
+        ToggleButton.Parent = ToggleContainer
+        ToggleButton.BackgroundColor3 = defaultValue and Color3.fromRGB(150, 17, 255) or Color3.fromRGB(24, 29, 32)
+        ToggleButton.BorderSizePixel = 0
+        ToggleButton.Position = UDim2.new(0.085, 0, 0.1, 0)
+        ToggleButton.Size = UDim2.new(0, 20, 0, 20)
+        ToggleButton.Text = ""
+        ToggleButton.ZIndex = 6
+        
+        local UICornerToggle = Instance.new("UICorner")
+        UICornerToggle.CornerRadius = UDim.new(0, 4)
+        UICornerToggle.Parent = ToggleButton
+        
+        -- Checkmark (only visible when toggle is on)
+        local Checkmark = Instance.new("TextLabel")
+        Checkmark.Name = "Checkmark"
+        Checkmark.Parent = ToggleButton
+        Checkmark.BackgroundTransparency = 1
+        Checkmark.Size = UDim2.new(1, 0, 1, 0)
+        Checkmark.Text = "✓"
+        Checkmark.TextColor3 = Color3.fromRGB(24, 29, 32)
+        Checkmark.TextSize = 16
+        Checkmark.ZIndex = 7
+        Checkmark.Visible = defaultValue
+        
+        -- Toggle text
+        local ToggleText = Instance.new("TextLabel")
+        ToggleText.Name = "Text"
+        ToggleText.Parent = ToggleContainer
+        ToggleText.BackgroundTransparency = 1
+        ToggleText.Position = UDim2.new(0.15, 20, 0, 0)
+        ToggleText.Size = UDim2.new(0.85, -20, 1, 0)
+        ToggleText.Font = Enum.Font.SourceSansBold
+        ToggleText.Text = toggleName
+        ToggleText.TextColor3 = Color3.fromRGB(147, 152, 156)
+        ToggleText.TextSize = 17
+        ToggleText.TextXAlignment = Enum.TextXAlignment.Left
+        ToggleText.ZIndex = 6
+        
+        -- Toggle functionality
+        local isToggled = defaultValue or false
+        
+        ToggleButton.MouseButton1Click:Connect(function()
+            isToggled = not isToggled
+            
+            if isToggled then
+                ToggleButton.BackgroundColor3 = Color3.fromRGB(150, 17, 255)
+                Checkmark.Visible = true
+            else
+                ToggleButton.BackgroundColor3 = Color3.fromRGB(24, 29, 32)
+                Checkmark.Visible = false
+            end
+            
+            if callback then
+                callback(isToggled)
+            end
+        end)
+        
+        -- Add to elements list
+        table.insert(self._toggleElements, ToggleContainer)
+        
+        -- Update section size and positions
+        local sectionsList = table.find(self._leftSections, section) and self._leftSections or self._rightSections
+        local container = sectionsList == self._leftSections and LeftContainer or RightContainer
+        
+        -- Calculate new section height
+        local elementCount = 0
+        for _, element in pairs(self._toggleElements) do
+            if element.Parent == ContentFrame then
+                elementCount = elementCount + 1
+            end
+        end
+        
+        local sectionHeight = 30 + (elementCount * 25) + 10
+        
+        if windowInstance._sectionStates[section] then
+            -- Only update if section is expanded
+            section.Size = UDim2.new(1, 0, 0, sectionHeight)
+        end
+        
+        updateSectionPositions(container, sectionsList)
+        
+        return {
+            Set = function(self, value)
+                isToggled = value
+                
+                if isToggled then
+                    ToggleButton.BackgroundColor3 = Color3.fromRGB(150, 17, 255)
+                    Checkmark.Visible = true
+                else
+                    ToggleButton.BackgroundColor3 = Color3.fromRGB(24, 29, 32)
+                    Checkmark.Visible = false
+                end
+                
+                if callback then
+                    callback(isToggled)
+                end
+            end,
+            Get = function(self)
+                return isToggled
+            end
+        }
     end
 
     return windowInstance
