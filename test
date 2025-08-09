@@ -456,7 +456,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveFileName)
         SectionLabel.BackgroundTransparency = 1
         SectionLabel.BorderColor3 = Color3.fromRGB(0, 0, 0)
         SectionLabel.BorderSizePixel = 0
-        SectionLabel.Position = UDim2.new(0.0849743634, 0, 0, 0)
+        SectionLabel.Position = UDim2.new(0.0849743634, 0, 0.05, 0) -- Поднято немного выше
         SectionLabel.Size = UDim2.new(0, 100, 0, 29)
         SectionLabel.Font = Enum.Font.ArialBold
         SectionLabel.Text = sectionName
@@ -474,7 +474,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveFileName)
         ShowSectionButton.BackgroundTransparency = 1
         ShowSectionButton.BorderColor3 = Color3.fromRGB(0, 0, 0)
         ShowSectionButton.BorderSizePixel = 0
-        ShowSectionButton.Position = UDim2.new(0.860000014, 0, 0.0666666701, 0)
+        ShowSectionButton.Position = UDim2.new(0.860000014, 0, 0.05, 0) -- Поднято на тот же уровень
         ShowSectionButton.Size = UDim2.new(0, 20, 0, 20)
         ShowSectionButton.Font = Enum.Font.SourceSans
         ShowSectionButton.Text = "▼"
@@ -483,17 +483,10 @@ function PizdecWare:CreateWindow(guiName, infoText, saveFileName)
         ShowSectionButton.ZIndex = 5
         fadeIn(ShowSectionButton)
 
-        -- Список всех элементов секции (кроме заголовка и кнопки сворачивания)
+        -- Таблица для хранения элементов секции
         local sectionElements = {}
 
-        -- Функция для добавления элементов в секцию
-        function section:AddElement(element)
-            table.insert(sectionElements, element)
-            element.Parent = section
-            return element
-        end
-
-        -- Оператор для создания кнопки
+        -- Метод для создания кнопки
         function section:CreateButton(buttonName, callback)
             local button = Instance.new("TextButton")
             button.Name = buttonName
@@ -531,8 +524,12 @@ function PizdecWare:CreateWindow(guiName, infoText, saveFileName)
 
             button.MouseButton1Click:Connect(callback)
 
-            self:AddElement(button)
-            self:AddElement(ButtonText)
+            -- Добавляем элементы в таблицу
+            table.insert(sectionElements, button)
+            table.insert(sectionElements, ButtonText)
+
+            button.Parent = section
+            ButtonText.Parent = section
 
             return button
         end
