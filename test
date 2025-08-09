@@ -210,14 +210,16 @@ function PizdecWare:CreateWindow(guiName, infoText, saveName)
         -- First calculate all target positions
         local targetPositions = {}
         for i, section in ipairs(sections) do
-            targetPositions[section] = UDim2.new(0, 0, 0, yOffset)
-            
-            if section.Size.Y.Offset == 150 then -- Expanded
-                yOffset = yOffset + 150 + 20
-            else -- Collapsed
-                yOffset = yOffset + 30 + 20
+            if section.Visible then
+                targetPositions[section] = UDim2.new(0, 0, 0, yOffset)
+                
+                if section.Size.Y.Offset == 150 then -- Expanded
+                    yOffset = yOffset + 150 + 20
+                else -- Collapsed
+                    yOffset = yOffset + 30 + 20
+                end
+                totalHeight = yOffset
             end
-            totalHeight = yOffset
         end
         
         -- Then apply animations to all sections simultaneously
@@ -381,6 +383,11 @@ function PizdecWare:CreateWindow(guiName, infoText, saveName)
                 end
             end
 
+            -- Update positions for all visible sections
+            for _, sections in pairs({self._leftSections, self._rightSections}) do
+                updateSectionPositions(nil, sections)
+            end
+
             self._currentTab = tab
         end
 
@@ -414,10 +421,12 @@ function PizdecWare:CreateWindow(guiName, infoText, saveName)
         -- Calculate initial position based on existing sections
         local yOffset = 0
         for _, section in ipairs(sectionsList) do
-            if section.Size.Y.Offset == 150 then -- Expanded
-                yOffset = yOffset + 150 + 20
-            else -- Collapsed
-                yOffset = yOffset + 30 + 20
+            if section.Visible then
+                if section.Size.Y.Offset == 150 then -- Expanded
+                    yOffset = yOffset + 150 + 20
+                else -- Collapsed
+                    yOffset = yOffset + 30 + 20
+                end
             end
         end
 
@@ -524,7 +533,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveName)
             lineTween:Play()
             contentTween:Play()
             
-            -- Immediately update positions of all sections
+            -- Update positions of all sections in this container
             updateSectionPositions(container, sectionsList)
         end
 
