@@ -188,15 +188,18 @@ function PizdecWare:CreateWindow(guiName, infoText)
 
     -- Initial fade in animation for main elements
     coroutine.wrap(function()
+        -- First fade in MainFrame and ElementContainer
         fadeIn(MainFrame)
-        wait(0.1)
+        fadeIn(ElementContainer)
+        wait(0.2)
+        
+        -- Then fade in logo and its elements
         fadeIn(Logo)
         fadeIn(W)
         fadeIn(P)
         fadeIn(PizdecWareLabel)
         fadeIn(Info)
-        fadeIn(ElementContainer)
-        wait(0.5)
+        wait(0.3)
         
         -- Tab zone with correct positioning
         local TabZone = Instance.new("Frame")
