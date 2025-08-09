@@ -206,8 +206,10 @@ function PizdecWare:CreateWindow(guiName, infoText, saveName)
     local function updateSectionPositions(container, sections)
         local yOffset = 0
         for i, section in ipairs(sections) do
-            -- Мгновенное обновление позиции без анимации
-            section.Position = UDim2.new(0, 0, 0, yOffset)
+            local tweenInfo = TweenInfo.new(0.3, Enum.EasingStyle.Quad)
+            local newPosition = UDim2.new(0, 0, 0, yOffset)
+            
+            TweenService:Create(section, tweenInfo, {Position = newPosition}):Play()
             
             -- Update yOffset for next section
             if section.Size.Y.Offset == 150 then -- Expanded
@@ -505,7 +507,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveName)
                 TweenService:Create(section, TweenInfo.new(0.3), {Size = collapsedSize}):Play()
             end
             
-            -- Мгновенное обновление позиций без анимации
+            -- Обновляем позиции сразу, без ожидания
             updateSectionPositions(container, sectionsList)
         end
 
