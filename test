@@ -513,10 +513,10 @@ function PizdecWare:CreateWindow(guiName, infoText, saveName)
         -- Separator line (static position)
         local SectionLine = Instance.new("Frame")
         SectionLine.Name = "Line"
-        SectionLine.Parent = section
+        SectionLine.Parent = HeaderContainer
         SectionLine.BackgroundColor3 = Color3.fromRGB(66, 63, 71)
         SectionLine.Position = UDim2.new(0.045, 0, 1, 0) -- Always at bottom of header
-        SectionLine.Size = UDim2.new(0, 180, 0, 1)
+        SectionLine.Size = UDim2.new(0.91, 0, 0, 1)
         SectionLine.ZIndex = 4
         fadeIn(SectionLine)
 
@@ -525,7 +525,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveName)
         ContentFrame.Name = "ContentFrame"
         ContentFrame.Parent = section
         ContentFrame.BackgroundTransparency = 1
-        ContentFrame.Position = UDim2.new(0, 0, 1, 0) -- Below the line
+        ContentFrame.Position = UDim2.new(0, 0, 0, 31) -- Below the header and line
         ContentFrame.Size = UDim2.new(1, 0, 0, 0) -- Will be updated when elements are added
         ContentFrame.ZIndex = 4
 
