@@ -436,19 +436,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveFileName)
         UICornerSection.CornerRadius = UDim.new(0, 3)
         UICornerSection.Parent = section
 
-        -- Серая линия разделитель
-        local SectionLine = Instance.new("Frame")
-        SectionLine.Name = "Line"
-        SectionLine.Parent = section
-        SectionLine.BackgroundColor3 = Color3.fromRGB(66, 63, 71)
-        SectionLine.BorderColor3 = Color3.fromRGB(20, 21, 25)
-        SectionLine.BorderSizePixel = 0
-        SectionLine.Position = UDim2.new(0.0449740589, 0, 0.200355425, 0)
-        SectionLine.Size = UDim2.new(0, 180, 0, 1)
-        SectionLine.ZIndex = 4
-        fadeIn(SectionLine)
-
-        -- Название секции
+        -- Название секции (выровнено с кнопкой сворачивания)
         local SectionLabel = Instance.new("TextLabel")
         SectionLabel.Name = "Label"
         SectionLabel.Parent = section
@@ -456,8 +444,8 @@ function PizdecWare:CreateWindow(guiName, infoText, saveFileName)
         SectionLabel.BackgroundTransparency = 1
         SectionLabel.BorderColor3 = Color3.fromRGB(0, 0, 0)
         SectionLabel.BorderSizePixel = 0
-        SectionLabel.Position = UDim2.new(0.0849743634, 0, 0.05, 0) -- Поднято немного выше
-        SectionLabel.Size = UDim2.new(0, 100, 0, 29)
+        SectionLabel.Position = UDim2.new(0.0849743634, 0, 0.05, 0)
+        SectionLabel.Size = UDim2.new(0, 100, 0, 20)
         SectionLabel.Font = Enum.Font.ArialBold
         SectionLabel.Text = sectionName
         SectionLabel.TextColor3 = Color3.fromRGB(147, 152, 156)
@@ -474,7 +462,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveFileName)
         ShowSectionButton.BackgroundTransparency = 1
         ShowSectionButton.BorderColor3 = Color3.fromRGB(0, 0, 0)
         ShowSectionButton.BorderSizePixel = 0
-        ShowSectionButton.Position = UDim2.new(0.860000014, 0, 0.05, 0) -- Поднято на тот же уровень
+        ShowSectionButton.Position = UDim2.new(0.860000014, 0, 0.05, 0)
         ShowSectionButton.Size = UDim2.new(0, 20, 0, 20)
         ShowSectionButton.Font = Enum.Font.SourceSans
         ShowSectionButton.Text = "▼"
@@ -483,8 +471,21 @@ function PizdecWare:CreateWindow(guiName, infoText, saveFileName)
         ShowSectionButton.ZIndex = 5
         fadeIn(ShowSectionButton)
 
+        -- Серая линия разделитель
+        local SectionLine = Instance.new("Frame")
+        SectionLine.Name = "Line"
+        SectionLine.Parent = section
+        SectionLine.BackgroundColor3 = Color3.fromRGB(66, 63, 71)
+        SectionLine.BorderColor3 = Color3.fromRGB(20, 21, 25)
+        SectionLine.BorderSizePixel = 0
+        SectionLine.Position = UDim2.new(0.0449740589, 0, 0.200355425, 0)
+        SectionLine.Size = UDim2.new(0, 180, 0, 1)
+        SectionLine.ZIndex = 4
+        fadeIn(SectionLine)
+
         -- Таблица для хранения элементов секции
-        local sectionElements = {}
+        local sectionElements = {SectionLine}
+        local sectionButtons = {}
 
         -- Метод для создания кнопки
         function section:CreateButton(buttonName, callback)
@@ -493,7 +494,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveFileName)
             button.BackgroundColor3 = Color3.fromRGB(24, 29, 32)
             button.BorderColor3 = Color3.fromRGB(0, 0, 0)
             button.BorderSizePixel = 0
-            button.Position = UDim2.new(0.0599743649, 0, 0.25999999 + (#sectionElements * 0.15), 0)
+            button.Position = UDim2.new(0.0599743649, 0, 0.25999999 + (#sectionButtons * 0.15), 0)
             button.Size = UDim2.new(0, 30, 0, 20)
             button.Font = Enum.Font.SourceSans
             button.Text = ""
@@ -524,9 +525,10 @@ function PizdecWare:CreateWindow(guiName, infoText, saveFileName)
 
             button.MouseButton1Click:Connect(callback)
 
-            -- Добавляем элементы в таблицу
+            -- Добавляем элементы в таблицы
             table.insert(sectionElements, button)
             table.insert(sectionElements, ButtonText)
+            table.insert(sectionButtons, button)
 
             button.Parent = section
             ButtonText.Parent = section
