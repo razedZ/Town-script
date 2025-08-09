@@ -202,16 +202,14 @@ function PizdecWare:CreateWindow(guiName, infoText, saveName)
         _elementContainer = ElementContainer
     }, PizdecWare)
 
-    -- Function to update positions of sections after a section is toggled
-    local function updateSectionPositions(container, sections)
+    -- Function to calculate target positions for all sections
+    local function calculateSectionPositions(sections)
+        local positions = {}
         local yOffset = 0
-        for i, section in ipairs(sections) do
-            local tweenInfo = TweenInfo.new(0.3, Enum.EasingStyle.Quad)
-            local newPosition = UDim2.new(0, 0, 0, yOffset)
+        
+        for _, section in ipairs(sections) do
+            positions[section] = UDim2.new(0, 0, 0, yOffset)
             
-            TweenService:Create(section, tweenInfo, {Position = newPosition}):Play()
-            
-            -- Update yOffset for next section
             if section.Size.Y.Offset == 150 then -- Expanded
                 yOffset = yOffset + 150 + 20
             else -- Collapsed
@@ -219,9 +217,24 @@ function PizdecWare:CreateWindow(guiName, infoText, saveName)
             end
         end
         
-        -- Обновляем размер Canvas для скролла
-        local totalHeight = yOffset - 20 -- Убираем последний отступ
-        windowInstance._elementContainer.CanvasSize = UDim2.new(0, 0, 0, totalHeight + 40) -- +40 для отступов сверху/снизу
+        return positions, yOffset
+    end
+
+    -- Function to update positions of all sections with animation
+    local function updateSectionPositions(container, sections)
+        local positions, totalHeight = calculateSectionPositions(sections)
+        
+        -- Apply new positions with animation
+        for section, position in pairs(positions) do
+            TweenService:Create(
+                section,
+                TweenInfo.new(0.3, Enum.EasingStyle.Quad),
+                {Position = position}
+            ):Play()
+        end
+        
+        -- Update scroll container size
+        windowInstance._elementContainer.CanvasSize = UDim2.new(0, 0, 0, totalHeight + 40)
     end
 
     -- Initialize UI elements
@@ -507,7 +520,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveName)
                 TweenService:Create(section, TweenInfo.new(0.3), {Size = collapsedSize}):Play()
             end
             
-            -- Обновляем позиции сразу, без ожидания
+            -- Immediately update all section positions
             updateSectionPositions(container, sectionsList)
         end
 
@@ -522,7 +535,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveName)
         -- Add to side sections list
         table.insert(sectionsList, section)
         
-        -- Обновляем размер Canvas для скролла
+        -- Update scroll container size
         updateSectionPositions(container, sectionsList)
 
         return section
