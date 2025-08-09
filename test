@@ -199,20 +199,37 @@ function PizdecWare:CreateWindow(guiName, infoText, saveName)
         _initialized = false,
         _leftSections = {},
         _rightSections = {},
-        _elementContainer = ElementContainer
+        _elementContainer = ElementContainer,
+        _sectionTweens = {} -- Store active tweens for sections
     }, PizdecWare)
 
-    -- Function to update positions of all sections with animation
+    -- Function to cancel all active tweens for a section
+    local function cancelSectionTweens(section)
+        if windowInstance._sectionTweens[section] then
+            for _, tween in ipairs(windowInstance._sectionTweens[section]) do
+                tween:Cancel()
+            end
+            windowInstance._sectionTweens[section] = nil
+        end
+    end
+
+    -- Function to update positions of all sections with synchronized animation
     local function updateSectionPositions(container, sections)
         local yOffset = 0
         local totalHeight = 0
+        local activeTweens = {}
         
-        -- First calculate all target positions
+        -- First pass: calculate target positions and cancel old tweens
         local targetPositions = {}
         for i, section in ipairs(sections) do
             if section.Visible then
+                -- Cancel any existing tweens for this section
+                cancelSectionTweens(section)
+                
+                -- Store target position
                 targetPositions[section] = UDim2.new(0, 0, 0, yOffset)
                 
+                -- Calculate next yOffset
                 if section.Size.Y.Offset == 150 then -- Expanded
                     yOffset = yOffset + 150 + 20
                 else -- Collapsed
@@ -222,13 +239,17 @@ function PizdecWare:CreateWindow(guiName, infoText, saveName)
             end
         end
         
-        -- Then apply animations to all sections simultaneously
+        -- Second pass: create and play new tweens
+        windowInstance._sectionTweens = {}
         for section, position in pairs(targetPositions) do
-            TweenService:Create(
+            local tween = TweenService:Create(
                 section,
                 TweenInfo.new(0.3, Enum.EasingStyle.Quad),
                 {Position = position}
-            ):Play()
+            )
+            table.insert(activeTweens, tween)
+            windowInstance._sectionTweens[section] = {tween}
+            tween:Play()
         end
         
         -- Update scroll container size
@@ -383,7 +404,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveName)
                 end
             end
 
-            -- Update positions for all visible sections
+            -- Update positions for all sections
             for _, sections in pairs({self._leftSections, self._rightSections}) do
                 updateSectionPositions(nil, sections)
             end
@@ -418,7 +439,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveName)
         local container = (side == "left" and LeftContainer) or (side == "right" and RightContainer) or LeftContainer
         local sectionsList = (side == "left" and self._leftSections) or (side == "right" and self._rightSections) or self._leftSections
         
-        -- Calculate initial position based on existing sections
+        -- Calculate initial position based on existing visible sections
         local yOffset = 0
         for _, section in ipairs(sectionsList) do
             if section.Visible then
@@ -511,7 +532,10 @@ function PizdecWare:CreateWindow(guiName, infoText, saveName)
             
             isExpanded = not isExpanded
             
-            -- Start both animations simultaneously
+            -- Cancel any existing tweens for this section
+            cancelSectionTweens(section)
+            
+            -- Start animations
             local sizeTween, lineTween, contentTween
             
             if isExpanded then
@@ -528,13 +552,21 @@ function PizdecWare:CreateWindow(guiName, infoText, saveName)
                 sizeTween = TweenService:Create(section, TweenInfo.new(0.3), {Size = collapsedSize})
             end
             
-            -- Start all animations
+            -- Store tweens
+            windowInstance._sectionTweens[section] = {sizeTween, lineTween, contentTween}
+            
+            -- Play animations
             sizeTween:Play()
             lineTween:Play()
             contentTween:Play()
             
             -- Update positions of all sections in this container
             updateSectionPositions(container, sectionsList)
+            
+            -- Connect completion to update positions again (just in case)
+            sizeTween.Completed:Connect(function()
+                updateSectionPositions(container, sectionsList)
+            end)
         end
 
         ShowSectionButton.MouseButton1Click:Connect(toggleSection)
