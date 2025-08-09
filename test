@@ -204,7 +204,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveName)
                 targetPositions[section] = UDim2.new(0, 0, 0, yOffset)
                 
                 if windowInstance._sectionStates[section] == false then
-                    yOffset = yOffset + 30 + 20
+                    yOffset = yOffset + 30 + 25 -- Увеличено с 20 до 25
                 else
                     local elementCount = 0
                     for _, element in pairs(windowInstance._toggleElements) do
@@ -214,7 +214,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveName)
                     end
                     
                     local sectionHeight = 30 + (elementCount * 25) + 15
-                    yOffset = yOffset + sectionHeight + 20
+                    yOffset = yOffset + sectionHeight + 25 -- Увеличено с 20 до 25
                 end
                 totalHeight = yOffset
             end
@@ -407,7 +407,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveName)
         for _, section in ipairs(sectionsList) do
             if section.Visible then
                 if windowInstance._sectionStates[section] == false then
-                    yOffset = yOffset + 30 + 20
+                    yOffset = yOffset + 30 + 25 -- Увеличено с 20 до 25
                 else
                     local elementCount = 0
                     for _, element in pairs(self._toggleElements) do
@@ -417,7 +417,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveName)
                     end
                     
                     local sectionHeight = 30 + (elementCount * 25) + 15
-                    yOffset = yOffset + sectionHeight + 20
+                    yOffset = yOffset + sectionHeight + 25 -- Увеличено с 20 до 25
                 end
             end
         end
@@ -600,6 +600,12 @@ function PizdecWare:CreateWindow(guiName, infoText, saveName)
         ToggleContainer.Position = UDim2.new(0, 0, 0, yOffset)
         ToggleContainer.ZIndex = 5
         
+        -- Сделаем все элементы Toggle_Toggle 1 полностью прозрачными
+        if toggleName == "Toggle 1" then
+            ToggleContainer.BackgroundTransparency = 1
+            ToggleContainer.Visible = false
+        end
+        
         local ToggleButton = Instance.new("TextButton")
         ToggleButton.Name = "Button"
         ToggleButton.Parent = ToggleContainer
@@ -609,6 +615,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveName)
         ToggleButton.Size = UDim2.new(0, 20, 0, 20)
         ToggleButton.Text = ""
         ToggleButton.ZIndex = 6
+        ToggleButton.Visible = toggleName ~= "Toggle 1"
         
         local UICornerToggle = Instance.new("UICorner")
         UICornerToggle.CornerRadius = UDim.new(0, 4)
@@ -623,7 +630,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveName)
         Checkmark.TextColor3 = Color3.fromRGB(24, 29, 32)
         Checkmark.TextSize = 16
         Checkmark.ZIndex = 7
-        Checkmark.Visible = defaultValue
+        Checkmark.Visible = defaultValue and toggleName ~= "Toggle 1"
         
         local ToggleText = Instance.new("TextLabel")
         ToggleText.Name = "Text"
@@ -637,6 +644,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveName)
         ToggleText.TextSize = 17
         ToggleText.TextXAlignment = Enum.TextXAlignment.Left
         ToggleText.ZIndex = 6
+        ToggleText.Visible = toggleName ~= "Toggle 1"
         
         local isToggled = defaultValue or false
         
@@ -663,7 +671,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveName)
         
         local elementCount = 0
         for _, element in pairs(self._toggleElements) do
-            if element.Parent == ContentFrame then
+            if element.Parent == ContentFrame and element.Name ~= "Toggle_Toggle 1" then
                 elementCount = elementCount + 1
             end
         end
