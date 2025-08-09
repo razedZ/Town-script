@@ -218,52 +218,40 @@ function PizdecWare:CreateWindow(guiName, infoText, saveName)
     local function updateSectionPositions(container, sections)
         local yOffset = 0
         local totalHeight = 0
-        local activeTweens = {}
         
-        -- First pass: calculate target positions and cancel old tweens
+        -- First pass: calculate target positions
         local targetPositions = {}
         for i, section in ipairs(sections) do
             if section.Visible then
-                -- Cancel any existing tweens for this section
-                cancelSectionTweens(section)
-                
                 -- Store target position
                 targetPositions[section] = UDim2.new(0, 0, 0, yOffset)
                 
-                -- Calculate next yOffset based on current size (even if animating)
-                local currentHeight = section.Size.Y.Offset
-                yOffset = yOffset + currentHeight + 20
+                -- Calculate next yOffset based on target size
+                if section._isExpanded then
+                    yOffset = yOffset + 150 + 20
+                else
+                    yOffset = yOffset + 30 + 20
+                end
                 totalHeight = yOffset
             end
         end
         
         -- Second pass: create and play new tweens
-        windowInstance._sectionTweens = {}
         for section, position in pairs(targetPositions) do
+            cancelSectionTweens(section)
+            
             local tween = TweenService:Create(
                 section,
                 TweenInfo.new(0.3, Enum.EasingStyle.Quad),
                 {Position = position}
             )
-            table.insert(activeTweens, tween)
+            
             windowInstance._sectionTweens[section] = {tween}
             tween:Play()
         end
         
         -- Update scroll container size
         windowInstance._elementContainer.CanvasSize = UDim2.new(0, 0, 0, totalHeight + 40)
-    end
-
-    -- Function to track section size changes
-    local function trackSectionSize(section, container, sectionsList)
-        if windowInstance._sectionConnections[section] then
-            windowInstance._sectionConnections[section]:Disconnect()
-        end
-        
-        windowInstance._sectionConnections[section] = section:GetPropertyChangedSignal("Size"):Connect(function()
-            -- Immediately update positions when size changes
-            updateSectionPositions(container, sectionsList)
-        end)
     end
 
     -- Initialize UI elements
@@ -449,11 +437,15 @@ function PizdecWare:CreateWindow(guiName, infoText, saveName)
         local container = (side == "left" and LeftContainer) or (side == "right" and RightContainer) or LeftContainer
         local sectionsList = (side == "left" and self._leftSections) or (side == "right" and self._rightSections) or self._leftSections
         
-        -- Calculate initial position based on existing visible sections
+        -- Calculate initial position based on existing sections
         local yOffset = 0
         for _, section in ipairs(sectionsList) do
             if section.Visible then
-                yOffset = yOffset + section.Size.Y.Offset + 20
+                if section._isExpanded then
+                    yOffset = yOffset + 150 + 20
+                else
+                    yOffset = yOffset + 30 + 20
+                end
             end
         end
 
@@ -466,6 +458,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveName)
         section.ZIndex = 4
         section.Visible = (tab == self._currentTab)
         section.ClipsDescendants = true
+        section._isExpanded = true -- Track expansion state
         fadeIn(section)
 
         local UICornerSection = Instance.new("UICorner")
@@ -531,12 +524,11 @@ function PizdecWare:CreateWindow(guiName, infoText, saveName)
         -- Collapse animation
         local expandedSize = UDim2.new(1, 0, 0, 150)
         local collapsedSize = UDim2.new(1, 0, 0, 30)
-        local isExpanded = true
 
         local function toggleSection()
             if not TweenService then return end
             
-            isExpanded = not isExpanded
+            section._isExpanded = not section._isExpanded
             
             -- Cancel any existing tweens for this section
             cancelSectionTweens(section)
@@ -544,7 +536,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveName)
             -- Start animations
             local sizeTween, lineTween, contentTween
             
-            if isExpanded then
+            if section._isExpanded then
                 -- Expand
                 ShowSectionButton.Text = "▼"
                 lineTween = TweenService:Create(SectionLine, TweenInfo.new(0.2), {BackgroundTransparency = 0})
@@ -566,14 +558,16 @@ function PizdecWare:CreateWindow(guiName, infoText, saveName)
             lineTween:Play()
             contentTween:Play()
             
-            -- Track size changes during animation
-            trackSectionSize(section, container, sectionsList)
+            -- Update positions of all sections in this container
+            updateSectionPositions(container, sectionsList)
+            
+            -- Connect completion to update positions again (just in case)
+            sizeTween.Completed:Connect(function()
+                updateSectionPositions(container, sectionsList)
+            end)
         end
 
         ShowSectionButton.MouseButton1Click:Connect(toggleSection)
-
-        -- Track initial size changes
-        trackSectionSize(section, container, sectionsList)
 
         -- Add section to tab's sections list
         if not self._tabSections[tab.Name] then
