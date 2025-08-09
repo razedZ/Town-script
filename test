@@ -231,7 +231,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveName)
                         end
                     end
                     
-                    local sectionHeight = 30 + (elementCount * 25) + 25 -- Header + elements + padding
+                    local sectionHeight = 30 + (elementCount * 25) + 15 -- Header + elements + padding
                     yOffset = yOffset + sectionHeight + 20
                 end
                 totalHeight = yOffset
