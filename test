@@ -567,8 +567,8 @@ function PizdecWare:CreateWindow(guiName, infoText, saveName)
                     end
                 end
                 
-                expandedSize = UDim2.new(1, 0, 0, 30 + (elementCount * 25) + 25)
-                ContentFrame.Size = UDim2.new(1, 0, 0, elementCount * 25 + 25)
+                expandedSize = UDim2.new(1, 0, 0, 30 + (elementCount * 25) + 15)
+                ContentFrame.Size = UDim2.new(1, 0, 0, elementCount * 25 + 15)
                 
                 local sizeTween = TweenService:Create(
                     section,
