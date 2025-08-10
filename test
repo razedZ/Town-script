@@ -286,20 +286,17 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
                 if windowInstance._sectionStates[section] == false then -- Collapsed
                     yOffset = yOffset + 30 + 20
                 else -- Expanded
-                    -- Calculate section height based on number of elements
-                    local elementCount = 0
-                    for _, element in pairs(windowInstance._toggleElements) do
-                        if element.Parent == section:FindFirstChild("ContentFrame") then
-                            elementCount = elementCount + 1
+                    -- Calculate content height based on element sizes
+                    local contentHeight = 0
+                    local contentFrame = section:FindFirstChild("ContentFrame")
+                    if contentFrame then
+                        for _, element in ipairs(contentFrame:GetChildren()) do
+                            if element:IsA("Frame") and (element.Name:match("^Toggle_") or element.Name:match("^Dropdown_")) then
+                                contentHeight = contentHeight + element.Size.Y.Offset
+                            end
                         end
                     end
-                    for _, element in pairs(windowInstance._dropdownElements) do
-                        if element.Parent == section:FindFirstChild("ContentFrame") then
-                            elementCount = elementCount + 1
-                        end
-                    end
-                    
-                    local sectionHeight = 30 + (elementCount * 30) + 15 -- Header + elements + padding
+                    local sectionHeight = 30 + contentHeight
                     yOffset = yOffset + sectionHeight + 20
                 end
                 totalHeight = yOffset
@@ -510,20 +507,16 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
                 if windowInstance._sectionStates[section] == false then -- Collapsed
                     yOffset = yOffset + 30 + 20
                 else -- Expanded
-                    -- Calculate section height based on number of elements
-                    local elementCount = 0
-                    for _, element in pairs(self._toggleElements) do
-                        if element.Parent == section:FindFirstChild("ContentFrame") then
-                            elementCount = elementCount + 1
+                    local contentHeight = 0
+                    local contentFrame = section:FindFirstChild("ContentFrame")
+                    if contentFrame then
+                        for _, element in ipairs(contentFrame:GetChildren()) do
+                            if element:IsA("Frame") and (element.Name:match("^Toggle_") or element.Name:match("^Dropdown_")) then
+                                contentHeight = contentHeight + element.Size.Y.Offset
+                            end
                         end
                     end
-                    for _, element in pairs(self._dropdownElements) do
-                        if element.Parent == section:FindFirstChild("ContentFrame") then
-                            elementCount = elementCount + 1
-                        end
-                    end
-                    
-                    local sectionHeight = 30 + (elementCount * 30) + 15 -- Header + elements + padding
+                    local sectionHeight = 30 + contentHeight
                     yOffset = yOffset + sectionHeight + 20
                 end
             end
@@ -608,7 +601,6 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
         ContentFrame.ClipsDescendants = true
 
         -- Collapse animation
-        local expandedSize = UDim2.new(1, 0, 0, 30) -- Will be updated when elements are added
         local collapsedSize = UDim2.new(1, 0, 0, 30)
 
         local function toggleSection()
@@ -638,26 +630,20 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
                     end
                 end
                 
-                -- Then expand
-                local elementCount = 0
-                for _, element in pairs(self._toggleElements) do
-                    if element.Parent == ContentFrame then
-                        elementCount = elementCount + 1
-                    end
-                end
-                for _, element in pairs(self._dropdownElements) do
-                    if element.Parent == ContentFrame then
-                        elementCount = elementCount + 1
+                -- Calculate content height
+                local contentHeight = 0
+                for _, element in ipairs(ContentFrame:GetChildren()) do
+                    if element:IsA("Frame") and (element.Name:match("^Toggle_") or element.Name:match("^Dropdown_")) then
+                        contentHeight = contentHeight + element.Size.Y.Offset
                     end
                 end
                 
-                expandedSize = UDim2.new(1, 0, 0, 30 + (elementCount * 30) + 15)
-                ContentFrame.Size = UDim2.new(1, 0, 0, elementCount * 30 + 15)
+                ContentFrame.Size = UDim2.new(1, 0, 0, contentHeight)
                 
                 local sizeTween = TweenService:Create(
                     section,
                     TweenInfo.new(0.3, Enum.EasingStyle.Quad),
-                    {Size = expandedSize}
+                    {Size = UDim2.new(1, 0, 0, 30 + contentHeight)}
                 )
                 sizeTween:Play()
             else
@@ -733,15 +719,15 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
         end
         
         -- Calculate position based on existing toggles in this section
-        local yOffset = 10 -- Start 10 pixels below the separator line
+        local yOffset = 0
         for _, element in pairs(self._toggleElements) do
             if element.Parent == ContentFrame then
-                yOffset = yOffset + 30 -- Each toggle is 30 pixels tall
+                yOffset = yOffset + element.Size.Y.Offset
             end
         end
         for _, element in pairs(self._dropdownElements) do
             if element.Parent == ContentFrame then
-                yOffset = yOffset + 30 -- Each dropdown is 30 pixels tall
+                yOffset = yOffset + element.Size.Y.Offset
             end
         end
         
@@ -827,24 +813,22 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
         local container = sectionsList == self._leftSections and LeftContainer or RightContainer
         
         -- Calculate new section height
-        local elementCount = 0
+        local contentHeight = 0
         for _, element in pairs(self._toggleElements) do
             if element.Parent == ContentFrame then
-                elementCount = elementCount + 1
+                contentHeight = contentHeight + element.Size.Y.Offset
             end
         end
         for _, element in pairs(self._dropdownElements) do
             if element.Parent == ContentFrame then
-                elementCount = elementCount + 1
+                contentHeight = contentHeight + element.Size.Y.Offset
             end
         end
         
-        local sectionHeight = 30 + (elementCount * 30) + 15
-        
         if windowInstance._sectionStates[section] then
             -- Only update if section is expanded
-            section.Size = UDim2.new(1, 0, 0, sectionHeight)
-            ContentFrame.Size = UDim2.new(1, 0, 0, elementCount * 30 + 15)
+            section.Size = UDim2.new(1, 0, 0, 30 + contentHeight)
+            ContentFrame.Size = UDim2.new(1, 0, 0, contentHeight)
         end
         
         updateSectionPositions(container, sectionsList)
@@ -897,28 +881,28 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
         end
         
         -- Calculate position based on existing elements in this section
-        local yOffset = 10 -- Start 10 pixels below the separator line
+        local yOffset = 0
         for _, element in pairs(self._toggleElements) do
             if element.Parent == ContentFrame then
-                yOffset = yOffset + 30 -- Each element is 30 pixels tall
+                yOffset = yOffset + element.Size.Y.Offset
             end
         end
         for _, element in pairs(self._dropdownElements) do
             if element.Parent == ContentFrame then
-                yOffset = yOffset + 30 -- Each element is 30 pixels tall
+                yOffset = yOffset + element.Size.Y.Offset
             end
         end
         
-        -- Dropdown container (увеличил высоту для текста)
+        -- Dropdown container
         local DropdownContainer = Instance.new("Frame")
         DropdownContainer.Name = "Dropdown_" .. dropdownName
         DropdownContainer.Parent = ContentFrame
         DropdownContainer.BackgroundTransparency = 1
-        DropdownContainer.Size = UDim2.new(1, 0, 0, 50) -- Increased height for label
+        DropdownContainer.Size = UDim2.new(1, 0, 0, 50)
         DropdownContainer.Position = UDim2.new(0, 0, 0, yOffset)
         DropdownContainer.ZIndex = 5
         
-        -- Dropdown label (расположен как в оригинальном UI)
+        -- Dropdown label
         local DropdownLabel = Instance.new("TextLabel")
         DropdownLabel.Name = "Label"
         DropdownLabel.Parent = DropdownContainer
@@ -938,7 +922,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
         DropdownButton.Parent = DropdownContainer
         DropdownButton.BackgroundColor3 = Color3.fromRGB(25, 28, 34)
         DropdownButton.BorderSizePixel = 0
-        DropdownButton.Position = UDim2.new(0.085, 0, 0, 25) -- Position below label
+        DropdownButton.Position = UDim2.new(0.085, 0, 0, 20) -- Corrected to 20 for proper fitting
         DropdownButton.Size = UDim2.new(0, 165, 0, 30)
         DropdownButton.Font = Enum.Font.SourceSans
         DropdownButton.Text = ""
@@ -1126,7 +1110,6 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
             -- Update dropdown list size (максимум 4 опции с скроллом)
             local optionCount = #options
             local maxHeight = math.min(4, optionCount) * 20 -- Max 4 options visible
-            DropdownList.Size = UDim2.new(0, 165, 0, maxHeight)
             ScrollingFrame.CanvasSize = UDim2.new(0, 0, 0, optionCount * 20)
         end
         
@@ -1158,6 +1141,10 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
                         btn.ZIndex = 101
                     end
                 end
+                -- Set size on open
+                local optionCount = #options
+                local maxHeight = math.min(4, optionCount) * 20
+                DropdownList.Size = UDim2.new(0, 165, 0, maxHeight)
                 -- Track open dropdown
                 self._openDropdowns[DropdownContainer] = DropdownList
             else
@@ -1166,7 +1153,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
             end
         end
         
-        DropdownButton.MouseButton1Click:Connect(function()
+        local function onDropdownClick()
             -- Close other open dropdowns first
             for container, list in pairs(self._openDropdowns) do
                 if container ~= DropdownContainer then
@@ -1177,7 +1164,10 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
             end
             
             toggleDropdown()
-        end)
+        end
+        
+        DropdownButton.MouseButton1Click:Connect(onDropdownClick)
+        DropdownLabel.MouseButton1Click:Connect(onDropdownClick) -- Added for clicking on label too
         
         -- Update position when window moves
         MainFrame:GetPropertyChangedSignal("Position"):Connect(function()
@@ -1209,25 +1199,23 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
         local sectionsList = table.find(self._leftSections, section) and self._leftSections or self._rightSections
         local container = sectionsList == self._leftSections and LeftContainer or RightContainer
         
-        -- Calculate new section height (учитываем увеличенную высоту dropdown)
-        local elementCount = 0
+        -- Calculate new section height
+        local contentHeight = 0
         for _, element in pairs(self._toggleElements) do
             if element.Parent == ContentFrame then
-                elementCount = elementCount + 1
+                contentHeight = contentHeight + element.Size.Y.Offset
             end
         end
         for _, element in pairs(self._dropdownElements) do
             if element.Parent == ContentFrame then
-                elementCount = elementCount + 1
+                contentHeight = contentHeight + element.Size.Y.Offset
             end
         end
         
-        local sectionHeight = 30 + (elementCount * 30) + 15
-        
         if windowInstance._sectionStates[section] then
             -- Only update if section is expanded
-            section.Size = UDim2.new(1, 0, 0, sectionHeight)
-            ContentFrame.Size = UDim2.new(1, 0, 0, elementCount * 30 + 15)
+            section.Size = UDim2.new(1, 0, 0, 30 + contentHeight)
+            ContentFrame.Size = UDim2.new(1, 0, 0, contentHeight)
         end
         
         updateSectionPositions(container, sectionsList)
@@ -1297,7 +1285,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
             end,
             Get = function(self)
                 if multi then
-                    local selected = {}
+                   local selected = {}
                     for opt in pairs(selectedOptions) do
                         table.insert(selected, opt)
                     end
