@@ -204,8 +204,37 @@ function PizdecWare:CreateWindow(guiName, infoText, saveName)
         _rightSections = {},
         _elementContainer = ElementContainer,
         _sectionStates = {}, -- Track expanded/collapsed state
-        _toggleElements = {} -- Track toggle elements
+        _toggleElements = {}, -- Track toggle elements
+        _saveName = saveName or "PizdecWareSettings",
+        _savedToggles = {}
     }, PizdecWare)
+
+    -- Load saved toggles
+    if saveName and HttpService then
+        local success, data = pcall(function()
+            return HttpService:JSONDecode(plugin:GetSetting(windowInstance._saveName) or {}
+        end)
+        if success and data then
+            windowInstance._savedToggles = data
+        end
+    end
+
+    -- Function to save toggle state
+    local function saveToggleState(window, toggleName, state)
+        if not window._saveName or not HttpService then return end
+        
+        window._savedToggles[toggleName] = state
+        
+        pcall(function()
+            plugin:SetSetting(window._saveName, HttpService:JSONEncode(window._savedToggles))
+        end)
+    end
+
+    -- Function to load toggle state
+    local function loadToggleState(window, toggleName)
+        if not window._saveName or not window._savedToggles then return nil end
+        return window._savedToggles[toggleName]
+    end
 
     -- Function to update positions of all sections with synchronized animation
     local function updateSectionPositions(container, sections)
@@ -620,11 +649,19 @@ function PizdecWare:CreateWindow(guiName, infoText, saveName)
     end
 
     -- New function to create Toggle elements
-    function windowInstance:CreateToggle(section, toggleName, defaultValue, callback)
+    function windowInstance:CreateToggle(section, toggleName, defaultValue, callback, save)
         if not section then return nil end
         
         local ContentFrame = section:FindFirstChild("ContentFrame")
         if not ContentFrame then return nil end
+        
+        -- Load saved state if available
+        if save and self._saveName then
+            local savedState = loadToggleState(self, toggleName)
+            if savedState ~= nil then
+                defaultValue = savedState
+            end
+        end
         
         -- Calculate position based on existing toggles in this section
         local yOffset = 10 -- Start 10 pixels below the separator line
@@ -698,6 +735,11 @@ function PizdecWare:CreateWindow(guiName, infoText, saveName)
                 Checkmark.Visible = false
             end
             
+            -- Save state if needed
+            if save then
+                saveToggleState(self, toggleName, isToggled)
+            end
+            
             if callback then
                 callback(isToggled)
             end
@@ -738,6 +780,11 @@ function PizdecWare:CreateWindow(guiName, infoText, saveName)
                 else
                     ToggleButton.BackgroundColor3 = Color3.fromRGB(24, 29, 32)
                     Checkmark.Visible = false
+                end
+                
+                -- Save state if needed
+                if save then
+                    saveToggleState(windowInstance, toggleName, isToggled)
                 end
                 
                 if callback then
