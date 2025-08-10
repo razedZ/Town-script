@@ -1,3 +1,4 @@
+```lua
 local success, HttpService = pcall(game.GetService, game, "HttpService")
 local success2, TweenService = pcall(game.GetService, game, "TweenService")
 local success3, UserInputService = pcall(game.GetService, game, "UserInputService")
@@ -273,6 +274,19 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
         return window._savedDropdowns[dropdownName]
     end
 
+    local function getSortedElements(contentFrame)
+        local elems = {}
+        for _, child in ipairs(contentFrame:GetChildren()) do
+            if child:IsA("Frame") and (child.Name:match("^Toggle_") or child.Name:match("^Dropdown_")) then
+                table.insert(elems, child)
+            end
+        end
+        table.sort(elems, function(a, b)
+            return a.Position.Y.Offset < b.Position.Y.Offset
+        end)
+        return elems
+    end
+
     -- Function to update positions of all sections with synchronized animation
     local function updateSectionPositions(container, sections)
         local yOffset = 0
@@ -290,22 +304,17 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
                     local contentFrame = section:FindFirstChild("ContentFrame")
                     local contentHeight = 0
                     if contentFrame then
-                        local previousWasToggle = false
-                        for i, element in ipairs(contentFrame:GetChildren()) do
-                            if element:IsA("Frame") and (element.Name:match("^Toggle_") or element.Name:match("^Dropdown_")) then
-                                local spacing = 2
-                                if i == 1 then
-                                    spacing = 5 -- First element gets 5px spacing
-                                elseif previousWasToggle and element.Name:match("^Dropdown_") then
-                                    spacing = 1 -- Toggle followed by Dropdown gets 1px spacing
-                                end
-                                contentHeight = contentHeight + element.Size.Y.Offset + spacing
-                                previousWasToggle = element.Name:match("^Toggle_")
-                            end
+                        local elements = getSortedElements(contentFrame)
+                        local previous_type = nil
+                        for j, element in ipairs(elements) do
+                            local elem_type = element.Name:match("^Toggle_") and "toggle" or "dropdown"
+                            local spacing = (previous_type == nil) and 5 or ((previous_type == "toggle" and elem_type == "dropdown") and 1 or 2)
+                            contentHeight = contentHeight + spacing + element.Size.Y.Offset
+                            previous_type = elem_type
                         end
-                        contentHeight = math.max(contentHeight - (contentFrame:GetChildren()[1] and 5 or 2), 0)
                     end
-                    local sectionHeight = 30 + contentHeight + 10 -- Header + content + 10px bottom padding
+                    local bottom_padding = 15 -- Increased bottom padding
+                    local sectionHeight = 30 + contentHeight + bottom_padding
                     yOffset = yOffset + sectionHeight + 20
                 end
                 totalHeight = yOffset
@@ -432,6 +441,13 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
         local function selectTab()
             if not TweenService or not self._selectedTab then return end
             
+            -- Close all open dropdowns when switching tabs
+            for container, list in pairs(self._openDropdowns) do
+                list.Visible = false
+                list.Size = UDim2.new(0, 165, 0, 0)
+                self._openDropdowns[container] = nil
+            end
+            
             local tweenInfo = TweenInfo.new(0.1, Enum.EasingStyle.Linear)
             
             for _, child in ipairs(self._tabZone:GetChildren()) do
@@ -508,22 +524,17 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
                     local contentFrame = section:FindFirstChild("ContentFrame")
                     local contentHeight = 0
                     if contentFrame then
-                        local previousWasToggle = false
-                        for i, element in ipairs(contentFrame:GetChildren()) do
-                            if element:IsA("Frame") and (element.Name:match("^Toggle_") or element.Name:match("^Dropdown_")) then
-                                local spacing = 2
-                                if i == 1 then
-                                    spacing = 5
-                                elseif previousWasToggle and element.Name:match("^Dropdown_") then
-                                    spacing = 1
-                                end
-                                contentHeight = contentHeight + element.Size.Y.Offset + spacing
-                                previousWasToggle = element.Name:match("^Toggle_")
-                            end
+                        local elements = getSortedElements(contentFrame)
+                        local previous_type = nil
+                        for j, element in ipairs(elements) do
+                            local elem_type = element.Name:match("^Toggle_") and "toggle" or "dropdown"
+                            local spacing = (previous_type == nil) and 5 or ((previous_type == "toggle" and elem_type == "dropdown") and 1 or 2)
+                            contentHeight = contentHeight + spacing + element.Size.Y.Offset
+                            previous_type = elem_type
                         end
-                        contentHeight = math.max(contentHeight - (contentFrame:GetChildren()[1] and 5 or 2), 0)
                     end
-                    local sectionHeight = 30 + contentHeight + 10
+                    local bottom_padding = 15 -- Increased bottom padding
+                    local sectionHeight = 30 + contentHeight + bottom_padding
                     yOffset = yOffset + sectionHeight + 20
                 end
             end
@@ -625,26 +636,21 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
                 end
                 
                 local contentHeight = 0
-                local previousWasToggle = false
-                for i, element in ipairs(ContentFrame:GetChildren()) do
-                    if element:IsA("Frame") and (element.Name:match("^Toggle_") or element.Name:match("^Dropdown_")) then
-                        local spacing = 2
-                        if i == 1 then
-                            spacing = 5
-                        elseif previousWasToggle and element.Name:match("^Dropdown_") then
-                            spacing = 1
-                        end
-                        contentHeight = contentHeight + element.Size.Y.Offset + spacing
-                        previousWasToggle = element.Name:match("^Toggle_")
-                    end
+                local elements = getSortedElements(ContentFrame)
+                local previous_type = nil
+                for j, element in ipairs(elements) do
+                    local elem_type = element.Name:match("^Toggle_") and "toggle" or "dropdown"
+                    local spacing = (previous_type == nil) and 5 or ((previous_type == "toggle" and elem_type == "dropdown") and 1 or 2)
+                    contentHeight = contentHeight + spacing + element.Size.Y.Offset
+                    previous_type = elem_type
                 end
-                contentHeight = math.max(contentHeight - (ContentFrame:GetChildren()[1] and 5 or 2), 0)
                 ContentFrame.Size = UDim2.new(1, 0, 0, contentHeight)
                 
+                local bottom_padding = 15 -- Increased bottom padding
                 local sizeTween = TweenService:Create(
                     section,
                     TweenInfo.new(0.3, Enum.EasingStyle.Quad),
-                    {Size = UDim2.new(1, 0, 0, 30 + contentHeight + 10)}
+                    {Size = UDim2.new(1, 0, 0, 30 + contentHeight + bottom_padding)}
                 )
                 sizeTween:Play()
             else
@@ -713,19 +719,16 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
             end
         end
         
-        local yOffset = 5 -- First element gets 5px from gray line
-        local previousWasToggle = false
-        for i, element in ipairs(ContentFrame:GetChildren()) do
-            if element:IsA("Frame") and (element.Name:match("^Toggle_") or element.Name:match("^Dropdown_")) then
-                local spacing = 2
-                if i == 1 then
-                    spacing = 5
-                elseif previousWasToggle and element.Name:match("^Dropdown_") then
-                    spacing = 1
-                end
-                yOffset = yOffset + element.Size.Y.Offset + spacing
-                previousWasToggle = element.Name:match("^Toggle_")
-            end
+        local elements = getSortedElements(ContentFrame)
+        local new_type = "toggle"
+        local yOffset
+        if #elements == 0 then
+            yOffset = 5
+        else
+            local last = elements[#elements]
+            local last_type = last.Name:match("^Toggle_") and "toggle" or "dropdown"
+            local spacing = (last_type == "toggle" and new_type == "dropdown") and 1 or 2
+            yOffset = last.Position.Y.Offset + last.Size.Y.Offset + spacing
         end
 
         local ToggleContainer = Instance.new("Frame")
@@ -801,23 +804,18 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
         local container = sectionsList == self._leftSections and LeftContainer or RightContainer
         
         local contentHeight = 0
-        local previousWasToggle = false
-        for i, element in ipairs(ContentFrame:GetChildren()) do
-            if element:IsA("Frame") and (element.Name:match("^Toggle_") or element.Name:match("^Dropdown_")) then
-                local spacing = 2
-                if i == 1 then
-                    spacing = 5
-                elseif previousWasToggle and element.Name:match("^Dropdown_") then
-                    spacing = 1
-                end
-                contentHeight = contentHeight + element.Size.Y.Offset + spacing
-                previousWasToggle = element.Name:match("^Toggle_")
-            end
+        local elements_updated = getSortedElements(ContentFrame)
+        local previous_type = nil
+        for j, element in ipairs(elements_updated) do
+            local elem_type = element.Name:match("^Toggle_") and "toggle" or "dropdown"
+            local spacing = (previous_type == nil) and 5 or ((previous_type == "toggle" and elem_type == "dropdown") and 1 or 2)
+            contentHeight = contentHeight + spacing + element.Size.Y.Offset
+            previous_type = elem_type
         end
-        contentHeight = math.max(contentHeight - (ContentFrame:GetChildren()[1] and 5 or 2), 0)
         
         if windowInstance._sectionStates[section] then
-            section.Size = UDim2.new(1, 0, 0, 30 + contentHeight + 10)
+            local bottom_padding = 15 -- Increased bottom padding
+            section.Size = UDim2.new(1, 0, 0, 30 + contentHeight + bottom_padding)
             ContentFrame.Size = UDim2.new(1, 0, 0, contentHeight)
         end
         
@@ -871,19 +869,16 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
             end
         end
         
-        local yOffset = 5 -- First element gets 5px from gray line
-        local previousWasToggle = false
-        for i, element in ipairs(ContentFrame:GetChildren()) do
-            if element:IsA("Frame") and (element.Name:match("^Toggle_") or element.Name:match("^Dropdown_")) then
-                local spacing = 2
-                if i == 1 then
-                    spacing = 5
-                elseif previousWasToggle and element.Name:match("^Dropdown_") then
-                    spacing = 1
-                end
-                yOffset = yOffset + element.Size.Y.Offset + spacing
-                previousWasToggle = element.Name:match("^Toggle_")
-            end
+        local elements = getSortedElements(ContentFrame)
+        local new_type = "dropdown"
+        local yOffset
+        if #elements == 0 then
+            yOffset = 5
+        else
+            local last = elements[#elements]
+            local last_type = last.Name:match("^Toggle_") and "toggle" or "dropdown"
+            local spacing = (last_type == "toggle" and new_type == "dropdown") and 1 or 2
+            yOffset = last.Position.Y.Offset + last.Size.Y.Offset + spacing
         end
         
         -- Dropdown container
@@ -950,7 +945,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
         DropdownList.BorderSizePixel = 0
         DropdownList.Size = UDim2.new(0, 165, 0, 0) -- Will be updated when opened
         DropdownList.Visible = false
-        DropdownList.ZIndex = 100 -- High z-index to be above everything
+        DropdownList.ZIndex = 1000 -- Increased ZIndex
         DropdownList.ClipsDescendants = true
         
         local UICornerList = Instance.new("UICorner")
@@ -1035,7 +1030,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
                 OptionButton.Text = option
                 OptionButton.TextColor3 = selectedOptions[option] and Color3.fromRGB(150, 17, 255) or Color3.fromRGB(147, 152, 156)
                 OptionButton.TextSize = 14
-                OptionButton.ZIndex = 101 -- Higher than dropdown list
+                OptionButton.ZIndex = 1001 -- Increased ZIndex
                 
                 OptionButton.MouseButton1Click:Connect(function()
                     if multi then
@@ -1122,10 +1117,10 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
             if isDropdownOpen then
                 updateDropdownPosition()
                 -- Bring to front
-                DropdownList.ZIndex = 100
+                DropdownList.ZIndex = 1000
                 for _, btn in ipairs(ScrollingFrame:GetChildren()) do
                     if btn:IsA("TextButton") then
-                        btn.ZIndex = 101
+                        btn.ZIndex = 1001
                     end
                 end
                 -- Set size on open
@@ -1185,24 +1180,18 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
         
         -- Calculate new section height
         local contentHeight = 0
-        local previousWasToggle = false
-        for i, element in ipairs(ContentFrame:GetChildren()) do
-            if element:IsA("Frame") and (element.Name:match("^Toggle_") or element.Name:match("^Dropdown_")) then
-                local spacing = 2
-                if i == 1 then
-                    spacing = 5
-                elseif previousWasToggle and element.Name:match("^Dropdown_") then
-                    spacing = 1
-                end
-                contentHeight = contentHeight + element.Size.Y.Offset + spacing
-                previousWasToggle = element.Name:match("^Toggle_")
-            end
+        local elements_updated = getSortedElements(ContentFrame)
+        local previous_type = nil
+        for j, element in ipairs(elements_updated) do
+            local elem_type = element.Name:match("^Toggle_") and "toggle" or "dropdown"
+            local spacing = (previous_type == nil) and 5 or ((previous_type == "toggle" and elem_type == "dropdown") and 1 or 2)
+            contentHeight = contentHeight + spacing + element.Size.Y.Offset
+            previous_type = elem_type
         end
-        contentHeight = math.max(contentHeight - (ContentFrame:GetChildren()[1] and 5 or 2), 0)
         
         if windowInstance._sectionStates[section] then
-            -- Only update if section is expanded
-            section.Size = UDim2.new(1, 0, 0, 30 + contentHeight + 10)
+            local bottom_padding = 15 -- Increased bottom padding
+            section.Size = UDim2.new(1, 0, 0, 30 + contentHeight + bottom_padding)
             ContentFrame.Size = UDim2.new(1, 0, 0, contentHeight)
         end
         
@@ -1310,3 +1299,4 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
 end
 
 return PizdecWare
+```
