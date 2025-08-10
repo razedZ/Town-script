@@ -289,10 +289,10 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
                     if contentFrame then
                         for _, element in ipairs(contentFrame:GetChildren()) do
                             if element:IsA("Frame") and (element.Name:match("^Toggle_") or element.Name:match("^Dropdown_")) then
-                                contentHeight = contentHeight + element.Size.Y.Offset + 7 -- 7px spacing between elements
+                                contentHeight = contentHeight + element.Size.Y.Offset + 5 -- 5px spacing between elements
                             end
                         end
-                        contentHeight = math.max(contentHeight - 7, 0) -- Remove extra spacing at the end
+                        contentHeight = math.max(contentHeight - 5, 0) -- Remove extra spacing at the end
                     end
                     local sectionHeight = 30 + contentHeight + 10 -- Header + content + 10px bottom padding
                     yOffset = yOffset + sectionHeight + 20
@@ -312,6 +312,19 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
         end
         
         windowInstance._elementContainer.CanvasSize = UDim2.new(0, 0, 0, totalHeight + 40)
+
+        -- Update open dropdown positions
+        for _, dropdownList in pairs(windowInstance._openDropdowns) do
+            local dropdownContainer = dropdownList.Parent:FindFirstChild("Dropdown_" .. dropdownList.Name:sub(13)) -- Assuming name convention
+            if dropdownContainer then
+                local button = dropdownContainer:FindFirstChild("Button")
+                if button then
+                    local buttonPos = button.AbsolutePosition
+                    local buttonSize = button.AbsoluteSize
+                    dropdownList.Position = UDim2.new(0, buttonPos.X, 0, buttonPos.Y + buttonSize.Y)
+                end
+            end
+        end
     end
 
     -- Initialize UI elements
@@ -493,10 +506,10 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
                     if contentFrame then
                         for _, element in ipairs(contentFrame:GetChildren()) do
                             if element:IsA("Frame") and (element.Name:match("^Toggle_") or element.Name:match("^Dropdown_")) then
-                                contentHeight = contentHeight + element.Size.Y.Offset + 7
+                                contentHeight = contentHeight + element.Size.Y.Offset + 5
                             end
                         end
-                        contentHeight = math.max(contentHeight - 7, 0)
+                        contentHeight = math.max(contentHeight - 5, 0)
                     end
                     local sectionHeight = 30 + contentHeight + 10
                     yOffset = yOffset + sectionHeight + 20
@@ -602,10 +615,10 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
                 local contentHeight = 0
                 for _, element in ipairs(ContentFrame:GetChildren()) do
                     if element:IsA("Frame") and (element.Name:match("^Toggle_") or element.Name:match("^Dropdown_")) then
-                        contentHeight = contentHeight + element.Size.Y.Offset + 7
+                        contentHeight = contentHeight + element.Size.Y.Offset + 5
                     end
                 end
-                contentHeight = math.max(contentHeight - 7, 0)
+                contentHeight = math.max(contentHeight - 5, 0)
                 ContentFrame.Size = UDim2.new(1, 0, 0, contentHeight)
                 
                 local sizeTween = TweenService:Create(
@@ -663,11 +676,15 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
         return section
     end
 
-    function windowInstance:CreateToggle(section, toggleName, defaultValue, save, callback)
+    function windowInstance:CreateToggle(section, toggleName, defaultValue, opts)
         if not section then return nil end
         
         local ContentFrame = section:FindFirstChild("ContentFrame")
         if not ContentFrame then return nil end
+        
+        opts = opts or {}
+        local save = opts.save or false
+        local callback = opts.callback or function() end
         
         if save and self._saveConfig.enabled then
             local savedState = loadToggleState(self, toggleName)
@@ -676,15 +693,15 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
             end
         end
         
-        local yOffset = 0
+        local yOffset = 5 -- 5px from gray line
         for _, element in pairs(self._toggleElements) do
             if element.Parent == ContentFrame then
-                yOffset = yOffset + element.Size.Y.Offset + 7
+                yOffset = yOffset + element.Size.Y.Offset + 5
             end
         end
         for _, element in pairs(self._dropdownElements) do
             if element.Parent == ContentFrame then
-                yOffset = yOffset + element.Size.Y.Offset + 7
+                yOffset = yOffset + element.Size.Y.Offset + 5
             end
         end
 
@@ -752,9 +769,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
                 saveToggleState(self, toggleName, isToggled)
             end
             
-            if callback then
-                callback(isToggled)
-            end
+            callback(isToggled)
         end)
         
         table.insert(self._toggleElements, ToggleContainer)
@@ -765,15 +780,15 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
         local contentHeight = 0
         for _, element in pairs(self._toggleElements) do
             if element.Parent == ContentFrame then
-                contentHeight = contentHeight + element.Size.Y.Offset + 7
+                contentHeight = contentHeight + element.Size.Y.Offset + 5
             end
         end
         for _, element in pairs(self._dropdownElements) do
             if element.Parent == ContentFrame then
-                contentHeight = contentHeight + element.Size.Y.Offset + 7
+                contentHeight = contentHeight + element.Size.Y.Offset + 5
             end
         end
-        contentHeight = math.max(contentHeight - 7, 0)
+        contentHeight = math.max(contentHeight - 5, 0)
         
         if windowInstance._sectionStates[section] then
             section.Size = UDim2.new(1, 0, 0, 30 + contentHeight + 10)
@@ -798,9 +813,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
                     saveToggleState(windowInstance, toggleName, isToggled)
                 end
                 
-                if callback then
-                    callback(isToggled)
-                end
+                callback(isToggled)
             end,
             Get = function(self)
                 return isToggled
@@ -808,11 +821,16 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
         }
     end
 
-    function windowInstance:CreateDropdown(section, dropdownName, options, defaultOption, multi, save, callback)
+    function windowInstance:CreateDropdown(section, dropdownName, options, defaultOption, opts)
         if not section then return nil end
         
         local ContentFrame = section:FindFirstChild("ContentFrame")
         if not ContentFrame then return nil end
+        
+        opts = opts or {}
+        local multi = opts.multi or false
+        local save = opts.save or false
+        local callback = opts.callback or function() end
         
         if save and self._saveConfig.enabled then
             local savedState = loadDropdownState(self, dropdownName)
@@ -827,15 +845,15 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
             end
         end
         
-        local yOffset = 0
+        local yOffset = 5 -- 5px from gray line
         for _, element in pairs(self._toggleElements) do
             if element.Parent == ContentFrame then
-                yOffset = yOffset + element.Size.Y.Offset + 7
+                yOffset = yOffset + element.Size.Y.Offset + 5
             end
         end
         for _, element in pairs(self._dropdownElements) do
             if element.Parent == ContentFrame then
-                yOffset = yOffset + element.Size.Y.Offset + 7
+                yOffset = yOffset + element.Size.Y.Offset + 5
             end
         end
         
@@ -897,7 +915,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
         
         -- Dropdown list frame (будет поверх всего UI)
         local DropdownList = Instance.new("Frame")
-        DropdownList.Name = "DropdownList"
+        DropdownList.Name = "DropdownList_" .. dropdownName
         DropdownList.Parent = ScreenGui -- Parent to ScreenGui to be above everything
         DropdownList.BackgroundColor3 = Color3.fromRGB(25, 28, 34)
         DropdownList.BorderSizePixel = 0
@@ -1037,20 +1055,13 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
                         end
                     end
                     
-                    if callback then
-                        if multi then
-                            local selected = {}
-                            for opt in pairs(selectedOptions) do
-                                table.insert(selected, opt)
-                            end
-                            callback(selected)
-                        else
-                            for opt in pairs(selectedOptions) do
-                                callback(opt)
-                                break
-                            end
+                    callback(multi and (function()
+                        local selected = {}
+                        for opt in pairs(selectedOptions) do
+                            table.insert(selected, opt)
                         end
-                    end
+                        return selected
+                    end)() or next(selectedOptions))
                 end)
             end
             
@@ -1154,15 +1165,15 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
         local contentHeight = 0
         for _, element in pairs(self._toggleElements) do
             if element.Parent == ContentFrame then
-                contentHeight = contentHeight + element.Size.Y.Offset + 7
+                contentHeight = contentHeight + element.Size.Y.Offset + 5
             end
         end
         for _, element in pairs(self._dropdownElements) do
             if element.Parent == ContentFrame then
-                contentHeight = contentHeight + element.Size.Y.Offset + 7
+                contentHeight = contentHeight + element.Size.Y.Offset + 5
             end
         end
-        contentHeight = math.max(contentHeight - 7, 0)
+        contentHeight = math.max(contentHeight - 5, 0)
         
         if windowInstance._sectionStates[section] then
             -- Only update if section is expanded
@@ -1220,20 +1231,13 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
                     end
                 end
                 
-                if callback then
-                    if multi then
-                        local selected = {}
-                        for opt in pairs(selectedOptions) do
-                            table.insert(selected, opt)
-                        end
-                        callback(selected)
-                    else
-                        for opt in pairs(selectedOptions) do
-                            callback(opt)
-                            break
-                        end
+                callback(multi and (function()
+                    local selected = {}
+                    for opt in pairs(selectedOptions) do
+                        table.insert(selected, opt)
                     end
-                end
+                    return selected
+                end)() or next(selectedOptions))
             end,
             Get = function(self)
                 if multi then
