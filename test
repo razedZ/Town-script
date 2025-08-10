@@ -7,6 +7,8 @@ if not (success and success2 and success3) or not HttpService or not TweenServic
     return
 end
 
+local RunService = game:GetService("RunService")
+
 local PizdecWare = {}
 PizdecWare.__index = PizdecWare
 
@@ -209,7 +211,8 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
         _saveConfig = saveConfig or { enabled = false, fileName = "PizdecWareSettings" },
         _savedToggles = {},
         _savedDropdowns = {},
-        _openDropdowns = {} -- Track open dropdowns
+        _openDropdowns = {}, -- Track open dropdowns
+        _heartbeatConnection = nil
     }, PizdecWare)
 
     -- Load saved toggles and dropdowns
@@ -289,10 +292,10 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
                     if contentFrame then
                         for _, element in ipairs(contentFrame:GetChildren()) do
                             if element:IsA("Frame") and (element.Name:match("^Toggle_") or element.Name:match("^Dropdown_")) then
-                                contentHeight = contentHeight + element.Size.Y.Offset + 5 -- 5px spacing between elements
+                                contentHeight = contentHeight + element.Size.Y.Offset + 2 -- Changed to 2
                             end
                         end
-                        contentHeight = math.max(contentHeight - 5, 0) -- Remove extra spacing at the end
+                        contentHeight = math.max(contentHeight - 2, 0) -- Changed to -2
                     end
                     local sectionHeight = 30 + contentHeight + 10 -- Header + content + 10px bottom padding
                     yOffset = yOffset + sectionHeight + 20
@@ -312,19 +315,6 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
         end
         
         windowInstance._elementContainer.CanvasSize = UDim2.new(0, 0, 0, totalHeight + 40)
-
-        -- Update open dropdown positions
-        for _, dropdownList in pairs(windowInstance._openDropdowns) do
-            local dropdownContainer = dropdownList.Parent:FindFirstChild("Dropdown_" .. dropdownList.Name:sub(13)) -- Assuming name convention
-            if dropdownContainer then
-                local button = dropdownContainer:FindFirstChild("Button")
-                if button then
-                    local buttonPos = button.AbsolutePosition
-                    local buttonSize = button.AbsoluteSize
-                    dropdownList.Position = UDim2.new(0, buttonPos.X, 0, buttonPos.Y + buttonSize.Y)
-                end
-            end
-        end
     end
 
     -- Initialize UI elements
@@ -371,6 +361,12 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
         windowInstance._selectedTab.Size = UDim2.new(0, 163, 0, 30)
         windowInstance._selectedTab.ZIndex = 2
         fadeIn(windowInstance._selectedTab)
+
+        local UIGradient = Instance.new("UIGradient")
+        UIGradient.Offset = Vector2.new(0, 1)
+        UIGradient.Rotation = 0
+        UIGradient.Transparency = NumberSequence.new{NumberSequenceKeypoint.new(0.00, 0.90), NumberSequenceKeypoint.new(0.10, 0.76), NumberSequenceKeypoint.new(1.00, 0.99)}
+        UIGradient.Parent = windowInstance._selectedTab
 
         local CloseButton = Instance.new("ImageButton")
         CloseButton.Name = "CloseButton"
@@ -506,10 +502,10 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
                     if contentFrame then
                         for _, element in ipairs(contentFrame:GetChildren()) do
                             if element:IsA("Frame") and (element.Name:match("^Toggle_") or element.Name:match("^Dropdown_")) then
-                                contentHeight = contentHeight + element.Size.Y.Offset + 5
+                                contentHeight = contentHeight + element.Size.Y.Offset + 2
                             end
                         end
-                        contentHeight = math.max(contentHeight - 5, 0)
+                        contentHeight = math.max(contentHeight - 2, 0)
                     end
                     local sectionHeight = 30 + contentHeight + 10
                     yOffset = yOffset + sectionHeight + 20
@@ -615,10 +611,10 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
                 local contentHeight = 0
                 for _, element in ipairs(ContentFrame:GetChildren()) do
                     if element:IsA("Frame") and (element.Name:match("^Toggle_") or element.Name:match("^Dropdown_")) then
-                        contentHeight = contentHeight + element.Size.Y.Offset + 5
+                        contentHeight = contentHeight + element.Size.Y.Offset + 2 -- Changed to 2
                     end
                 end
-                contentHeight = math.max(contentHeight - 5, 0)
+                contentHeight = math.max(contentHeight - 2, 0) -- Changed to -2
                 ContentFrame.Size = UDim2.new(1, 0, 0, contentHeight)
                 
                 local sizeTween = TweenService:Create(
@@ -693,15 +689,15 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
             end
         end
         
-        local yOffset = 5 -- 5px from gray line
+        local yOffset = 0 -- Changed from 5
         for _, element in pairs(self._toggleElements) do
             if element.Parent == ContentFrame then
-                yOffset = yOffset + element.Size.Y.Offset + 5
+                yOffset = yOffset + element.Size.Y.Offset + 2 -- Changed to 2
             end
         end
         for _, element in pairs(self._dropdownElements) do
             if element.Parent == ContentFrame then
-                yOffset = yOffset + element.Size.Y.Offset + 5
+                yOffset = yOffset + element.Size.Y.Offset + 2 -- Changed to 2
             end
         end
 
@@ -743,8 +739,8 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
         ToggleText.Name = "Text"
         ToggleText.Parent = ToggleContainer
         ToggleText.BackgroundTransparency = 1
-        ToggleText.Position = UDim2.new(0.15, 20, 0, 0)
-        ToggleText.Size = UDim2.new(0.85, -20, 1, 0)
+        ToggleText.Position = UDim2.new(0.15, 20, 0.1, 0) -- Adjusted for centering
+        ToggleText.Size = UDim2.new(0.85, -20, 0, 20) -- Adjusted for centering
         ToggleText.Font = Enum.Font.SourceSansBold
         ToggleText.Text = toggleName
         ToggleText.TextColor3 = Color3.fromRGB(147, 152, 156)
@@ -780,15 +776,15 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
         local contentHeight = 0
         for _, element in pairs(self._toggleElements) do
             if element.Parent == ContentFrame then
-                contentHeight = contentHeight + element.Size.Y.Offset + 5
+                contentHeight = contentHeight + element.Size.Y.Offset + 2 -- Changed to 2
             end
         end
         for _, element in pairs(self._dropdownElements) do
             if element.Parent == ContentFrame then
-                contentHeight = contentHeight + element.Size.Y.Offset + 5
+                contentHeight = contentHeight + element.Size.Y.Offset + 2 -- Changed to 2
             end
         end
-        contentHeight = math.max(contentHeight - 5, 0)
+        contentHeight = math.max(contentHeight - 2, 0) -- Changed to -2
         
         if windowInstance._sectionStates[section] then
             section.Size = UDim2.new(1, 0, 0, 30 + contentHeight + 10)
@@ -845,15 +841,15 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
             end
         end
         
-        local yOffset = 5 -- 5px from gray line
+        local yOffset = 0 -- Changed from 5
         for _, element in pairs(self._toggleElements) do
             if element.Parent == ContentFrame then
-                yOffset = yOffset + element.Size.Y.Offset + 5
+                yOffset = yOffset + element.Size.Y.Offset + 2 -- Changed to 2
             end
         end
         for _, element in pairs(self._dropdownElements) do
             if element.Parent == ContentFrame then
-                yOffset = yOffset + element.Size.Y.Offset + 5
+                yOffset = yOffset + element.Size.Y.Offset + 2 -- Changed to 2
             end
         end
         
@@ -1105,9 +1101,16 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
                 DropdownList.Size = UDim2.new(0, 165, 0, maxHeight)
                 -- Track open dropdown
                 self._openDropdowns[DropdownContainer] = DropdownList
+                if next(self._openDropdowns) and not self._heartbeatConnection then
+                    self._heartbeatConnection = RunService.Heartbeat:Connect(updateAllDropdownPositions)
+                end
             else
                 DropdownList.Size = UDim2.new(0, 165, 0, 0)
                 self._openDropdowns[DropdownContainer] = nil
+                if not next(self._openDropdowns) and self._heartbeatConnection then
+                    self._heartbeatConnection:Disconnect()
+                    self._heartbeatConnection = nil
+                end
             end
         end
         
@@ -1122,20 +1125,6 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
             end
             
             toggleDropdown()
-        end)
-        
-        -- Update position when window moves
-        MainFrame:GetPropertyChangedSignal("Position"):Connect(function()
-            if isDropdownOpen then
-                updateDropdownPosition()
-            end
-        end)
-        
-        -- Update position when scrolling the element container
-        ElementContainer:GetPropertyChangedSignal("CanvasPosition"):Connect(function()
-            if isDropdownOpen then
-                updateDropdownPosition()
-            end
         end)
         
         -- Close dropdown when clicking outside
@@ -1165,15 +1154,15 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
         local contentHeight = 0
         for _, element in pairs(self._toggleElements) do
             if element.Parent == ContentFrame then
-                contentHeight = contentHeight + element.Size.Y.Offset + 5
+                contentHeight = contentHeight + element.Size.Y.Offset + 2 -- Changed to 2
             end
         end
         for _, element in pairs(self._dropdownElements) do
             if element.Parent == ContentFrame then
-                contentHeight = contentHeight + element.Size.Y.Offset + 5
+                contentHeight = contentHeight + element.Size.Y.Offset + 2 -- Changed to 2
             end
         end
-        contentHeight = math.max(contentHeight - 5, 0)
+        contentHeight = math.max(contentHeight - 2, 0) -- Changed to -2
         
         if windowInstance._sectionStates[section] then
             -- Only update if section is expanded
@@ -1268,6 +1257,17 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
                 createOptionButtons()
             end
         }
+    end
+
+    local function updateAllDropdownPositions()
+        for dropdownContainer, dropdownList in pairs(windowInstance._openDropdowns) do
+            local button = dropdownContainer:FindFirstChild("Button")
+            if button then
+                local buttonPos = button.AbsolutePosition
+                local buttonSize = button.AbsoluteSize
+                dropdownList.Position = UDim2.new(0, buttonPos.X, 0, buttonPos.Y + buttonSize.Y)
+            end
+        end
     end
 
     return windowInstance
