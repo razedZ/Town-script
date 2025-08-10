@@ -759,7 +759,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
         ToggleContainer.Size = UDim2.new(1, 0, 0, 30)
         ToggleContainer.Position = UDim2.new(0, 0, 0, yOffset)
         ToggleContainer.ZIndex = 5
-        ToggleContainer.Visible = true
+        ToggleContainer.Visible = true -- Ensure visibility
 
         local ToggleButton = Instance.new("TextButton")
         ToggleButton.Name = "Button"
@@ -819,7 +819,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
             callback(isToggled)
         end)
         
-        table.insert(self._toggleElements, ToggleContainer)
+        table.insert(self._toggleElements, ToggleContainer) -- Ensure toggle is tracked
         
         local sectionsList = table.find(self._leftSections, section) and self._leftSections or self._rightSections
         local container = sectionsList == self._leftSections and LeftContainer or RightContainer
