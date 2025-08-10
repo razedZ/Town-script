@@ -231,7 +231,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveName)
                         end
                     end
                     
-                    local sectionHeight = 30 + (elementCount * 25) + 15 -- Header + elements + padding
+                    local sectionHeight = 30 + (elementCount * 25) + 15 -- Header + elements + 15px padding
                     yOffset = yOffset + sectionHeight + 20
                 end
                 totalHeight = yOffset
@@ -450,7 +450,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveName)
                         end
                     end
                     
-                    local sectionHeight = 30 + (elementCount * 25) + 30 -- Header + elements + padding
+                    local sectionHeight = 30 + (elementCount * 25) + 15 -- Header + elements + padding
                     yOffset = yOffset + sectionHeight + 20
                 end
             end
@@ -627,7 +627,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveName)
         if not ContentFrame then return nil end
         
         -- Calculate position based on existing toggles in this section
-        local yOffset = 10 -- Start 10 pixels below the separator line
+        local yOffset = 15 -- Start 15 pixels below the separator line (изменено с 10 на 15)
         for _, element in pairs(self._toggleElements) do
             if element.Parent == ContentFrame then
                 yOffset = yOffset + 25 -- Each toggle is 25 pixels tall
