@@ -10,7 +10,7 @@ end
 local PizdecWare = {}
 PizdecWare.__index = PizdecWare
 
-function PizdecWare:CreateWindow(guiName, infoText, saveName)
+function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
     local ScreenGui = Instance.new("ScreenGui")
     ScreenGui.Parent = game:GetService("CoreGui")
     ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
@@ -205,14 +205,17 @@ function PizdecWare:CreateWindow(guiName, infoText, saveName)
         _elementContainer = ElementContainer,
         _sectionStates = {}, -- Track expanded/collapsed state
         _toggleElements = {}, -- Track toggle elements
-        _saveName = saveName or "PizdecWareSettings",
+        _saveConfig = saveConfig or { enabled = false, fileName = "PizdecWareSettings" },
         _savedToggles = {}
     }, PizdecWare)
 
     -- Load saved toggles
-    if windowInstance._saveName and HttpService then
+    if windowInstance._saveConfig.enabled and HttpService then
         local success, savedData = pcall(function()
-            local data = game:GetService("HttpService"):JSONDecode(readfile(windowInstance._saveName..".json")) or {}
+            if not isfile(windowInstance._saveConfig.fileName..".json") then
+                return {}
+            end
+            local data = game:GetService("HttpService"):JSONDecode(readfile(windowInstance._saveConfig.fileName..".json")) or {}
             return data
         end)
         
@@ -223,18 +226,18 @@ function PizdecWare:CreateWindow(guiName, infoText, saveName)
 
     -- Function to save toggle state
     local function saveToggleState(window, toggleName, state)
-        if not window._saveName or not HttpService then return end
+        if not window._saveConfig.enabled or not HttpService then return end
         
         window._savedToggles[toggleName] = state
         
         pcall(function()
-            writefile(window._saveName..".json", HttpService:JSONEncode(window._savedToggles))
+            writefile(window._saveConfig.fileName..".json", HttpService:JSONEncode(window._savedToggles))
         end)
     end
 
     -- Function to load toggle state
     local function loadToggleState(window, toggleName)
-        if not window._saveName or not window._savedToggles then return nil end
+        if not window._saveConfig.enabled or not window._savedToggles then return nil end
         return window._savedToggles[toggleName]
     end
 
@@ -658,7 +661,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveName)
         if not ContentFrame then return nil end
         
         -- Load saved state if available
-        if save and self._saveName then
+        if save and self._saveConfig.enabled then
             local savedState = loadToggleState(self, toggleName)
             if savedState ~= nil then
                 defaultValue = savedState
@@ -738,7 +741,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveName)
             end
             
             -- Save state if needed
-            if save then
+            if save and self._saveConfig.enabled then
                 saveToggleState(self, toggleName, isToggled)
             end
             
@@ -785,7 +788,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveName)
                 end
                 
                 -- Save state if needed
-                if save then
+                if save and windowInstance._saveConfig.enabled then
                     saveToggleState(windowInstance, toggleName, isToggled)
                 end
                 
