@@ -46,25 +46,6 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
     local function update(input)
         local delta = input.Position - dragStart
         MainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
-        -- Update dropdown positions during dragging
-        if windowInstance._openDropdowns then
-            for dropdownContainer, dropdownList in pairs(windowInstance._openDropdowns) do
-                local button = dropdownContainer:FindFirstChild("Button")
-                if button then
-                    local buttonPos = button.AbsolutePosition
-                    local buttonSize = button.AbsoluteSize
-                    local screenSize = ScreenGui.AbsoluteSize
-                    local maxHeight = math.min(4, dropdownContainer.options and #dropdownContainer.options or 4) * 20
-                    
-                    local yPos = buttonPos.Y + buttonSize.Y
-                    if yPos + maxHeight > screenSize.Y then
-                        yPos = buttonPos.Y - maxHeight
-                    end
-                    
-                    dropdownList.Position = UDim2.new(0, buttonPos.X, 0, yPos)
-                end
-            end
-        end
     end
 
     MainFrame.InputBegan:Connect(function(input)
@@ -330,7 +311,16 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
                         local previous_type = nil
                         for j, element in ipairs(elements) do
                             local elem_type = element.Name:match("^Toggle_") and "toggle" or "dropdown"
-                            local spacing = (previous_type == nil) and 5 or ((previous_type == "toggle" and elem_type == "dropdown") and 1 or (previous_type == "dropdown" and elem_type == "toggle") and 2 or 2)
+                            local spacing
+                            if previous_type == nil then
+                                spacing = 5
+                            elseif previous_type == "toggle" and elem_type == "dropdown" then
+                                spacing = 1
+                            elseif previous_type == "dropdown" and elem_type == "toggle" then
+                                spacing = 2 -- Doubled spacing (2 * 1) for dropdown-to-toggle
+                            else
+                                spacing = 2 -- toggle-to-toggle or dropdown-to-dropdown
+                            end
                             contentHeight = contentHeight + spacing + element.Size.Y.Offset
                             previous_type = elem_type
                         end
@@ -549,7 +539,16 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
                         local previous_type = nil
                         for j, element in ipairs(elements) do
                             local elem_type = element.Name:match("^Toggle_") and "toggle" or "dropdown"
-                            local spacing = (previous_type == nil) and 5 or ((previous_type == "toggle" and elem_type == "dropdown") and 1 or (previous_type == "dropdown" and elem_type == "toggle") and 2 or 2)
+                            local spacing
+                            if previous_type == nil then
+                                spacing = 5
+                            elseif previous_type == "toggle" and elem_type == "dropdown" then
+                                spacing = 1
+                            elseif previous_type == "dropdown" and elem_type == "toggle" then
+                                spacing = 2 -- Doubled spacing for dropdown-to-toggle
+                            else
+                                spacing = 2 -- toggle-to-toggle or dropdown-to-dropdown
+                            end
                             contentHeight = contentHeight + spacing + element.Size.Y.Offset
                             previous_type = elem_type
                         end
@@ -661,7 +660,16 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
                 local previous_type = nil
                 for j, element in ipairs(elements) do
                     local elem_type = element.Name:match("^Toggle_") and "toggle" or "dropdown"
-                    local spacing = (previous_type == nil) and 5 or ((previous_type == "toggle" and elem_type == "dropdown") and 1 or (previous_type == "dropdown" and elem_type == "toggle") and 2 or 2)
+                    local spacing
+                    if previous_type == nil then
+                        spacing = 5
+                    elseif previous_type == "toggle" and elem_type == "dropdown" then
+                        spacing = 1
+                    elseif previous_type == "dropdown" and elem_type == "toggle" then
+                        spacing = 2 -- Doubled spacing for dropdown-to-toggle
+                    else
+                        spacing = 2 -- toggle-to-toggle or dropdown-to-dropdown
+                    end
                     contentHeight = contentHeight + spacing + element.Size.Y.Offset
                     previous_type = elem_type
                 end
@@ -748,7 +756,14 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
         else
             local last = elements[#elements]
             local last_type = last.Name:match("^Toggle_") and "toggle" or "dropdown"
-            local spacing = (last_type == "toggle" and new_type == "dropdown") and 1 or (last_type == "dropdown" and new_type == "toggle") and 2 or 2
+            local spacing
+            if last_type == "toggle" and new_type == "dropdown" then
+                spacing = 1
+            elseif last_type == "dropdown" and new_type == "toggle" then
+                spacing = 2 -- Doubled spacing for dropdown-to-toggle
+            else
+                spacing = 2 -- toggle-to-toggle or dropdown-to-dropdown
+            end
             yOffset = last.Position.Y.Offset + last.Size.Y.Offset + spacing
         end
 
@@ -759,7 +774,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
         ToggleContainer.Size = UDim2.new(1, 0, 0, 30)
         ToggleContainer.Position = UDim2.new(0, 0, 0, yOffset)
         ToggleContainer.ZIndex = 5
-        ToggleContainer.Visible = true -- Ensure visibility
+        ToggleContainer.Visible = true
 
         local ToggleButton = Instance.new("TextButton")
         ToggleButton.Name = "Button"
@@ -819,7 +834,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
             callback(isToggled)
         end)
         
-        table.insert(self._toggleElements, ToggleContainer) -- Ensure toggle is tracked
+        table.insert(self._toggleElements, ToggleContainer)
         
         local sectionsList = table.find(self._leftSections, section) and self._leftSections or self._rightSections
         local container = sectionsList == self._leftSections and LeftContainer or RightContainer
@@ -829,7 +844,16 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
         local previous_type = nil
         for j, element in ipairs(elements_updated) do
             local elem_type = element.Name:match("^Toggle_") and "toggle" or "dropdown"
-            local spacing = (previous_type == nil) and 5 or ((previous_type == "toggle" and elem_type == "dropdown") and 1 or (previous_type == "dropdown" and elem_type == "toggle") and 2 or 2)
+            local spacing
+            if previous_type == nil then
+                spacing = 5
+            elseif previous_type == "toggle" and elem_type == "dropdown" then
+                spacing = 1
+            elseif previous_type == "dropdown" and elem_type == "toggle" then
+                spacing = 2 -- Doubled spacing for dropdown-to-toggle
+            else
+                spacing = 2 -- toggle-to-toggle or dropdown-to-dropdown
+            end
             contentHeight = contentHeight + spacing + element.Size.Y.Offset
             previous_type = elem_type
         end
@@ -898,7 +922,14 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
         else
             local last = elements[#elements]
             local last_type = last.Name:match("^Toggle_") and "toggle" or "dropdown"
-            local spacing = (last_type == "toggle" and new_type == "dropdown") and 1 or (last_type == "dropdown" and new_type == "toggle") and 2 or 2
+            local spacing
+            if last_type == "toggle" and new_type == "dropdown" then
+                spacing = 1
+            elseif last_type == "dropdown" and new_type == "toggle" then
+                spacing = 2 -- Doubled spacing for dropdown-to-toggle
+            else
+                spacing = 2 -- toggle-to-toggle or dropdown-to-dropdown
+            end
             yOffset = last.Position.Y.Offset + last.Size.Y.Offset + spacing
         end
         
@@ -910,7 +941,6 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
         DropdownContainer.Position = UDim2.new(0, 0, 0, yOffset)
         DropdownContainer.ZIndex = 5
         DropdownContainer.Visible = true
-        DropdownContainer.options = options -- Store options for dragging
         
         local DropdownLabel = Instance.new("TextLabel")
         DropdownLabel.Name = "Label"
@@ -1137,9 +1167,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
                 DropdownList.Size = UDim2.new(0, 165, 0, maxHeight)
                 self._openDropdowns[DropdownContainer] = DropdownList
                 if next(self._openDropdowns) and not self._heartbeatConnection then
-                    self._heartbeatConnection = RunService.Heartbeat:Connect(function()
-                        updateAllDropdownPositions()
-                    end)
+                    self._heartbeatConnection = RunService.Heartbeat:Connect(updateAllDropdownPositions)
                 end
             else
                 DropdownList.Size = UDim2.new(0, 165, 0, 0)
@@ -1188,7 +1216,16 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
         local previous_type = nil
         for j, element in ipairs(elements_updated) do
             local elem_type = element.Name:match("^Toggle_") and "toggle" or "dropdown"
-            local spacing = (previous_type == nil) and 5 or ((previous_type == "toggle" and elem_type == "dropdown") and 1 or (previous_type == "dropdown" and elem_type == "toggle") and 2 or 2)
+            local spacing
+            if previous_type == nil then
+                spacing = 5
+            elseif previous_type == "toggle" and elem_type == "dropdown" then
+                spacing = 1
+            elseif previous_type == "dropdown" and elem_type == "toggle" then
+                spacing = 2 -- Doubled spacing for dropdown-to-toggle
+            else
+                spacing = 2 -- toggle-to-toggle or dropdown-to-dropdown
+            end
             contentHeight = contentHeight + spacing + element.Size.Y.Offset
             previous_type = elem_type
         end
@@ -1267,7 +1304,6 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
             end,
             UpdateOptions = function(self, newOptions)
                 options = newOptions
-                DropdownContainer.options = newOptions
                 
                 for opt in pairs(selectedOptions) do
                     if not table.find(options, opt) then
@@ -1288,7 +1324,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
                 local buttonPos = button.AbsolutePosition
                 local buttonSize = button.AbsoluteSize
                 local screenSize = ScreenGui.AbsoluteSize
-                local maxHeight = math.min(4, dropdownContainer.options and #dropdownContainer.options or 4) * 20
+                local maxHeight = math.min(4, #dropdownContainer.options or 4) * 20
                 
                 local yPos = buttonPos.Y + buttonSize.Y
                 if yPos + maxHeight > screenSize.Y then
