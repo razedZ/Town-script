@@ -210,12 +210,14 @@ function PizdecWare:CreateWindow(guiName, infoText, saveName)
     }, PizdecWare)
 
     -- Load saved toggles
-    if saveName and HttpService then
-        local success, data = pcall(function()
-            return HttpService:JSONDecode(plugin:GetSetting(windowInstance._saveName) or {}
+    if windowInstance._saveName and HttpService then
+        local success, savedData = pcall(function()
+            local data = game:GetService("HttpService"):JSONDecode(readfile(windowInstance._saveName..".json")) or {}
+            return data
         end)
-        if success and data then
-            windowInstance._savedToggles = data
+        
+        if success and savedData then
+            windowInstance._savedToggles = savedData
         end
     end
 
@@ -226,7 +228,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveName)
         window._savedToggles[toggleName] = state
         
         pcall(function()
-            plugin:SetSetting(window._saveName, HttpService:JSONEncode(window._savedToggles))
+            writefile(window._saveName..".json", HttpService:JSONEncode(window._savedToggles))
         end)
     end
 
