@@ -1,4 +1,4 @@
-```lua
+
 local success, HttpService = pcall(game.GetService, game, "HttpService")
 local success2, TweenService = pcall(game.GetService, game, "TweenService")
 local success3, UserInputService = pcall(game.GetService, game, "UserInputService")
@@ -1299,4 +1299,4 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
 end
 
 return PizdecWare
-```
+
