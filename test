@@ -908,13 +908,13 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
         DropdownContainer.Position = UDim2.new(0, 0, 0, yOffset)
         DropdownContainer.ZIndex = 5
         
-        -- Dropdown label
+        -- Dropdown label (расположен как в оригинальном UI)
         local DropdownLabel = Instance.new("TextLabel")
         DropdownLabel.Name = "Label"
         DropdownLabel.Parent = DropdownContainer
         DropdownLabel.BackgroundTransparency = 1
-        DropdownLabel.Position = UDim2.new(0, 0, -0.7, 0)
-        DropdownLabel.Size = UDim2.new(0, 165, 0, 21)
+        DropdownLabel.Position = UDim2.new(0.085, 0, -0.7, 0)
+        DropdownLabel.Size = UDim2.new(0, 100, 0, 21)
         DropdownLabel.Font = Enum.Font.SourceSansBold
         DropdownLabel.Text = dropdownName
         DropdownLabel.TextColor3 = Color3.fromRGB(147, 152, 156)
@@ -945,23 +945,24 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
         SelectedText.Name = "SelectedText"
         SelectedText.Parent = DropdownButton
         SelectedText.BackgroundTransparency = 1
-        SelectedText.Size = UDim2.new(1, 0, 1, 0)
+        SelectedText.Position = UDim2.new(0.05, 0, 0, 0)
+        SelectedText.Size = UDim2.new(0.9, 0, 1, 0)
         SelectedText.Font = Enum.Font.SourceSans
         SelectedText.Text = ""
         SelectedText.TextColor3 = Color3.fromRGB(147, 152, 156)
         SelectedText.TextSize = 14
+        SelectedText.TextXAlignment = Enum.TextXAlignment.Left
         SelectedText.ZIndex = 7
         
-        -- Dropdown list frame
+        -- Dropdown list frame (будет поверх всего UI)
         local DropdownList = Instance.new("Frame")
         DropdownList.Name = "DropdownList"
-        DropdownList.Parent = DropdownContainer
+        DropdownList.Parent = ScreenGui -- Parent to ScreenGui to be above everything
         DropdownList.BackgroundColor3 = Color3.fromRGB(25, 28, 34)
         DropdownList.BorderSizePixel = 0
-        DropdownList.Position = UDim2.new(0.085, 0, 1, 0)
         DropdownList.Size = UDim2.new(0, 165, 0, 0) -- Will be updated when opened
         DropdownList.Visible = false
-        DropdownList.ZIndex = 8
+        DropdownList.ZIndex = 100 -- High z-index to be above everything
         DropdownList.ClipsDescendants = true
         
         local UICornerList = Instance.new("UICorner")
@@ -1038,7 +1039,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
                 OptionButton.Text = option
                 OptionButton.TextColor3 = selectedOptions[option] and Color3.fromRGB(150, 17, 255) or Color3.fromRGB(147, 152, 156)
                 OptionButton.TextSize = 14
-                OptionButton.ZIndex = 9
+                OptionButton.ZIndex = 101 -- Higher than dropdown list
                 
                 OptionButton.MouseButton1Click:Connect(function()
                     if multi then
@@ -1114,18 +1115,38 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
         -- Toggle dropdown visibility
         local isDropdownOpen = false
         
+        local function updateDropdownPosition()
+            local buttonPos = DropdownButton.AbsolutePosition
+            local buttonSize = DropdownButton.AbsoluteSize
+            
+            DropdownList.Position = UDim2.new(
+                0, buttonPos.X,
+                0, buttonPos.Y + buttonSize.Y
+            )
+        end
+        
         DropdownButton.MouseButton1Click:Connect(function()
             isDropdownOpen = not isDropdownOpen
             DropdownList.Visible = isDropdownOpen
             
             if isDropdownOpen then
+                updateDropdownPosition()
                 -- Bring to front
-                DropdownList.ZIndex = 8
+                DropdownList.ZIndex = 100
                 for _, btn in ipairs(DropdownList:GetChildren()) do
                     if btn:IsA("TextButton") then
-                        btn.ZIndex = 9
+                        btn.ZIndex = 101
                     end
                 end
+            else
+                DropdownList.Size = UDim2.new(0, 165, 0, 0)
+            end
+        end)
+        
+        -- Update position when window moves
+        MainFrame:GetPropertyChangedSignal("Position"):Connect(function()
+            if isDropdownOpen then
+                updateDropdownPosition()
             end
         end)
         
@@ -1133,18 +1154,16 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
         UserInputService.InputBegan:Connect(function(input, gameProcessed)
             if gameProcessed then return end
             
-            if input.UserInputType == Enum.UserInputType.MouseButton1 then
-                if isDropdownOpen then
-                    local mousePos = UserInputService:GetMouseLocation()
-                    local absPos = DropdownList.AbsolutePosition
-                    local absSize = DropdownList.AbsoluteSize
-                    
-                    if not (mousePos.X >= absPos.X and mousePos.X <= absPos.X + absSize.X and
-                           mousePos.Y >= absPos.Y and mousePos.Y <= absPos.Y + absSize.Y) then
-                        isDropdownOpen = false
-                        DropdownList.Visible = false
-                        DropdownList.Size = UDim2.new(0, 165, 0, 0)
-                    end
+            if input.UserInputType == Enum.UserInputType.MouseButton1 and isDropdownOpen then
+                local mousePos = UserInputService:GetMouseLocation()
+                local absPos = DropdownList.AbsolutePosition
+                local absSize = DropdownList.AbsoluteSize
+                
+                if not (mousePos.X >= absPos.X and mousePos.X <= absPos.X + absSize.X and
+                       mousePos.Y >= absPos.Y and mousePos.Y <= absPos.Y + absSize.Y) then
+                    isDropdownOpen = false
+                    DropdownList.Visible = false
+                    DropdownList.Size = UDim2.new(0, 165, 0, 0)
                 end
             end
         end)
