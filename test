@@ -208,7 +208,8 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
         _dropdownElements = {}, -- Track dropdown elements
         _saveConfig = saveConfig or { enabled = false, fileName = "PizdecWareSettings" },
         _savedToggles = {},
-        _savedDropdowns = {}
+        _savedDropdowns = {},
+        _openDropdowns = {} -- Track open dropdowns
     }, PizdecWare)
 
     -- Load saved toggles and dropdowns
@@ -677,6 +678,15 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
                     end
                 end
                 
+                -- Close any open dropdowns in this section
+                for dropdownContainer, dropdownList in pairs(self._openDropdowns) do
+                    if dropdownContainer:IsDescendantOf(section) then
+                        dropdownList.Visible = false
+                        dropdownList.Size = UDim2.new(0, 165, 0, 0)
+                        self._openDropdowns[dropdownContainer] = nil
+                    end
+                end
+                
                 -- Then collapse
                 ContentFrame.Size = UDim2.new(1, 0, 0, 0)
                 local sizeTween = TweenService:Create(
@@ -899,12 +909,12 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
             end
         end
         
-        -- Dropdown container
+        -- Dropdown container (увеличил высоту для текста)
         local DropdownContainer = Instance.new("Frame")
         DropdownContainer.Name = "Dropdown_" .. dropdownName
         DropdownContainer.Parent = ContentFrame
         DropdownContainer.BackgroundTransparency = 1
-        DropdownContainer.Size = UDim2.new(1, 0, 0, 30)
+        DropdownContainer.Size = UDim2.new(1, 0, 0, 50) -- Increased height for label
         DropdownContainer.Position = UDim2.new(0, 0, 0, yOffset)
         DropdownContainer.ZIndex = 5
         
@@ -913,8 +923,8 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
         DropdownLabel.Name = "Label"
         DropdownLabel.Parent = DropdownContainer
         DropdownLabel.BackgroundTransparency = 1
-        DropdownLabel.Position = UDim2.new(0.085, 0, -0.7, 0)
-        DropdownLabel.Size = UDim2.new(0, 100, 0, 21)
+        DropdownLabel.Position = UDim2.new(0.085, 0, 0, 0)
+        DropdownLabel.Size = UDim2.new(0, 165, 0, 20)
         DropdownLabel.Font = Enum.Font.SourceSansBold
         DropdownLabel.Text = dropdownName
         DropdownLabel.TextColor3 = Color3.fromRGB(147, 152, 156)
@@ -928,7 +938,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
         DropdownButton.Parent = DropdownContainer
         DropdownButton.BackgroundColor3 = Color3.fromRGB(25, 28, 34)
         DropdownButton.BorderSizePixel = 0
-        DropdownButton.Position = UDim2.new(0.085, 0, 0, 0)
+        DropdownButton.Position = UDim2.new(0.085, 0, 0, 25) -- Position below label
         DropdownButton.Size = UDim2.new(0, 165, 0, 30)
         DropdownButton.Font = Enum.Font.SourceSans
         DropdownButton.Text = ""
@@ -969,8 +979,16 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
         UICornerList.CornerRadius = UDim.new(0, 4)
         UICornerList.Parent = DropdownList
         
+        local ScrollingFrame = Instance.new("ScrollingFrame")
+        ScrollingFrame.Parent = DropdownList
+        ScrollingFrame.Size = UDim2.new(1, 0, 1, 0)
+        ScrollingFrame.BackgroundTransparency = 1
+        ScrollingFrame.ScrollBarThickness = 5
+        ScrollingFrame.ScrollBarImageColor3 = Color3.fromRGB(100, 100, 100)
+        ScrollingFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
+        
         local UIListLayout = Instance.new("UIListLayout")
-        UIListLayout.Parent = DropdownList
+        UIListLayout.Parent = ScrollingFrame
         UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
         
         -- Initialize selected options
@@ -1021,7 +1039,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
         -- Create option buttons
         local function createOptionButtons()
             -- Clear existing options
-            for _, child in ipairs(DropdownList:GetChildren()) do
+            for _, child in ipairs(ScrollingFrame:GetChildren()) do
                 if child:IsA("TextButton") then
                     child:Destroy()
                 end
@@ -1031,7 +1049,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
             for _, option in ipairs(options) do
                 local OptionButton = Instance.new("TextButton")
                 OptionButton.Name = "Option_" .. option
-                OptionButton.Parent = DropdownList
+                OptionButton.Parent = ScrollingFrame
                 OptionButton.BackgroundColor3 = Color3.fromRGB(25, 28, 34)
                 OptionButton.BorderSizePixel = 0
                 OptionButton.Size = UDim2.new(1, 0, 0, 20)
@@ -1058,7 +1076,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
                         selectedOptions[option] = true
                         
                         -- Update all option colors
-                        for _, btn in ipairs(DropdownList:GetChildren()) do
+                        for _, btn in ipairs(ScrollingFrame:GetChildren()) do
                             if btn:IsA("TextButton") then
                                 btn.TextColor3 = btn == OptionButton and Color3.fromRGB(150, 17, 255) or Color3.fromRGB(147, 152, 156)
                             end
@@ -1067,6 +1085,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
                         -- Close dropdown after selection
                         DropdownList.Visible = false
                         DropdownList.Size = UDim2.new(0, 165, 0, 0)
+                        self._openDropdowns[DropdownContainer] = nil
                     end
                     
                     updateSelectedText()
@@ -1104,10 +1123,11 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
                 end)
             end
             
-            -- Update dropdown list size
+            -- Update dropdown list size (максимум 4 опции с скроллом)
             local optionCount = #options
-            local maxHeight = math.min(optionCount * 20, 80) -- Max height 80px
+            local maxHeight = math.min(4, optionCount) * 20 -- Max 4 options visible
             DropdownList.Size = UDim2.new(0, 165, 0, maxHeight)
+            ScrollingFrame.CanvasSize = UDim2.new(0, 0, 0, optionCount * 20)
         end
         
         createOptionButtons()
@@ -1125,7 +1145,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
             )
         end
         
-        DropdownButton.MouseButton1Click:Connect(function()
+        local function toggleDropdown()
             isDropdownOpen = not isDropdownOpen
             DropdownList.Visible = isDropdownOpen
             
@@ -1133,14 +1153,30 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
                 updateDropdownPosition()
                 -- Bring to front
                 DropdownList.ZIndex = 100
-                for _, btn in ipairs(DropdownList:GetChildren()) do
+                for _, btn in ipairs(ScrollingFrame:GetChildren()) do
                     if btn:IsA("TextButton") then
                         btn.ZIndex = 101
                     end
                 end
+                -- Track open dropdown
+                self._openDropdowns[DropdownContainer] = DropdownList
             else
                 DropdownList.Size = UDim2.new(0, 165, 0, 0)
+                self._openDropdowns[DropdownContainer] = nil
             end
+        end
+        
+        DropdownButton.MouseButton1Click:Connect(function()
+            -- Close other open dropdowns first
+            for container, list in pairs(self._openDropdowns) do
+                if container ~= DropdownContainer then
+                    list.Visible = false
+                    list.Size = UDim2.new(0, 165, 0, 0)
+                    self._openDropdowns[container] = nil
+                end
+            end
+            
+            toggleDropdown()
         end)
         
         -- Update position when window moves
@@ -1161,9 +1197,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
                 
                 if not (mousePos.X >= absPos.X and mousePos.X <= absPos.X + absSize.X and
                        mousePos.Y >= absPos.Y and mousePos.Y <= absPos.Y + absSize.Y) then
-                    isDropdownOpen = false
-                    DropdownList.Visible = false
-                    DropdownList.Size = UDim2.new(0, 165, 0, 0)
+                    toggleDropdown()
                 end
             end
         end)
@@ -1175,7 +1209,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
         local sectionsList = table.find(self._leftSections, section) and self._leftSections or self._rightSections
         local container = sectionsList == self._leftSections and LeftContainer or RightContainer
         
-        -- Calculate new section height
+        -- Calculate new section height (учитываем увеличенную высоту dropdown)
         local elementCount = 0
         for _, element in pairs(self._toggleElements) do
             if element.Parent == ContentFrame then
