@@ -706,7 +706,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
         Checkmark.Parent = ToggleButton
         Checkmark.BackgroundTransparency = 1
         Checkmark.Size = UDim2.new(1, 0, 1, 0)
-        Checkmark.Text = "✓"
+        Checkmark.Text = "✔️"
         Checkmark.TextColor3 = Color3.fromRGB(24, 29, 32)
         Checkmark.TextSize = 16
         Checkmark.ZIndex = 7
