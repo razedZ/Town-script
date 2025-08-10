@@ -393,7 +393,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
         local UIGradient = Instance.new("UIGradient")
         UIGradient.Offset = Vector2.new(0, 1)
         UIGradient.Rotation = 0
-        UIGradient.Transparency = NumberSequence.new{NumberSequenceKeypoint.new(0.00, 0.90), NumberSequenceKeypoint.new(0.10, 0.76), NumberSequenceKeypoint.new(1.00, 0.99)}
+        UIGradient.Transparency = NumberSequence.new{NumberSequenceKeypoint.new(0.00, 1.00), NumberSequenceKeypoint.new(0.01, 0.67), NumberSequenceKeypoint.new(1.00, 0.96)}
         UIGradient.Parent = windowInstance._selectedTab
 
         local CloseButton = Instance.new("ImageButton")
