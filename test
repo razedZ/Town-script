@@ -708,7 +708,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
         Checkmark.Size = UDim2.new(1, 0, 1, 0)
         Checkmark.Text = "✔️"
         Checkmark.TextColor3 = Color3.fromRGB(24, 29, 32)
-        Checkmark.TextSize = 16
+        Checkmark.TextSize = 10
         Checkmark.ZIndex = 7
         Checkmark.Visible = defaultValue
         
