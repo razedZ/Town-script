@@ -315,7 +315,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
                             if previous_type == nil then
                                 spacing = 5
                             elseif previous_type == "toggle" and elem_type == "dropdown" then
-                                spacing = 2 -- Увеличенное расстояние между toggle и dropdown (было 1)
+                                spacing = 8 -- Увеличенное расстояние между toggle и dropdown (было 1)
                             elseif previous_type == "dropdown" and elem_type == "toggle" then
                                 spacing = 4 -- Увеличенное расстояние между dropdown и toggle (было 2)
                             else
@@ -393,8 +393,14 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
         local UIGradient = Instance.new("UIGradient")
         UIGradient.Offset = Vector2.new(0, 1)
         UIGradient.Rotation = 0
-        UIGradient.Transparency = NumberSequence.new{NumberSequenceKeypoint.new(0.00, 0.90), NumberSequenceKeypoint.new(0.10, 0.76), NumberSequenceKeypoint.new(1.00, 0.99)}
+        UIGradient.Transparency = NumberSequence.new{NumberSequenceKeypoint.new(0.00, 1.00), NumberSequenceKeypoint.new(0.01, 0.67), NumberSequenceKeypoint.new(1.00, 0.96)}
         UIGradient.Parent = windowInstance._selectedTab
+
+        -- Fix gradient after animation
+        local function fixGradient()
+            windowInstance._selectedTab.BackgroundTransparency = 0.9
+            UIGradient.Transparency = NumberSequence.new{NumberSequenceKeypoint.new(0.00, 1.00), NumberSequenceKeypoint.new(0.01, 0.67), NumberSequenceKeypoint.new(1.00, 0.96)}
+        end
 
         local CloseButton = Instance.new("ImageButton")
         CloseButton.Name = "CloseButton"
@@ -484,6 +490,11 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
             
             moveTween.Completed:Connect(function()
                 self._selectedTab.BackgroundTransparency = 0.9
+                -- Fix gradient after animation
+                local gradient = self._selectedTab:FindFirstChildOfClass("UIGradient")
+                if gradient then
+                    gradient.Transparency = NumberSequence.new{NumberSequenceKeypoint.new(0.00, 1.00), NumberSequenceKeypoint.new(0.01, 0.67), NumberSequenceKeypoint.new(1.00, 0.96)}
+                end
             end)
 
             for tabName, sections in pairs(self._tabSections) do
@@ -543,7 +554,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
                             if previous_type == nil then
                                 spacing = 5
                             elseif previous_type == "toggle" and elem_type == "dropdown" then
-                                spacing = 2 -- Увеличенное расстояние между toggle и dropdown (было 1)
+                                spacing = 8 -- Увеличенное расстояние между toggle и dropdown (было 1)
                             elseif previous_type == "dropdown" and elem_type == "toggle" then
                                 spacing = 4 -- Увеличенное расстояние между dropdown и toggle (было 2)
                             else
@@ -664,7 +675,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
                     if previous_type == nil then
                         spacing = 5
                     elseif previous_type == "toggle" and elem_type == "dropdown" then
-                        spacing = 2 -- Увеличенное расстояние между toggle и dropdown (было 1)
+                        spacing = 8 -- Увеличенное расстояние между toggle и dropdown (было 1)
                     elseif previous_type == "dropdown" and elem_type == "toggle" then
                         spacing = 4 -- Увеличенное расстояние между dropdown и toggle (было 2)
                     else
@@ -758,7 +769,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
             local last_type = last.Name:match("^Toggle_") and "toggle" or "dropdown"
             local spacing
             if last_type == "toggle" and new_type == "dropdown" then
-                spacing = 2 -- Увеличенное расстояние между toggle и dropdown (было 1)
+                spacing = 8 -- Увеличенное расстояние между toggle и dropdown (было 1)
             elseif last_type == "dropdown" and new_type == "toggle" then
                 spacing = 4 -- Увеличенное расстояние между dropdown и toggle (было 2)
             else
@@ -848,7 +859,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
             if previous_type == nil then
                 spacing = 5
             elseif previous_type == "toggle" and elem_type == "dropdown" then
-                spacing = 2 -- Увеличенное расстояние между toggle и dropdown (было 1)
+                spacing = 8 -- Увеличенное расстояние между toggle и dropdown (было 1)
             elseif previous_type == "dropdown" and elem_type == "toggle" then
                 spacing = 4 -- Увеличенное расстояние между dropdown и toggle (было 2)
             else
@@ -924,7 +935,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
             local last_type = last.Name:match("^Toggle_") and "toggle" or "dropdown"
             local spacing
             if last_type == "toggle" and new_type == "dropdown" then
-                spacing = 2 -- Увеличенное расстояние между toggle и dropdown (было 1)
+                spacing = 8 -- Увеличенное расстояние между toggle и dropdown (было 1)
             elseif last_type == "dropdown" and new_type == "toggle" then
                 spacing = 4 -- Увеличенное расстояние между dropdown и toggle (было 2)
             else
@@ -1220,7 +1231,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
             if previous_type == nil then
                 spacing = 5
             elseif previous_type == "toggle" and elem_type == "dropdown" then
-                spacing = 2 -- Увеличенное расстояние между toggle и dropdown (было 1)
+                spacing = 8 -- Увеличенное расстояние между toggle и dropdown (было 1)
             elseif previous_type == "dropdown" and elem_type == "toggle" then
                 spacing = 4 -- Увеличенное расстояние между dropdown и toggle (было 2)
             else
