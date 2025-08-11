@@ -384,7 +384,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
         windowInstance._selectedTab.Name = "SelectedTab"
         windowInstance._selectedTab.Parent = windowInstance._tabZone
         windowInstance._selectedTab.BackgroundColor3 = Color3.fromRGB(150, 17, 255)
-        windowInstance._selectedTab.BackgroundTransparency = 0.6 -- Установлена прозрачность 0.6
+        windowInstance._selectedTab.BackgroundTransparency = 0.6
         windowInstance._selectedTab.Position = UDim2.new(0, 0, 0, 23)
         windowInstance._selectedTab.Size = UDim2.new(0, 163, 0, 30)
         windowInstance._selectedTab.ZIndex = 2
@@ -936,12 +936,14 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
             local spacing
             if last_type == "toggle" and new_type == "dropdown" then
                 spacing = 3 -- Расстояние между toggle и dropdown
+                yOffset = last.Position.Y.Offset + last.Size.Y.Offset + spacing - 4 -- Поднимаем dropdown на 4 пикселя вверх
             elseif last_type == "dropdown" and new_type == "toggle" then
                 spacing = 5 -- Расстояние между dropdown и toggle
+                yOffset = last.Position.Y.Offset + last.Size.Y.Offset + spacing
             else
                 spacing = 2 -- Обычное расстояние для других комбинаций
+                yOffset = last.Position.Y.Offset + last.Size.Y.Offset + spacing
             end
-            yOffset = last.Position.Y.Offset + last.Size.Y.Offset + spacing
         end
         
         local DropdownContainer = Instance.new("Frame")
