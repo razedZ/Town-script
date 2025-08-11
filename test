@@ -554,9 +554,9 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
                             if previous_type == nil then
                                 spacing = 5
                             elseif previous_type == "toggle" and elem_type == "dropdown" then
-                                spacing = 8 -- Увеличенное расстояние между toggle и dropdown (было 1)
+                                spacing = 1 -- Увеличенное расстояние между toggle и dropdown (было 1)
                             elseif previous_type == "dropdown" and elem_type == "toggle" then
-                                spacing = 4 -- Увеличенное расстояние между dropdown и toggle (было 2)
+                                spacing = 1 -- Увеличенное расстояние между dropdown и toggle (было 2)
                             else
                                 spacing = 2 -- Обычное расстояние для других комбинаций
                             end
