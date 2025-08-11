@@ -455,6 +455,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
             image.ZIndex = 3
             image.Image = "rbxassetid://" .. tostring(imageId)
             image.ImageColor3 = Color3.fromRGB(147, 152, 156)
+            image.ImageTransparency = 1
             fadeIn(image)
         else
             warn("Invalid imageId provided for tab:", visualName, "using default image or none.")
@@ -1168,7 +1169,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
             local buttonPos = DropdownButton.AbsolutePosition
             local buttonSize = DropdownButton.AbsoluteSize
             local screenSize = ScreenGui.AbsoluteSize
-            local maxHeight = math.min(4, #options) * 20
+            local maxHeight = DropdownList.Size.Y.Offset
             
             local yPos = buttonPos.Y + buttonSize.Y
             if yPos + maxHeight > screenSize.Y then
@@ -1180,24 +1181,25 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
         
         local function toggleDropdown()
             isDropdownOpen = not isDropdownOpen
-            DropdownList.Visible = isDropdownOpen and section.Visible
             
             if isDropdownOpen then
+                local optionCount = #options
+                local maxHeight = math.min(4, optionCount) * 20
+                DropdownList.Size = UDim2.new(0, 165, 0, maxHeight)
                 updateDropdownPosition()
+                DropdownList.Visible = section.Visible
                 DropdownList.ZIndex = 1000
                 for _, btn in ipairs(ScrollingFrame:GetChildren()) do
                     if btn:IsA("TextButton") then
                         btn.ZIndex = 1001
                     end
                 end
-                local optionCount = #options
-                local maxHeight = math.min(4, optionCount) * 20
-                DropdownList.Size = UDim2.new(0, 165, 0, maxHeight)
                 self._openDropdowns[DropdownContainer] = DropdownList
                 if next(self._openDropdowns) and not self._heartbeatConnection then
                     self._heartbeatConnection = RunService.Heartbeat:Connect(updateAllDropdownPositions)
                 end
             else
+                DropdownList.Visible = false
                 DropdownList.Size = UDim2.new(0, 165, 0, 0)
                 self._openDropdowns[DropdownContainer] = nil
                 if not next(self._openDropdowns) and self._heartbeatConnection then
@@ -1352,7 +1354,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
                 local buttonPos = button.AbsolutePosition
                 local buttonSize = button.AbsoluteSize
                 local screenSize = ScreenGui.AbsoluteSize
-                local maxHeight = math.min(4, #dropdownContainer.options or 4) * 20
+                local maxHeight = dropdownList.Size.Y.Offset
                 
                 local yPos = buttonPos.Y + buttonSize.Y
                 if yPos + maxHeight > screenSize.Y then
