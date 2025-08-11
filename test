@@ -444,16 +444,22 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
         tab.ZIndex = 3
         fadeIn(tab)
 
-        local image = Instance.new("ImageLabel")
-        image.Name = "TabImage"
-        image.Parent = tab
-        image.BackgroundTransparency = 1
-        image.Position = UDim2.new(-0.365, 0, 0.037, 0)
-        image.Size = UDim2.new(0, 26, 0, 26)
-        image.ZIndex = 3
-        image.Image = "rbxassetid://" .. imageId
-        image.ImageColor3 = Color3.fromRGB(147, 152, 156)
-        fadeIn(image)
+        local image
+        if imageId and tonumber(imageId) then
+            image = Instance.new("ImageLabel")
+            image.Name = "TabImage"
+            image.Parent = tab
+            image.BackgroundTransparency = 1
+            image.Position = UDim2.new(-0.365, 0, 0.037, 0)
+            image.Size = UDim2.new(0, 26, 0, 26)
+            image.ZIndex = 3
+            image.Image = "rbxassetid://" .. tostring(imageId)
+            image.ImageColor3 = Color3.fromRGB(147, 152, 156)
+            fadeIn(image)
+        else
+            warn("Invalid imageId provided for tab:", visualName, "using default image or none.")
+            -- Можно добавить дефолтное изображение или убрать изображение полностью
+        end
 
         local function selectTab()
             if not TweenService or not self._selectedTab then return end
@@ -478,7 +484,9 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
             end
             
             TweenService:Create(tab, tweenInfo, {TextColor3 = Color3.fromRGB(150, 17, 255)}):Play()
-            TweenService:Create(image, tweenInfo, {ImageColor3 = Color3.fromRGB(150, 17, 255)}):Play()
+            if image then
+                TweenService:Create(image, tweenInfo, {ImageColor3 = Color3.fromRGB(150, 17, 255)}):Play()
+            end
 
             local newPosition = UDim2.new(0, 0, tab.Position.Y.Scale, 0)
             local moveTween = TweenService:Create(
@@ -516,11 +524,13 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
             end
         end)
 
-        image.InputBegan:Connect(function(input)
-            if input.UserInputType == Enum.UserInputType.MouseButton1 then
-                selectTab()
-            end
-        end)
+        if image then
+            image.InputBegan:Connect(function(input)
+                if input.UserInputType == Enum.UserInputType.MouseButton1 then
+                    selectTab()
+                end
+            end)
+        end
 
         if not self._currentTab then
             selectTab()
