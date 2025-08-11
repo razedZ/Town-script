@@ -1,3 +1,4 @@
+-- Основной код библиотеки (PizdecWare.lua)
 local success, HttpService = pcall(game.GetService, game, "HttpService")
 local success2, TweenService = pcall(game.GetService, game, "TweenService")
 local success3, UserInputService = pcall(game.GetService, game, "UserInputService")
@@ -444,23 +445,16 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
         tab.ZIndex = 3
         fadeIn(tab)
 
-        local image
-        if imageId and tonumber(imageId) then
-            image = Instance.new("ImageLabel")
-            image.Name = "TabImage"
-            image.Parent = tab
-            image.BackgroundTransparency = 1
-            image.Position = UDim2.new(-0.365, 0, 0.037, 0)
-            image.Size = UDim2.new(0, 26, 0, 26)
-            image.ZIndex = 3
-            image.Image = "rbxassetid://" .. tostring(imageId)
-            image.ImageColor3 = Color3.fromRGB(147, 152, 156)
-            image.ImageTransparency = 1
-            fadeIn(image)
-        else
-            warn("Invalid imageId provided for tab:", visualName, "using default image or none.")
-            -- Можно добавить дефолтное изображение или убрать изображение полностью
-        end
+        local image = Instance.new("ImageLabel")
+        image.Name = "TabImage"
+        image.Parent = tab
+        image.BackgroundTransparency = 1
+        image.Position = UDim2.new(-0.365, 0, 0.037, 0)
+        image.Size = UDim2.new(0, 26, 0, 26)
+        image.ZIndex = 3
+        image.Image = "rbxassetid://" .. imageId
+        image.ImageColor3 = Color3.fromRGB(147, 152, 156)
+        fadeIn(image)
 
         local function selectTab()
             if not TweenService or not self._selectedTab then return end
@@ -485,9 +479,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
             end
             
             TweenService:Create(tab, tweenInfo, {TextColor3 = Color3.fromRGB(150, 17, 255)}):Play()
-            if image then
-                TweenService:Create(image, tweenInfo, {ImageColor3 = Color3.fromRGB(150, 17, 255)}):Play()
-            end
+            TweenService:Create(image, tweenInfo, {ImageColor3 = Color3.fromRGB(150, 17, 255)}):Play()
 
             local newPosition = UDim2.new(0, 0, tab.Position.Y.Scale, 0)
             local moveTween = TweenService:Create(
@@ -525,13 +517,11 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
             end
         end)
 
-        if image then
-            image.InputBegan:Connect(function(input)
-                if input.UserInputType == Enum.UserInputType.MouseButton1 then
-                    selectTab()
-                end
-            end)
-        end
+        image.InputBegan:Connect(function(input)
+            if input.UserInputType == Enum.UserInputType.MouseButton1 then
+                selectTab()
+            end
+        end)
 
         if not self._currentTab then
             selectTab()
@@ -753,17 +743,18 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
         return section
     end
 
-    function windowInstance:CreateToggle(section, config)
-        if not section then return nil end
+    -- New toggle creation function with simplified syntax
+    function windowInstance:CreateToggle(params)
+        if not params.section then return nil end
+        
+        local section = params.section
+        local toggleName = params.name or ""
+        local defaultValue = params.enable or false
+        local save = params.save or false
+        local callback = params.callback or function() end
         
         local ContentFrame = section:FindFirstChild("ContentFrame")
         if not ContentFrame then return nil end
-        
-        if not config then config = {} end
-        local toggleName = config.name or ""
-        local defaultValue = config.enable or false
-        local save = config.save or false
-        local callback = config.callback or function() end
         
         if save and self._saveConfig.enabled then
             local savedState = loadToggleState(self, toggleName)
@@ -914,19 +905,20 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
         }
     end
 
-    function windowInstance:CreateDropdown(section, config)
-        if not section then return nil end
+    -- New dropdown creation function with simplified syntax
+    function windowInstance:CreateDropdown(params)
+        if not params.section then return nil end
+        
+        local section = params.section
+        local dropdownName = params.name or ""
+        local options = params.options or {}
+        local defaultOption = params.default or nil
+        local multi = params.multi or false
+        local save = params.save or false
+        local callback = params.callback or function() end
         
         local ContentFrame = section:FindFirstChild("ContentFrame")
         if not ContentFrame then return nil end
-        
-        if not config then config = {} end
-        local dropdownName = config.name or ""
-        local options = config.options or {}
-        local multi = config.multi or false
-        local save = config.save or false
-        local callback = config.callback or function() end
-        local defaultOption = nil
         
         if save and self._saveConfig.enabled then
             local savedState = loadDropdownState(self, dropdownName)
@@ -1169,7 +1161,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
             local buttonPos = DropdownButton.AbsolutePosition
             local buttonSize = DropdownButton.AbsoluteSize
             local screenSize = ScreenGui.AbsoluteSize
-            local maxHeight = DropdownList.Size.Y.Offset
+            local maxHeight = math.min(4, #options) * 20
             
             local yPos = buttonPos.Y + buttonSize.Y
             if yPos + maxHeight > screenSize.Y then
@@ -1181,25 +1173,24 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
         
         local function toggleDropdown()
             isDropdownOpen = not isDropdownOpen
+            DropdownList.Visible = isDropdownOpen and section.Visible
             
             if isDropdownOpen then
-                local optionCount = #options
-                local maxHeight = math.min(4, optionCount) * 20
-                DropdownList.Size = UDim2.new(0, 165, 0, maxHeight)
                 updateDropdownPosition()
-                DropdownList.Visible = section.Visible
                 DropdownList.ZIndex = 1000
                 for _, btn in ipairs(ScrollingFrame:GetChildren()) do
                     if btn:IsA("TextButton") then
                         btn.ZIndex = 1001
                     end
                 end
+                local optionCount = #options
+                local maxHeight = math.min(4, optionCount) * 20
+                DropdownList.Size = UDim2.new(0, 165, 0, maxHeight)
                 self._openDropdowns[DropdownContainer] = DropdownList
                 if next(self._openDropdowns) and not self._heartbeatConnection then
                     self._heartbeatConnection = RunService.Heartbeat:Connect(updateAllDropdownPositions)
                 end
             else
-                DropdownList.Visible = false
                 DropdownList.Size = UDim2.new(0, 165, 0, 0)
                 self._openDropdowns[DropdownContainer] = nil
                 if not next(self._openDropdowns) and self._heartbeatConnection then
@@ -1354,7 +1345,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
                 local buttonPos = button.AbsolutePosition
                 local buttonSize = button.AbsoluteSize
                 local screenSize = ScreenGui.AbsoluteSize
-                local maxHeight = dropdownList.Size.Y.Offset
+                local maxHeight = math.min(4, #dropdownContainer.options or 4) * 20
                 
                 local yPos = buttonPos.Y + buttonSize.Y
                 if yPos + maxHeight > screenSize.Y then
