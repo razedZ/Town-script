@@ -772,6 +772,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
                 spacing = 3 -- Расстояние между toggle и dropdown
             elseif last_type == "dropdown" and new_type == "toggle" then
                 spacing = 5 -- Расстояние между dropdown и toggle
+                yOffset = last.Position.Y.Offset + last.Size.Y.Offset + spacing + 2 -- Добавляем 2 пикселя для toggle после dropdown
             else
                 spacing = 2 -- Обычное расстояние для других комбинаций
             end
