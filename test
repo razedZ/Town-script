@@ -742,15 +742,17 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
         return section
     end
 
-    function windowInstance:CreateToggle(section, toggleName, defaultValue, opts)
+    function windowInstance:CreateToggle(section, config)
         if not section then return nil end
         
         local ContentFrame = section:FindFirstChild("ContentFrame")
         if not ContentFrame then return nil end
         
-        opts = opts or {}
-        local save = opts.save or false
-        local callback = opts.callback or function() end
+        config = config or {}
+        local toggleName = config.name or "Unnamed Toggle"
+        local defaultValue = config.enable or false
+        local save = config.save or false
+        local callback = config.callback or function() end
         
         if save and self._saveConfig.enabled then
             local savedState = loadToggleState(self, toggleName)
@@ -901,16 +903,19 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
         }
     end
 
-    function windowInstance:CreateDropdown(section, dropdownName, options, defaultOption, opts)
+    function windowInstance:CreateDropdown(section, config)
         if not section then return nil end
         
         local ContentFrame = section:FindFirstChild("ContentFrame")
         if not ContentFrame then return nil end
         
-        opts = opts or {}
-        local multi = opts.multi or false
-        local save = opts.save or false
-        local callback = opts.callback or function() end
+        config = config or {}
+        local dropdownName = config.name or "Unnamed Dropdown"
+        local options = config.options or {}
+        local multi = config.multi or false
+        local save = config.save or false
+        local callback = config.callback or function() end
+        local defaultOption = config.default
         
         if save and self._saveConfig.enabled then
             local savedState = loadDropdownState(self, dropdownName)
