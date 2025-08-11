@@ -320,7 +320,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
                             elseif previous_type == "dropdown" and elem_type == "toggle" then
                                 spacing = 5 -- Расстояние между dropdown и toggle
                             else
-                                spacing = 2 -- Обычное расстояние для других комбинаций
+                                spacing = 5 -- Обычное расстояние для других комбинаций
                             end
                             contentHeight = contentHeight + spacing + element.Size.Y.Offset
                             previous_type = elem_type
