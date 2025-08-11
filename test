@@ -212,9 +212,11 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
         _sectionStates = {},
         _toggleElements = {},
         _dropdownElements = {},
+        _inputElements = {},
         _saveConfig = saveConfig or { enabled = false, fileName = "PizdecWareSettings" },
         _savedToggles = {},
         _savedDropdowns = {},
+        _savedInputs = {},
         _openDropdowns = {},
         _heartbeatConnection = nil
     }, PizdecWare)
@@ -232,6 +234,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
         if success and savedData then
             windowInstance._savedToggles = savedData.toggles or {}
             windowInstance._savedDropdowns = savedData.dropdowns or {}
+            windowInstance._savedInputs = savedData.inputs or {}
         else
             warn("Failed to load saved configuration. File I/O may be restricted.")
         end
@@ -246,7 +249,8 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
         pcall(function()
             local data = {
                 toggles = window._savedToggles,
-                dropdowns = window._savedDropdowns
+                dropdowns = window._savedDropdowns,
+                inputs = window._savedInputs
             }
             writefile(window._saveConfig.fileName..".json", HttpService:JSONEncode(data))
         end)
@@ -267,7 +271,8 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
         pcall(function()
             local data = {
                 toggles = window._savedToggles,
-                dropdowns = window._savedDropdowns
+                dropdowns = window._savedDropdowns,
+                inputs = window._savedInputs
             }
             writefile(window._saveConfig.fileName..".json", HttpService:JSONEncode(data))
         end)
@@ -279,10 +284,32 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
         return window._savedDropdowns[dropdownName]
     end
 
+    -- Function to save input state
+    local function saveInputState(window, inputName, value)
+        if not window._saveConfig.enabled or not HttpService or not writeFileAvailable then return end
+        
+        window._savedInputs[inputName] = value
+        
+        pcall(function()
+            local data = {
+                toggles = window._savedToggles,
+                dropdowns = window._savedDropdowns,
+                inputs = window._savedInputs
+            }
+            writefile(window._saveConfig.fileName..".json", HttpService:JSONEncode(data))
+        end)
+    end
+
+    -- Function to load input state
+    local function loadInputState(window, inputName)
+        if not window._saveConfig.enabled or not window._savedInputs then return nil end
+        return window._savedInputs[inputName]
+    end
+
     local function getSortedElements(contentFrame)
         local elems = {}
         for _, child in ipairs(contentFrame:GetChildren()) do
-            if child:IsA("Frame") and (child.Name:match("^Toggle_") or child.Name:match("^Dropdown_")) then
+            if child:IsA("Frame") and (child.Name:match("^Toggle_") or child.Name:match("^Dropdown_") or child.Name:match("^Input_")) then
                 table.insert(elems, child)
             end
         end
@@ -311,7 +338,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
                         local elements = getSortedElements(contentFrame)
                         local previous_type = nil
                         for j, element in ipairs(elements) do
-                            local elem_type = element.Name:match("^Toggle_") and "toggle" or "dropdown"
+                            local elem_type = element.Name:match("^Toggle_") and "toggle" or element.Name:match("^Dropdown_") and "dropdown" or "input"
                             local spacing
                             if previous_type == nil then
                                 spacing = 5
@@ -550,7 +577,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
                         local elements = getSortedElements(contentFrame)
                         local previous_type = nil
                         for j, element in ipairs(elements) do
-                            local elem_type = element.Name:match("^Toggle_") and "toggle" or "dropdown"
+                            local elem_type = element.Name:match("^Toggle_") and "toggle" or element.Name:match("^Dropdown_") and "dropdown" or "input"
                             local spacing
                             if previous_type == nil then
                                 spacing = 5
@@ -666,12 +693,18 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
                         element.BackgroundTransparency = 1
                     end
                 end
+                for _, element in pairs(self._inputElements) do
+                    if element.Parent == ContentFrame then
+                        element.Visible = true
+                        element.BackgroundTransparency = 1
+                    end
+                end
                 
                 local contentHeight = 0
                 local elements = getSortedElements(ContentFrame)
                 local previous_type = nil
                 for j, element in ipairs(elements) do
-                    local elem_type = element.Name:match("^Toggle_") and "toggle" or "dropdown"
+                    local elem_type = element.Name:match("^Toggle_") and "toggle" or element.Name:match("^Dropdown_") and "dropdown" or "input"
                     local spacing
                     if previous_type == nil then
                         spacing = 5
@@ -704,6 +737,12 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
                     end
                 end
                 for _, element in pairs(self._dropdownElements) do
+                    if element.Parent == ContentFrame then
+                        element.Visible = false
+                        element.BackgroundTransparency = 1
+                    end
+                end
+                for _, element in pairs(self._inputElements) do
                     if element.Parent == ContentFrame then
                         element.Visible = false
                         element.BackgroundTransparency = 1
@@ -1334,6 +1373,187 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
                 
                 updateSelectedText()
                 createOptionButtons()
+            end
+        }
+    end
+
+    -- New input creation function
+    function windowInstance:CreateInput(params)
+        if not params.section then return nil end
+        
+        local section = params.section
+        local inputName = params.name or ""
+        local defaultText = params.default or ""
+        local save = params.save or false
+        local callback = params.callback or function() end
+        
+        local ContentFrame = section:FindFirstChild("ContentFrame")
+        if not ContentFrame then return nil end
+        
+        if save and self._saveConfig.enabled then
+            local savedState = loadInputState(self, inputName)
+            if savedState ~= nil then
+                defaultText = savedState
+            end
+        end
+        
+        local elements = getSortedElements(ContentFrame)
+        local new_type = "input"
+        local yOffset
+        if #elements == 0 then
+            yOffset = 5
+        else
+            local last = elements[#elements]
+            local last_type = last.Name:match("^Toggle_") and "toggle" or last.Name:match("^Dropdown_") and "dropdown" or "input"
+            local spacing
+            if last_type == "toggle" and new_type == "dropdown" then
+                spacing = 3 -- Расстояние между toggle и dropdown
+            elseif last_type == "dropdown" and new_type == "toggle" then
+                spacing = 5 -- Расстояние между dropdown и toggle
+            else
+                spacing = 2 -- Обычное расстояние для других комбинаций
+            end
+            yOffset = last.Position.Y.Offset + last.Size.Y.Offset + spacing
+        end
+
+        local InputContainer = Instance.new("Frame")
+        InputContainer.Name = "Input_" .. inputName
+        InputContainer.Parent = ContentFrame
+        InputContainer.BackgroundTransparency = 1
+        InputContainer.Size = UDim2.new(1, 0, 0, 50)
+        InputContainer.Position = UDim2.new(0, 0, 0, yOffset)
+        InputContainer.ZIndex = 5
+        InputContainer.Visible = true
+        
+        local InputLabel = Instance.new("TextLabel")
+        InputLabel.Name = "Label"
+        InputLabel.Parent = InputContainer
+        InputLabel.BackgroundTransparency = 1
+        InputLabel.Position = UDim2.new(0.085, 0, 0, 0)
+        InputLabel.Size = UDim2.new(0, 165, 0, 20)
+        InputLabel.Font = Enum.Font.SourceSansBold
+        InputLabel.Text = inputName
+        InputLabel.TextColor3 = Color3.fromRGB(147, 152, 156)
+        InputLabel.TextSize = 15
+        InputLabel.TextXAlignment = Enum.TextXAlignment.Left
+        InputLabel.ZIndex = 6
+        
+        local InputFrame = Instance.new("Frame")
+        InputFrame.Name = "InputFrame"
+        InputFrame.Parent = InputContainer
+        InputFrame.BackgroundColor3 = Color3.fromRGB(25, 28, 34)
+        InputFrame.BorderSizePixel = 0
+        InputFrame.Position = UDim2.new(0.085, 0, 0, 20)
+        InputFrame.Size = UDim2.new(0, 165, 0, 30)
+        InputFrame.ZIndex = 6
+        
+        local UICornerInput = Instance.new("UICorner")
+        UICornerInput.CornerRadius = UDim.new(0, 4)
+        UICornerInput.Parent = InputFrame
+        
+        local InputButton = Instance.new("TextButton")
+        InputButton.Name = "Button"
+        InputButton.Parent = InputFrame
+        InputButton.BackgroundColor3 = Color3.fromRGB(25, 28, 34)
+        InputButton.BorderSizePixel = 0
+        InputButton.Size = UDim2.new(1, 0, 1, 0)
+        InputButton.Font = Enum.Font.ArialBold
+        InputButton.Text = "Input"
+        InputButton.TextColor3 = Color3.fromRGB(170, 176, 183)
+        InputButton.TextSize = 12
+        InputButton.TextStrokeColor3 = Color3.fromRGB(170, 176, 183)
+        InputButton.ZIndex = 7
+        
+        local InputTextLabel = Instance.new("TextLabel")
+        InputTextLabel.Name = "InputText"
+        InputTextLabel.Parent = InputFrame
+        InputTextLabel.BackgroundTransparency = 1
+        InputTextLabel.Position = UDim2.new(1.1, 0, -0.033, 0)
+        InputTextLabel.Size = UDim2.new(0, 98, 0, 30)
+        InputTextLabel.Font = Enum.Font.SourceSansBold
+        InputTextLabel.Text = defaultText
+        InputTextLabel.TextColor3 = Color3.fromRGB(147, 152, 156)
+        InputTextLabel.TextSize = 17
+        InputTextLabel.TextXAlignment = Enum.TextXAlignment.Left
+        InputTextLabel.ZIndex = 7
+        
+        local currentText = defaultText
+        
+        local function updateText()
+            InputTextLabel.Text = currentText
+            
+            if save and self._saveConfig.enabled then
+                saveInputState(self, inputName, currentText)
+            end
+            
+            callback(currentText)
+        end
+        
+        InputButton.MouseButton1Click:Connect(function()
+            local inputBox = Instance.new("TextBox")
+            inputBox.Name = "InputBox"
+            inputBox.Parent = InputFrame
+            inputBox.BackgroundTransparency = 1
+            inputBox.Size = UDim2.new(1, 0, 1, 0)
+            inputBox.Font = Enum.Font.ArialBold
+            inputBox.Text = currentText
+            inputBox.TextColor3 = Color3.fromRGB(170, 176, 183)
+            inputBox.TextSize = 12
+            inputBox.TextStrokeColor3 = Color3.fromRGB(170, 176, 183)
+            inputBox.ZIndex = 8
+            inputBox.ClearTextOnFocus = false
+            
+            InputButton.Visible = false
+            
+            inputBox.FocusLost:Connect(function(enterPressed)
+                currentText = inputBox.Text
+                inputBox:Destroy()
+                InputButton.Visible = true
+                updateText()
+            end)
+            
+            inputBox:CaptureFocus()
+        end)
+        
+        table.insert(self._inputElements, InputContainer)
+        
+        local sectionsList = table.find(self._leftSections, section) and self._leftSections or self._rightSections
+        local container = sectionsList == self._leftSections and LeftContainer or RightContainer
+        
+        local contentHeight = 0
+        local elements_updated = getSortedElements(ContentFrame)
+        local previous_type = nil
+        for j, element in ipairs(elements_updated) do
+            local elem_type = element.Name:match("^Toggle_") and "toggle" or element.Name:match("^Dropdown_") and "dropdown" or "input"
+            local spacing
+            if previous_type == nil then
+                spacing = 5
+            elseif previous_type == "toggle" and elem_type == "dropdown" then
+                spacing = 3 -- Расстояние между toggle и dropdown
+            elseif previous_type == "dropdown" and elem_type == "toggle" then
+                spacing = 5 -- Расстояние между dropdown и toggle
+            else
+                spacing = 2 -- Обычное расстояние для других комбинаций
+            end
+            contentHeight = contentHeight + spacing + element.Size.Y.Offset
+            previous_type = elem_type
+        end
+        
+        if windowInstance._sectionStates[section] then
+            local bottom_padding = 15
+            section.Size = UDim2.new(1, 0, 0, 30 + contentHeight + bottom_padding)
+            ContentFrame.Size = UDim2.new(1, 0, 0, contentHeight)
+        end
+        
+        updateSectionPositions(container, sectionsList)
+        
+        return {
+            Set = function(self, value)
+                currentText = tostring(value)
+                updateText()
+            end,
+            Get = function(self)
+                return currentText
             end
         }
     end
