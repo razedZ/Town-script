@@ -1424,7 +1424,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
     InputContainer.ZIndex = 5
     InputContainer.Visible = true
     
-    -- Текст "Input" сверху (ширина как у окна ввода + центрирование)
+    -- Текст "Input" сверху
     local InputTopLabel = Instance.new("TextLabel")
     InputTopLabel.Name = "InputTopLabel"
     InputTopLabel.Parent = InputContainer
@@ -1468,12 +1468,12 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
     InputTextLabel.ZIndex = 7
     InputTextLabel.ClipsDescendants = true
     
-    -- Название инпута справа (10 пикселей от окна ввода)
+    -- Название инпута (сдвинуто влево на 10 пикселей от окна ввода)
     local InputNameLabel = Instance.new("TextLabel")
     InputNameLabel.Name = "InputName"
     InputNameLabel.Parent = InputContainer
     InputNameLabel.BackgroundTransparency = 1
-    InputNameLabel.Position = UDim2.new(0.085 + 50/460 + 10/460, 0, 0, 15)  -- 10 пикселей отступа
+    InputNameLabel.Position = UDim2.new(0.085 + 50/460 - 10/460, 0, 0, 15)  -- Сдвиг влево на 10px
     InputNameLabel.Size = UDim2.new(0, 100, 0, 30)
     InputNameLabel.Font = Enum.Font.SourceSansBold
     InputNameLabel.Text = inputName
