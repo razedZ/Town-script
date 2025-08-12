@@ -1401,19 +1401,19 @@ function windowInstance:CreateInput(params)
     local new_type = "input"
     local yOffset
     if #elements == 0 then
-        yOffset = 3  -- Уменьшенный отступ сверху на 2 пикселя
+        yOffset = 5 + 3  -- Стандартный отступ + 3 пикселя
     else
         local last = elements[#elements]
         local last_type = last.Name:match("^Toggle_") and "toggle" or last.Name:match("^Dropdown_") and "dropdown" or "input"
         local spacing
         if last_type == "toggle" and new_type == "dropdown" then
-            spacing = 1  -- Уменьшенный отступ на 2 пикселя
+            spacing = 3
         elseif last_type == "dropdown" and new_type == "toggle" then
-            spacing = 3  -- Уменьшенный отступ на 2 пикселя
+            spacing = 5
         else
-            spacing = 0  -- Уменьшенный отступ на 2 пикселя
+            spacing = 2
         end
-        yOffset = last.Position.Y.Offset + last.Size.Y.Offset + spacing
+        yOffset = last.Position.Y.Offset + last.Size.Y.Offset + spacing + 3  -- Добавляем 3 пикселя
     end
 
     local InputContainer = Instance.new("Frame")
@@ -1425,18 +1425,18 @@ function windowInstance:CreateInput(params)
     InputContainer.ZIndex = 5
     InputContainer.Visible = true
     
-    -- Текст "Input" сверху (ширина как у окна ввода + точное центрирование)
+    -- Текст "Input" сверху (ширина как у окна ввода + центрирование)
     local InputTopLabel = Instance.new("TextLabel")
     InputTopLabel.Name = "InputTopLabel"
     InputTopLabel.Parent = InputContainer
     InputTopLabel.BackgroundTransparency = 1
     InputTopLabel.Position = UDim2.new(0.085, 0, 0, 0)
-    InputTopLabel.Size = UDim2.new(0, 50, 0, 15)  -- Ширина 50 как у инпута
+    InputTopLabel.Size = UDim2.new(0, 50, 0, 15)
     InputTopLabel.Font = Enum.Font.SourceSans
     InputTopLabel.Text = "Input"
     InputTopLabel.TextColor3 = Color3.fromRGB(147, 152, 156)
     InputTopLabel.TextSize = 14
-    InputTopLabel.TextXAlignment = Enum.TextXAlignment.Center  -- Точное центрирование
+    InputTopLabel.TextXAlignment = Enum.TextXAlignment.Center
     InputTopLabel.ZIndex = 6
     
     -- Основное поле ввода (50x30)
@@ -1445,7 +1445,7 @@ function windowInstance:CreateInput(params)
     InputFrame.Parent = InputContainer
     InputFrame.BackgroundColor3 = Color3.fromRGB(25, 28, 34)
     InputFrame.BorderSizePixel = 0
-    InputFrame.Position = UDim2.new(0.085, 0, 0, 15)  -- Отступ сверху 15 (меньше на 5px)
+    InputFrame.Position = UDim2.new(0.085, 0, 0, 15)
     InputFrame.Size = UDim2.new(0, 50, 0, 30)
     InputFrame.AutoButtonColor = false
     InputFrame.Text = ""
@@ -1469,12 +1469,12 @@ function windowInstance:CreateInput(params)
     InputTextLabel.ZIndex = 7
     InputTextLabel.ClipsDescendants = true
     
-    -- Название инпута справа
+    -- Название инпута справа (10 пикселей от окна ввода)
     local InputNameLabel = Instance.new("TextLabel")
     InputNameLabel.Name = "InputName"
     InputNameLabel.Parent = InputContainer
     InputNameLabel.BackgroundTransparency = 1
-    InputNameLabel.Position = UDim2.new(0.085 + 50/460 + 0.05, 0, 0, 15)  -- Сдвинуто вверх
+    InputNameLabel.Position = UDim2.new(0.085 + 50/460 + 10/460, 0, 0, 15)  -- 10 пикселей отступа
     InputNameLabel.Size = UDim2.new(0, 100, 0, 30)
     InputNameLabel.Font = Enum.Font.SourceSansBold
     InputNameLabel.Text = inputName
@@ -1542,25 +1542,6 @@ function windowInstance:CreateInput(params)
         end
     }
 end
-
-    local function updateAllDropdownPositions()
-        for dropdownContainer, dropdownList in pairs(windowInstance._openDropdowns) do
-            local button = dropdownContainer:FindFirstChild("Button")
-            if button then
-                local buttonPos = button.AbsolutePosition
-                local buttonSize = button.AbsoluteSize
-                local screenSize = ScreenGui.AbsoluteSize
-                local maxHeight = math.min(4, #dropdownContainer.options or 4) * 20
-                
-                local yPos = buttonPos.Y + buttonSize.Y
-                if yPos + maxHeight > screenSize.Y then
-                    yPos = buttonPos.Y - maxHeight
-                end
-                
-                dropdownList.Position = UDim2.new(0, buttonPos.X, 0, yPos)
-            end
-        end
-    end
 
     return windowInstance
 end
