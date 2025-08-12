@@ -1468,18 +1468,19 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
     InputTextLabel.ZIndex = 7
     InputTextLabel.ClipsDescendants = true
     
-    -- Название инпута (10px справа от окна ввода + выравнивание по левому краю)
+    -- Название инпута (10px справа от окна ввода)
     local InputNameLabel = Instance.new("TextLabel")
     InputNameLabel.Name = "InputName"
     InputNameLabel.Parent = InputContainer
     InputNameLabel.BackgroundTransparency = 1
-    InputNameLabel.Position = UDim2.new(0.085 + (50 + 30)/460, 0, 0, 15) -- 10px справа от InputFrame
+    -- Абсолютное позиционирование: 0.085*460 + 50 + 10
+    InputNameLabel.Position = UDim2.new(0, 0.085 * 460 + 50 + 10, 0, 15)
     InputNameLabel.Size = UDim2.new(0, 100, 0, 30)
     InputNameLabel.Font = Enum.Font.SourceSansBold
     InputNameLabel.Text = inputName
     InputNameLabel.TextColor3 = Color3.fromRGB(147, 152, 156)
     InputNameLabel.TextSize = 15
-    InputNameLabel.TextXAlignment = Enum.TextXAlignment.Left -- Выравнивание по левому краю
+    InputNameLabel.TextXAlignment = Enum.TextXAlignment.Left
     InputNameLabel.ZIndex = 6
     
     local currentText = defaultText
