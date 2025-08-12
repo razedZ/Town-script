@@ -1378,11 +1378,11 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
     end
 
     -- New input creation function with original style
-    function windowInstance:CreateInput(params)
+        function windowInstance:CreateInput(params)
         if not params.section then return nil end
         
         local section = params.section
-        local inputName = params.name or ""
+        local inputName = params.name or "Input"  -- This is now the label text
         local defaultText = params.default or ""
         local save = params.save or false
         local callback = params.callback or function() end
@@ -1407,76 +1407,71 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
             local last_type = last.Name:match("^Toggle_") and "toggle" or last.Name:match("^Dropdown_") and "dropdown" or "input"
             local spacing
             if last_type == "toggle" and new_type == "dropdown" then
-                spacing = 3 -- Расстояние между toggle и dropdown
+                spacing = 3
             elseif last_type == "dropdown" and new_type == "toggle" then
-                spacing = 5 -- Расстояние между dropdown и toggle
+                spacing = 5
             else
-                spacing = 2 -- Обычное расстояние для других комбинаций
+                spacing = 2
             end
             yOffset = last.Position.Y.Offset + last.Size.Y.Offset + spacing
         end
-
+    
         local InputContainer = Instance.new("Frame")
         InputContainer.Name = "Input_" .. inputName
         InputContainer.Parent = ContentFrame
         InputContainer.BackgroundTransparency = 1
-        InputContainer.Size = UDim2.new(1, 0, 0, 50)
+        InputContainer.Size = UDim2.new(1, 0, 0, 60)  -- Increased height to accommodate label
         InputContainer.Position = UDim2.new(0, 0, 0, yOffset)
         InputContainer.ZIndex = 5
         InputContainer.Visible = true
         
-        -- Label above input (static "Input" text)
+        -- Label above input (centered)
         local InputLabel = Instance.new("TextLabel")
         InputLabel.Name = "Label"
         InputLabel.Parent = InputContainer
         InputLabel.BackgroundTransparency = 1
-        InputLabel.Position = UDim2.new(0.243, 0, -0.76, 0)
-        InputLabel.Size = UDim2.new(0, 25, 0, 21)
+        InputLabel.Position = UDim2.new(0.085, 0, 0, 0)
+        InputLabel.Size = UDim2.new(0, 165, 0, 20)
         InputLabel.Font = Enum.Font.SourceSansBold
-        InputLabel.Text = "Input"
+        InputLabel.Text = inputName  -- Using the name parameter as label text
         InputLabel.TextColor3 = Color3.fromRGB(147, 152, 156)
-        InputLabel.TextSize = 13
+        InputLabel.TextSize = 15
         InputLabel.TextXAlignment = Enum.TextXAlignment.Left
         InputLabel.ZIndex = 6
         
-        -- Input button frame
-        local InputButton = Instance.new("TextButton")
-        InputButton.Name = "InputButton"
-        InputButton.Parent = InputContainer
-        InputButton.BackgroundColor3 = Color3.fromRGB(25, 28, 34)
-        InputButton.BorderSizePixel = 0
-        InputButton.Position = UDim2.new(0.03, 0, 0, 20)
-        InputButton.Size = UDim2.new(0, 50, 0, 30)
-        InputButton.Font = Enum.Font.ArialBold
-        InputButton.Text = "Input"
-        InputButton.TextColor3 = Color3.fromRGB(170, 176, 183)
-        InputButton.TextSize = 12
-        InputButton.TextStrokeColor3 = Color3.fromRGB(170, 176, 183)
-        InputButton.ZIndex = 6
+        -- Input frame (aligned with other elements)
+        local InputFrame = Instance.new("Frame")
+        InputFrame.Name = "InputFrame"
+        InputFrame.Parent = InputContainer
+        InputFrame.BackgroundColor3 = Color3.fromRGB(25, 28, 34)
+        InputFrame.BorderSizePixel = 0
+        InputFrame.Position = UDim2.new(0.085, 0, 0, 25)  -- Positioned below label
+        InputFrame.Size = UDim2.new(0, 165, 0, 30)
+        InputFrame.ZIndex = 6
         
         local UICornerInput = Instance.new("UICorner")
         UICornerInput.CornerRadius = UDim.new(0, 4)
-        UICornerInput.Parent = InputButton
+        UICornerInput.Parent = InputFrame
         
         -- Input text label (displays current value)
         local InputTextLabel = Instance.new("TextLabel")
         InputTextLabel.Name = "InputText"
-        InputTextLabel.Parent = InputButton
+        InputTextLabel.Parent = InputFrame
         InputTextLabel.BackgroundTransparency = 1
-        InputTextLabel.Position = UDim2.new(1.1, 0, -0.033, 0)
-        InputTextLabel.Size = UDim2.new(0, 98, 0, 30)
-        InputTextLabel.Font = Enum.Font.SourceSansBold
+        InputTextLabel.Position = UDim2.new(0.05, 0, 0, 0)
+        InputTextLabel.Size = UDim2.new(0.9, 0, 1, 0)
+        InputTextLabel.Font = Enum.Font.SourceSans
         InputTextLabel.Text = defaultText
         InputTextLabel.TextColor3 = Color3.fromRGB(147, 152, 156)
-        InputTextLabel.TextSize = 17
+        InputTextLabel.TextSize = 14
         InputTextLabel.TextXAlignment = Enum.TextXAlignment.Left
         InputTextLabel.ZIndex = 7
+        InputTextLabel.ClipsDescendants = true
         
         local currentText = defaultText
         
         local function updateText()
             InputTextLabel.Text = currentText
-            InputButton.Text = currentText ~= "" and currentText or "Input"
             
             if save and self._saveConfig.enabled then
                 saveInputState(self, inputName, currentText)
@@ -1485,32 +1480,34 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
             callback(currentText)
         end
         
-        InputButton.MouseButton1Click:Connect(function()
-            local inputBox = Instance.new("TextBox")
-            inputBox.Name = "InputBox"
-            inputBox.Parent = InputButton
-            inputBox.BackgroundTransparency = 1
-            inputBox.Size = UDim2.new(1, 0, 1, 0)
-            inputBox.Font = Enum.Font.ArialBold
-            inputBox.Text = currentText
-            inputBox.TextColor3 = Color3.fromRGB(170, 176, 183)
-            inputBox.TextSize = 12
-            inputBox.TextStrokeColor3 = Color3.fromRGB(170, 176, 183)
-            inputBox.ZIndex = 8
-            inputBox.ClearTextOnFocus = false
-            
-            inputBox.Focused:Connect(function()
-                InputTextLabel.TextTransparency = 1
-            end)
-            
-            inputBox.FocusLost:Connect(function(enterPressed)
-                currentText = inputBox.Text
-                inputBox:Destroy()
-                InputTextLabel.TextTransparency = 0
-                updateText()
-            end)
-            
-            inputBox:CaptureFocus()
+        InputFrame.InputBegan:Connect(function(input)
+            if input.UserInputType == Enum.UserInputType.MouseButton1 then
+                local inputBox = Instance.new("TextBox")
+                inputBox.Name = "InputBox"
+                inputBox.Parent = InputFrame
+                inputBox.BackgroundTransparency = 1
+                inputBox.Size = UDim2.new(1, 0, 1, 0)
+                inputBox.Font = Enum.Font.SourceSans
+                inputBox.Text = currentText
+                inputBox.TextColor3 = Color3.fromRGB(147, 152, 156)
+                inputBox.TextSize = 14
+                inputBox.TextXAlignment = Enum.TextXAlignment.Left
+                inputBox.ZIndex = 8
+                inputBox.ClearTextOnFocus = false
+                inputBox.PlaceholderText = "Type here..."
+                inputBox.PlaceholderColor3 = Color3.fromRGB(100, 100, 100)
+                
+                InputTextLabel.Visible = false
+                
+                inputBox.FocusLost:Connect(function(enterPressed)
+                    currentText = inputBox.Text
+                    inputBox:Destroy()
+                    InputTextLabel.Visible = true
+                    updateText()
+                end)
+                
+                inputBox:CaptureFocus()
+            end
         end)
         
         -- Initial update
@@ -1530,11 +1527,11 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
             if previous_type == nil then
                 spacing = 5
             elseif previous_type == "toggle" and elem_type == "dropdown" then
-                spacing = 3 -- Расстояние между toggle и dropdown
+                spacing = 3
             elseif previous_type == "dropdown" and elem_type == "toggle" then
-                spacing = 5 -- Расстояние между dropdown и toggle
+                spacing = 5
             else
-                spacing = 2 -- Обычное расстояние для других комбинаций
+                spacing = 2
             end
             contentHeight = contentHeight + spacing + element.Size.Y.Offset
             previous_type = elem_type
