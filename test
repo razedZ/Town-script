@@ -1400,7 +1400,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
     local new_type = "input"
     local yOffset
     if #elements == 0 then
-        yOffset = 5 + 3  -- Стандартный отступ + 3 пикселя
+        yOffset = 5
     else
         local last = elements[#elements]
         local last_type = last.Name:match("^Toggle_") and "toggle" or last.Name:match("^Dropdown_") and "dropdown" or "input"
@@ -1412,7 +1412,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
         else
             spacing = 2
         end
-        yOffset = last.Position.Y.Offset + last.Size.Y.Offset + spacing + 3  -- Добавляем 3 пикселя
+        yOffset = last.Position.Y.Offset + last.Size.Y.Offset + spacing
     end
 
     local InputContainer = Instance.new("Frame")
@@ -1424,7 +1424,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
     InputContainer.ZIndex = 5
     InputContainer.Visible = true
     
-    -- Текст "Input" сверху
+    -- Текст "Input" сверху (центрирован над окном ввода)
     local InputTopLabel = Instance.new("TextLabel")
     InputTopLabel.Name = "InputTopLabel"
     InputTopLabel.Parent = InputContainer
@@ -1454,7 +1454,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
     UICornerInput.CornerRadius = UDim.new(0, 4)
     UICornerInput.Parent = InputFrame
     
-    -- Текст внутри инпута
+    -- Текст внутри инпута (центрированный)
     local InputTextLabel = Instance.new("TextLabel")
     InputTextLabel.Name = "InputText"
     InputTextLabel.Parent = InputFrame
@@ -1468,18 +1468,18 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
     InputTextLabel.ZIndex = 7
     InputTextLabel.ClipsDescendants = true
     
-    -- Название инпута (сдвинуто влево на 10 пикселей от окна ввода)
+    -- Название инпута (10px справа от окна ввода + выравнивание по левому краю)
     local InputNameLabel = Instance.new("TextLabel")
     InputNameLabel.Name = "InputName"
     InputNameLabel.Parent = InputContainer
     InputNameLabel.BackgroundTransparency = 1
-    InputNameLabel.Position = UDim2.new(0.085 + 50/460 + 10/460, 0, 0, 15)  -- Сдвиг влево на 10px
+    InputNameLabel.Position = UDim2.new(0.085 + (50 + 10)/460, 0, 0, 15) -- 10px справа от InputFrame
     InputNameLabel.Size = UDim2.new(0, 100, 0, 30)
     InputNameLabel.Font = Enum.Font.SourceSansBold
     InputNameLabel.Text = inputName
     InputNameLabel.TextColor3 = Color3.fromRGB(147, 152, 156)
     InputNameLabel.TextSize = 15
-    InputNameLabel.TextXAlignment = Enum.TextXAlignment.Left
+    InputNameLabel.TextXAlignment = Enum.TextXAlignment.Left -- Выравнивание по левому краю
     InputNameLabel.ZIndex = 6
     
     local currentText = defaultText
