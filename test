@@ -1378,7 +1378,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
     end
 
     -- New input creation function with original style
-   function windowInstance:CreateInput(params)
+function windowInstance:CreateInput(params)
     if not params.section then return nil end
     
     local section = params.section
@@ -1401,17 +1401,17 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
     local new_type = "input"
     local yOffset
     if #elements == 0 then
-        yOffset = 5
+        yOffset = 3  -- Уменьшенный отступ сверху на 2 пикселя
     else
         local last = elements[#elements]
         local last_type = last.Name:match("^Toggle_") and "toggle" or last.Name:match("^Dropdown_") and "dropdown" or "input"
         local spacing
         if last_type == "toggle" and new_type == "dropdown" then
-            spacing = 3
+            spacing = 1  -- Уменьшенный отступ на 2 пикселя
         elseif last_type == "dropdown" and new_type == "toggle" then
-            spacing = 5
+            spacing = 3  -- Уменьшенный отступ на 2 пикселя
         else
-            spacing = 2
+            spacing = 0  -- Уменьшенный отступ на 2 пикселя
         end
         yOffset = last.Position.Y.Offset + last.Size.Y.Offset + spacing
     end
@@ -1420,33 +1420,33 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
     InputContainer.Name = "Input_" .. inputName
     InputContainer.Parent = ContentFrame
     InputContainer.BackgroundTransparency = 1
-    InputContainer.Size = UDim2.new(1, 0, 0, 50)  -- Общая высота контейнера
+    InputContainer.Size = UDim2.new(1, 0, 0, 50)
     InputContainer.Position = UDim2.new(0, 0, 0, yOffset)
     InputContainer.ZIndex = 5
     InputContainer.Visible = true
     
-    -- Текст "Input" сверху по центру
+    -- Текст "Input" сверху (ширина как у окна ввода + точное центрирование)
     local InputTopLabel = Instance.new("TextLabel")
     InputTopLabel.Name = "InputTopLabel"
     InputTopLabel.Parent = InputContainer
     InputTopLabel.BackgroundTransparency = 1
     InputTopLabel.Position = UDim2.new(0.085, 0, 0, 0)
-    InputTopLabel.Size = UDim2.new(0, 165, 0, 15)
+    InputTopLabel.Size = UDim2.new(0, 50, 0, 15)  -- Ширина 50 как у инпута
     InputTopLabel.Font = Enum.Font.SourceSans
     InputTopLabel.Text = "Input"
     InputTopLabel.TextColor3 = Color3.fromRGB(147, 152, 156)
-    InputTopLabel.TextSize = 14  -- Размер текста 14
-    InputTopLabel.TextXAlignment = Enum.TextXAlignment.Left
+    InputTopLabel.TextSize = 14
+    InputTopLabel.TextXAlignment = Enum.TextXAlignment.Center  -- Точное центрирование
     InputTopLabel.ZIndex = 6
     
     -- Основное поле ввода (50x30)
-    local InputFrame = Instance.new("TextButton")  -- Используем TextButton для кликабельности
+    local InputFrame = Instance.new("TextButton")
     InputFrame.Name = "InputFrame"
     InputFrame.Parent = InputContainer
     InputFrame.BackgroundColor3 = Color3.fromRGB(25, 28, 34)
     InputFrame.BorderSizePixel = 0
-    InputFrame.Position = UDim2.new(0.085, 0, 0, 20)  -- Отступ сверху 20 (под текстом)
-    InputFrame.Size = UDim2.new(0, 50, 0, 30)  -- Фиксированный размер 50x30
+    InputFrame.Position = UDim2.new(0.085, 0, 0, 15)  -- Отступ сверху 15 (меньше на 5px)
+    InputFrame.Size = UDim2.new(0, 50, 0, 30)
     InputFrame.AutoButtonColor = false
     InputFrame.Text = ""
     InputFrame.ZIndex = 6
@@ -1455,7 +1455,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
     UICornerInput.CornerRadius = UDim.new(0, 4)
     UICornerInput.Parent = InputFrame
     
-    -- Текст внутри инпута (центрированный)
+    -- Текст внутри инпута
     local InputTextLabel = Instance.new("TextLabel")
     InputTextLabel.Name = "InputText"
     InputTextLabel.Parent = InputFrame
@@ -1469,12 +1469,12 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
     InputTextLabel.ZIndex = 7
     InputTextLabel.ClipsDescendants = true
     
-    -- Название инпута справа (статическое)
+    -- Название инпута справа
     local InputNameLabel = Instance.new("TextLabel")
     InputNameLabel.Name = "InputName"
     InputNameLabel.Parent = InputContainer
     InputNameLabel.BackgroundTransparency = 1
-    InputNameLabel.Position = UDim2.new(0.085 + 50/460 + 0.05, 0, 0, 20)
+    InputNameLabel.Position = UDim2.new(0.085 + 50/460 + 0.05, 0, 0, 15)  -- Сдвинуто вверх
     InputNameLabel.Size = UDim2.new(0, 100, 0, 30)
     InputNameLabel.Font = Enum.Font.SourceSansBold
     InputNameLabel.Text = inputName
@@ -1523,39 +1523,13 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
         inputBox:CaptureFocus()
     end)
     
-    -- Initial update
     updateText()
     
     table.insert(self._inputElements, InputContainer)
     
+    -- Обновление позиций секций
     local sectionsList = table.find(self._leftSections, section) and self._leftSections or self._rightSections
     local container = sectionsList == self._leftSections and LeftContainer or RightContainer
-    
-    local contentHeight = 0
-    local elements_updated = getSortedElements(ContentFrame)
-    local previous_type = nil
-    for j, element in ipairs(elements_updated) do
-        local elem_type = element.Name:match("^Toggle_") and "toggle" or element.Name:match("^Dropdown_") and "dropdown" or "input"
-        local spacing
-        if previous_type == nil then
-            spacing = 5
-        elseif previous_type == "toggle" and elem_type == "dropdown" then
-            spacing = 3
-        elseif previous_type == "dropdown" and elem_type == "toggle" then
-            spacing = 5
-        else
-            spacing = 2
-        end
-        contentHeight = contentHeight + spacing + element.Size.Y.Offset
-        previous_type = elem_type
-    end
-    
-    if windowInstance._sectionStates[section] then
-        local bottom_padding = 15
-        section.Size = UDim2.new(1, 0, 0, 30 + contentHeight + bottom_padding)
-        ContentFrame.Size = UDim2.new(1, 0, 0, contentHeight)
-    end
-    
     updateSectionPositions(container, sectionsList)
     
     return {
