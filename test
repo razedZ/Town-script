@@ -1382,7 +1382,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
     if not params.section then return nil end
     
     local section = params.section
-    local inputName = params.name or "Input"  -- Название справа от инпута
+    local inputName = params.name or "Input"
     local defaultText = params.default or ""
     local save = params.save or false
     local callback = params.callback or function() end
@@ -1420,12 +1420,12 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
     InputContainer.Name = "Input_" .. inputName
     InputContainer.Parent = ContentFrame
     InputContainer.BackgroundTransparency = 1
-    InputContainer.Size = UDim2.new(1, 0, 0, 60)  -- Высота включает метку "input" сверху
+    InputContainer.Size = UDim2.new(1, 0, 0, 50)  -- Общая высота контейнера
     InputContainer.Position = UDim2.new(0, 0, 0, yOffset)
     InputContainer.ZIndex = 5
     InputContainer.Visible = true
     
-    -- Небольшой текст "input" сверху по центру
+    -- Текст "Input" сверху по центру
     local InputTopLabel = Instance.new("TextLabel")
     InputTopLabel.Name = "InputTopLabel"
     InputTopLabel.Parent = InputContainer
@@ -1433,20 +1433,22 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
     InputTopLabel.Position = UDim2.new(0.085, 0, 0, 0)
     InputTopLabel.Size = UDim2.new(0, 165, 0, 15)
     InputTopLabel.Font = Enum.Font.SourceSans
-    InputTopLabel.Text = "input"
+    InputTopLabel.Text = "Input"
     InputTopLabel.TextColor3 = Color3.fromRGB(147, 152, 156)
-    InputTopLabel.TextSize = 12
+    InputTopLabel.TextSize = 14  -- Размер текста 14
     InputTopLabel.TextXAlignment = Enum.TextXAlignment.Left
     InputTopLabel.ZIndex = 6
     
-    -- Основное поле ввода
-    local InputFrame = Instance.new("Frame")
+    -- Основное поле ввода (50x30)
+    local InputFrame = Instance.new("TextButton")  -- Используем TextButton для кликабельности
     InputFrame.Name = "InputFrame"
     InputFrame.Parent = InputContainer
     InputFrame.BackgroundColor3 = Color3.fromRGB(25, 28, 34)
     InputFrame.BorderSizePixel = 0
-    InputFrame.Position = UDim2.new(0.085, 0, 0, 15)  -- Под меткой "input"
-    InputFrame.Size = UDim2.new(0, 165, 0, 30)
+    InputFrame.Position = UDim2.new(0.085, 0, 0, 20)  -- Отступ сверху 20 (под текстом)
+    InputFrame.Size = UDim2.new(0, 50, 0, 30)  -- Фиксированный размер 50x30
+    InputFrame.AutoButtonColor = false
+    InputFrame.Text = ""
     InputFrame.ZIndex = 6
     
     local UICornerInput = Instance.new("UICorner")
@@ -1472,7 +1474,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
     InputNameLabel.Name = "InputName"
     InputNameLabel.Parent = InputContainer
     InputNameLabel.BackgroundTransparency = 1
-    InputNameLabel.Position = UDim2.new(0.085 + 165/460 + 0.05, 0, 0, 15)
+    InputNameLabel.Position = UDim2.new(0.085 + 50/460 + 0.05, 0, 0, 20)
     InputNameLabel.Size = UDim2.new(0, 100, 0, 30)
     InputNameLabel.Font = Enum.Font.SourceSansBold
     InputNameLabel.Text = inputName
@@ -1493,34 +1495,32 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
         callback(currentText)
     end
     
-    InputFrame.InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 then
-            local inputBox = Instance.new("TextBox")
-            inputBox.Name = "InputBox"
-            inputBox.Parent = InputFrame
-            inputBox.BackgroundTransparency = 1
-            inputBox.Size = UDim2.new(1, 0, 1, 0)
-            inputBox.Font = Enum.Font.SourceSans
-            inputBox.Text = currentText
-            inputBox.TextColor3 = Color3.fromRGB(147, 152, 156)
-            inputBox.TextSize = 14
-            inputBox.TextXAlignment = Enum.TextXAlignment.Center
-            inputBox.ZIndex = 8
-            inputBox.ClearTextOnFocus = false
-            inputBox.PlaceholderText = "Type here..."
-            inputBox.PlaceholderColor3 = Color3.fromRGB(100, 100, 100)
-            
-            InputTextLabel.Visible = false
-            
-            inputBox.FocusLost:Connect(function(enterPressed)
-                currentText = inputBox.Text
-                inputBox:Destroy()
-                InputTextLabel.Visible = true
-                updateText()
-            end)
-            
-            inputBox:CaptureFocus()
-        end
+    InputFrame.MouseButton1Click:Connect(function()
+        local inputBox = Instance.new("TextBox")
+        inputBox.Name = "InputBox"
+        inputBox.Parent = InputFrame
+        inputBox.BackgroundTransparency = 1
+        inputBox.Size = UDim2.new(1, 0, 1, 0)
+        inputBox.Font = Enum.Font.SourceSans
+        inputBox.Text = currentText
+        inputBox.TextColor3 = Color3.fromRGB(147, 152, 156)
+        inputBox.TextSize = 14
+        inputBox.TextXAlignment = Enum.TextXAlignment.Center
+        inputBox.ZIndex = 8
+        inputBox.ClearTextOnFocus = false
+        inputBox.PlaceholderText = "Type..."
+        inputBox.PlaceholderColor3 = Color3.fromRGB(100, 100, 100)
+        
+        InputTextLabel.Visible = false
+        
+        inputBox.FocusLost:Connect(function(enterPressed)
+            currentText = inputBox.Text
+            inputBox:Destroy()
+            InputTextLabel.Visible = true
+            updateText()
+        end)
+        
+        inputBox:CaptureFocus()
     end)
     
     -- Initial update
