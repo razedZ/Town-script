@@ -1474,7 +1474,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
     InputNameLabel.Parent = InputContainer
     InputNameLabel.BackgroundTransparency = 1
     -- Абсолютное позиционирование: 0.085*460 + 50 + 10
-    InputNameLabel.Position = UDim2.new(0, 0.085 * 460 + 50 + 10, 0, 15)
+    InputNameLabel.Position = UDim2.new(0, 0.085 * 460 + 50, 0, 15)
     InputNameLabel.Size = UDim2.new(0, 100, 0, 30)
     InputNameLabel.Font = Enum.Font.SourceSansBold
     InputNameLabel.Text = inputName
