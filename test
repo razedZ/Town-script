@@ -1,4 +1,3 @@
--- Основной код библиотеки (PizdecWare.lua)
 local success, HttpService = pcall(game.GetService, game, "HttpService")
 local success2, TweenService = pcall(game.GetService, game, "TweenService")
 local success3, UserInputService = pcall(game.GetService, game, "UserInputService")
@@ -1378,7 +1377,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
     end
 
     -- New input creation function with original style
-function windowInstance:CreateInput(params)
+    function windowInstance:CreateInput(params)
     if not params.section then return nil end
     
     local section = params.section
@@ -1542,6 +1541,25 @@ function windowInstance:CreateInput(params)
         end
     }
 end
+
+    local function updateAllDropdownPositions()
+        for dropdownContainer, dropdownList in pairs(windowInstance._openDropdowns) do
+            local button = dropdownContainer:FindFirstChild("Button")
+            if button then
+                local buttonPos = button.AbsolutePosition
+                local buttonSize = button.AbsoluteSize
+                local screenSize = ScreenGui.AbsoluteSize
+                local maxHeight = math.min(4, #dropdownContainer.options or 4) * 20
+                
+                local yPos = buttonPos.Y + buttonSize.Y
+                if yPos + maxHeight > screenSize.Y then
+                    yPos = buttonPos.Y - maxHeight
+                end
+                
+                dropdownList.Position = UDim2.new(0, buttonPos.X, 0, yPos)
+            end
+        end
+    end
 
     return windowInstance
 end
