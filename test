@@ -1377,7 +1377,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
         }
     end
 
-    -- New input creation function
+    -- New input creation function with original style
     function windowInstance:CreateInput(params)
         if not params.section then return nil end
         
@@ -1425,48 +1425,43 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
         InputContainer.ZIndex = 5
         InputContainer.Visible = true
         
+        -- Input label (над кнопкой)
         local InputLabel = Instance.new("TextLabel")
         InputLabel.Name = "Label"
         InputLabel.Parent = InputContainer
         InputLabel.BackgroundTransparency = 1
-        InputLabel.Position = UDim2.new(0.085, 0, 0, 0)
-        InputLabel.Size = UDim2.new(0, 165, 0, 20)
+        InputLabel.Position = UDim2.new(0.243, 0, -0.76, 0)
+        InputLabel.Size = UDim2.new(0, 25, 0, 21)
         InputLabel.Font = Enum.Font.SourceSansBold
-        InputLabel.Text = inputName
+        InputLabel.Text = "Input"
         InputLabel.TextColor3 = Color3.fromRGB(147, 152, 156)
-        InputLabel.TextSize = 15
+        InputLabel.TextSize = 13
         InputLabel.TextXAlignment = Enum.TextXAlignment.Left
         InputLabel.ZIndex = 6
         
-        local InputFrame = Instance.new("Frame")
-        InputFrame.Name = "InputFrame"
-        InputFrame.Parent = InputContainer
-        InputFrame.BackgroundColor3 = Color3.fromRGB(25, 28, 34)
-        InputFrame.BorderSizePixel = 0
-        InputFrame.Position = UDim2.new(0.085, 0, 0, 20)
-        InputFrame.Size = UDim2.new(0, 165, 0, 30)
-        InputFrame.ZIndex = 6
-        
-        local UICornerInput = Instance.new("UICorner")
-        UICornerInput.CornerRadius = UDim.new(0, 4)
-        UICornerInput.Parent = InputFrame
-        
+        -- Input button (как в оригинале)
         local InputButton = Instance.new("TextButton")
         InputButton.Name = "Button"
-        InputButton.Parent = InputFrame
+        InputButton.Parent = InputContainer
         InputButton.BackgroundColor3 = Color3.fromRGB(25, 28, 34)
         InputButton.BorderSizePixel = 0
-        InputButton.Size = UDim2.new(1, 0, 1, 0)
+        InputButton.Position = UDim2.new(0.03, 0, 0, 0)
+        InputButton.Size = UDim2.new(0, 50, 0, 30)
         InputButton.Font = Enum.Font.ArialBold
         InputButton.Text = "Input"
         InputButton.TextColor3 = Color3.fromRGB(170, 176, 183)
         InputButton.TextSize = 12
         InputButton.TextStrokeColor3 = Color3.fromRGB(170, 176, 183)
-        InputButton.ZIndex = 7
+        InputButton.ZIndex = 6
         
+        local UICornerInput = Instance.new("UICorner")
+        UICornerInput.CornerRadius = UDim.new(0, 4)
+        UICornerInput.Parent = InputButton
+        
+        -- Input text (справа от кнопки)
         local InputTextLabel = Instance.new("TextLabel")
         InputTextLabel.Name = "InputText"
-        InputTextLabel.Parent = InputFrame
+        InputTextLabel.Parent = InputContainer
         InputTextLabel.BackgroundTransparency = 1
         InputTextLabel.Position = UDim2.new(1.1, 0, -0.033, 0)
         InputTextLabel.Size = UDim2.new(0, 98, 0, 30)
@@ -1479,8 +1474,10 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
         
         local currentText = defaultText
         
-        local function updateText()
+        local function updateText(newText)
+            currentText = newText
             InputTextLabel.Text = currentText
+            InputButton.Text = currentText ~= "" and currentText or "Input"
             
             if save and self._saveConfig.enabled then
                 saveInputState(self, inputName, currentText)
@@ -1489,10 +1486,11 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
             callback(currentText)
         end
         
-        InputButton.MouseButton1Click:Connect(function()
+        -- Input text box (появляется при клике)
+        local function createInputBox()
             local inputBox = Instance.new("TextBox")
             inputBox.Name = "InputBox"
-            inputBox.Parent = InputFrame
+            inputBox.Parent = InputButton
             inputBox.BackgroundTransparency = 1
             inputBox.Size = UDim2.new(1, 0, 1, 0)
             inputBox.Font = Enum.Font.ArialBold
@@ -1500,19 +1498,31 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
             inputBox.TextColor3 = Color3.fromRGB(170, 176, 183)
             inputBox.TextSize = 12
             inputBox.TextStrokeColor3 = Color3.fromRGB(170, 176, 183)
-            inputBox.ZIndex = 8
+            inputBox.ZIndex = 7
             inputBox.ClearTextOnFocus = false
             
-            InputButton.Visible = false
+            inputBox.Focused:Connect(function()
+                inputBox.Text = currentText
+            end)
             
-            inputBox.FocusLost:Connect(function(enterPressed)
-                currentText = inputBox.Text
+            inputBox.FocusLost:Connect(function()
+                updateText(inputBox.Text)
                 inputBox:Destroy()
-                InputButton.Visible = true
-                updateText()
             end)
             
             inputBox:CaptureFocus()
+        end
+        
+        InputButton.MouseButton1Click:Connect(createInputBox)
+        
+        -- Обновляем текст при изменении (без нажатия Enter)
+        UserInputService.InputChanged:Connect(function(input)
+            if input.UserInputType == Enum.UserInputType.MouseMovement then
+                local inputBox = InputButton:FindFirstChild("InputBox")
+                if inputBox then
+                    updateText(inputBox.Text)
+                end
+            end
         end)
         
         table.insert(self._inputElements, InputContainer)
@@ -1549,8 +1559,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
         
         return {
             Set = function(self, value)
-                currentText = tostring(value)
-                updateText()
+                updateText(tostring(value))
             end,
             Get = function(self)
                 return currentText
