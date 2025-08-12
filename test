@@ -1424,7 +1424,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
     InputContainer.ZIndex = 5
     InputContainer.Visible = true
     
-    -- Текст "Input" сверху (центрирован над окном ввода)
+    -- Текст "Input" сверху (уменьшенный размер)
     local InputTopLabel = Instance.new("TextLabel")
     InputTopLabel.Name = "InputTopLabel"
     InputTopLabel.Parent = InputContainer
@@ -1434,7 +1434,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
     InputTopLabel.Font = Enum.Font.SourceSans
     InputTopLabel.Text = "Input"
     InputTopLabel.TextColor3 = Color3.fromRGB(147, 152, 156)
-    InputTopLabel.TextSize = 14
+    InputTopLabel.TextSize = 12  -- Уменьшенный размер текста
     InputTopLabel.TextXAlignment = Enum.TextXAlignment.Center
     InputTopLabel.ZIndex = 6
     
@@ -1454,7 +1454,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
     UICornerInput.CornerRadius = UDim.new(0, 4)
     UICornerInput.Parent = InputFrame
     
-    -- Текст внутри инпута (центрированный)
+    -- Текст внутри инпута
     local InputTextLabel = Instance.new("TextLabel")
     InputTextLabel.Name = "InputText"
     InputTextLabel.Parent = InputFrame
@@ -1468,13 +1468,13 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
     InputTextLabel.ZIndex = 7
     InputTextLabel.ClipsDescendants = true
     
-    -- Название инпута (10px справа от окна ввода)
+    -- Название инпута (уменьшенное расстояние на 2/3)
     local InputNameLabel = Instance.new("TextLabel")
     InputNameLabel.Name = "InputName"
     InputNameLabel.Parent = InputContainer
     InputNameLabel.BackgroundTransparency = 1
-    -- Абсолютное позиционирование: 0.085*460 + 50 + 10
-    InputNameLabel.Position = UDim2.new(0, 0.085 * 460 + 50, 0, 15)
+    -- Уменьшаем расстояние на 2/3: было (50 + 10), стало (50 + 3.33)
+    InputNameLabel.Position = UDim2.new(0, 0.085 * 460 + 50 + 3.33, 0, 15)
     InputNameLabel.Size = UDim2.new(0, 100, 0, 30)
     InputNameLabel.Font = Enum.Font.SourceSansBold
     InputNameLabel.Text = inputName
