@@ -1474,7 +1474,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
     InputNameLabel.Parent = InputContainer
     InputNameLabel.BackgroundTransparency = 1
     -- Уменьшаем расстояние на 2/3: было (50 + 10), стало (50 + 3.33)
-    InputNameLabel.Position = UDim2.new(0, 0.085 * 460 + 50 + 3.33, 0, 15)
+    InputNameLabel.Position = UDim2.new(0, 0.085 * 460 + 50, 0, 15)
     InputNameLabel.Size = UDim2.new(0, 100, 0, 30)
     InputNameLabel.Font = Enum.Font.SourceSansBold
     InputNameLabel.Text = inputName
