@@ -1378,183 +1378,196 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
     end
 
     -- New input creation function with original style
-        function windowInstance:CreateInput(params)
-        if not params.section then return nil end
-        
-        local section = params.section
-        local inputName = params.name or "Input"  -- This is now the label text
-        local defaultText = params.default or ""
-        local save = params.save or false
-        local callback = params.callback or function() end
-        
-        local ContentFrame = section:FindFirstChild("ContentFrame")
-        if not ContentFrame then return nil end
+   function windowInstance:CreateInput(params)
+    if not params.section then return nil end
+    
+    local section = params.section
+    local inputName = params.name or "Input"  -- Название справа от инпута
+    local defaultText = params.default or ""
+    local save = params.save or false
+    local callback = params.callback or function() end
+    
+    local ContentFrame = section:FindFirstChild("ContentFrame")
+    if not ContentFrame then return nil end
+    
+    if save and self._saveConfig.enabled then
+        local savedState = loadInputState(self, inputName)
+        if savedState ~= nil then
+            defaultText = savedState
+        end
+    end
+    
+    local elements = getSortedElements(ContentFrame)
+    local new_type = "input"
+    local yOffset
+    if #elements == 0 then
+        yOffset = 5
+    else
+        local last = elements[#elements]
+        local last_type = last.Name:match("^Toggle_") and "toggle" or last.Name:match("^Dropdown_") and "dropdown" or "input"
+        local spacing
+        if last_type == "toggle" and new_type == "dropdown" then
+            spacing = 3
+        elseif last_type == "dropdown" and new_type == "toggle" then
+            spacing = 5
+        else
+            spacing = 2
+        end
+        yOffset = last.Position.Y.Offset + last.Size.Y.Offset + spacing
+    end
+
+    local InputContainer = Instance.new("Frame")
+    InputContainer.Name = "Input_" .. inputName
+    InputContainer.Parent = ContentFrame
+    InputContainer.BackgroundTransparency = 1
+    InputContainer.Size = UDim2.new(1, 0, 0, 60)  -- Высота включает метку "input" сверху
+    InputContainer.Position = UDim2.new(0, 0, 0, yOffset)
+    InputContainer.ZIndex = 5
+    InputContainer.Visible = true
+    
+    -- Небольшой текст "input" сверху по центру
+    local InputTopLabel = Instance.new("TextLabel")
+    InputTopLabel.Name = "InputTopLabel"
+    InputTopLabel.Parent = InputContainer
+    InputTopLabel.BackgroundTransparency = 1
+    InputTopLabel.Position = UDim2.new(0.085, 0, 0, 0)
+    InputTopLabel.Size = UDim2.new(0, 165, 0, 15)
+    InputTopLabel.Font = Enum.Font.SourceSans
+    InputTopLabel.Text = "input"
+    InputTopLabel.TextColor3 = Color3.fromRGB(147, 152, 156)
+    InputTopLabel.TextSize = 12
+    InputTopLabel.TextXAlignment = Enum.TextXAlignment.Left
+    InputTopLabel.ZIndex = 6
+    
+    -- Основное поле ввода
+    local InputFrame = Instance.new("Frame")
+    InputFrame.Name = "InputFrame"
+    InputFrame.Parent = InputContainer
+    InputFrame.BackgroundColor3 = Color3.fromRGB(25, 28, 34)
+    InputFrame.BorderSizePixel = 0
+    InputFrame.Position = UDim2.new(0.085, 0, 0, 15)  -- Под меткой "input"
+    InputFrame.Size = UDim2.new(0, 165, 0, 30)
+    InputFrame.ZIndex = 6
+    
+    local UICornerInput = Instance.new("UICorner")
+    UICornerInput.CornerRadius = UDim.new(0, 4)
+    UICornerInput.Parent = InputFrame
+    
+    -- Текст внутри инпута (центрированный)
+    local InputTextLabel = Instance.new("TextLabel")
+    InputTextLabel.Name = "InputText"
+    InputTextLabel.Parent = InputFrame
+    InputTextLabel.BackgroundTransparency = 1
+    InputTextLabel.Size = UDim2.new(1, 0, 1, 0)
+    InputTextLabel.Font = Enum.Font.SourceSans
+    InputTextLabel.Text = defaultText
+    InputTextLabel.TextColor3 = Color3.fromRGB(147, 152, 156)
+    InputTextLabel.TextSize = 14
+    InputTextLabel.TextXAlignment = Enum.TextXAlignment.Center
+    InputTextLabel.ZIndex = 7
+    InputTextLabel.ClipsDescendants = true
+    
+    -- Название инпута справа (статическое)
+    local InputNameLabel = Instance.new("TextLabel")
+    InputNameLabel.Name = "InputName"
+    InputNameLabel.Parent = InputContainer
+    InputNameLabel.BackgroundTransparency = 1
+    InputNameLabel.Position = UDim2.new(0.085 + 165/460 + 0.05, 0, 0, 15)
+    InputNameLabel.Size = UDim2.new(0, 100, 0, 30)
+    InputNameLabel.Font = Enum.Font.SourceSansBold
+    InputNameLabel.Text = inputName
+    InputNameLabel.TextColor3 = Color3.fromRGB(147, 152, 156)
+    InputNameLabel.TextSize = 15
+    InputNameLabel.TextXAlignment = Enum.TextXAlignment.Left
+    InputNameLabel.ZIndex = 6
+    
+    local currentText = defaultText
+    
+    local function updateText()
+        InputTextLabel.Text = currentText
         
         if save and self._saveConfig.enabled then
-            local savedState = loadInputState(self, inputName)
-            if savedState ~= nil then
-                defaultText = savedState
-            end
+            saveInputState(self, inputName, currentText)
         end
         
-        local elements = getSortedElements(ContentFrame)
-        local new_type = "input"
-        local yOffset
-        if #elements == 0 then
-            yOffset = 5
-        else
-            local last = elements[#elements]
-            local last_type = last.Name:match("^Toggle_") and "toggle" or last.Name:match("^Dropdown_") and "dropdown" or "input"
-            local spacing
-            if last_type == "toggle" and new_type == "dropdown" then
-                spacing = 3
-            elseif last_type == "dropdown" and new_type == "toggle" then
-                spacing = 5
-            else
-                spacing = 2
-            end
-            yOffset = last.Position.Y.Offset + last.Size.Y.Offset + spacing
-        end
-    
-        local InputContainer = Instance.new("Frame")
-        InputContainer.Name = "Input_" .. inputName
-        InputContainer.Parent = ContentFrame
-        InputContainer.BackgroundTransparency = 1
-        InputContainer.Size = UDim2.new(1, 0, 0, 60)  -- Increased height to accommodate label
-        InputContainer.Position = UDim2.new(0, 0, 0, yOffset)
-        InputContainer.ZIndex = 5
-        InputContainer.Visible = true
-        
-        -- Label above input (centered)
-        local InputLabel = Instance.new("TextLabel")
-        InputLabel.Name = "Label"
-        InputLabel.Parent = InputContainer
-        InputLabel.BackgroundTransparency = 1
-        InputLabel.Position = UDim2.new(0.085, 0, 0, 0)
-        InputLabel.Size = UDim2.new(0, 165, 0, 20)
-        InputLabel.Font = Enum.Font.SourceSansBold
-        InputLabel.Text = inputName  -- Using the name parameter as label text
-        InputLabel.TextColor3 = Color3.fromRGB(147, 152, 156)
-        InputLabel.TextSize = 15
-        InputLabel.TextXAlignment = Enum.TextXAlignment.Left
-        InputLabel.ZIndex = 6
-        
-        -- Input frame (aligned with other elements)
-        local InputFrame = Instance.new("Frame")
-        InputFrame.Name = "InputFrame"
-        InputFrame.Parent = InputContainer
-        InputFrame.BackgroundColor3 = Color3.fromRGB(25, 28, 34)
-        InputFrame.BorderSizePixel = 0
-        InputFrame.Position = UDim2.new(0.085, 0, 0, 25)  -- Positioned below label
-        InputFrame.Size = UDim2.new(0, 165, 0, 30)
-        InputFrame.ZIndex = 6
-        
-        local UICornerInput = Instance.new("UICorner")
-        UICornerInput.CornerRadius = UDim.new(0, 4)
-        UICornerInput.Parent = InputFrame
-        
-        -- Input text label (displays current value)
-        local InputTextLabel = Instance.new("TextLabel")
-        InputTextLabel.Name = "InputText"
-        InputTextLabel.Parent = InputFrame
-        InputTextLabel.BackgroundTransparency = 1
-        InputTextLabel.Position = UDim2.new(0.05, 0, 0, 0)
-        InputTextLabel.Size = UDim2.new(0.9, 0, 1, 0)
-        InputTextLabel.Font = Enum.Font.SourceSans
-        InputTextLabel.Text = defaultText
-        InputTextLabel.TextColor3 = Color3.fromRGB(147, 152, 156)
-        InputTextLabel.TextSize = 14
-        InputTextLabel.TextXAlignment = Enum.TextXAlignment.Left
-        InputTextLabel.ZIndex = 7
-        InputTextLabel.ClipsDescendants = true
-        
-        local currentText = defaultText
-        
-        local function updateText()
-            InputTextLabel.Text = currentText
-            
-            if save and self._saveConfig.enabled then
-                saveInputState(self, inputName, currentText)
-            end
-            
-            callback(currentText)
-        end
-        
-        InputFrame.InputBegan:Connect(function(input)
-            if input.UserInputType == Enum.UserInputType.MouseButton1 then
-                local inputBox = Instance.new("TextBox")
-                inputBox.Name = "InputBox"
-                inputBox.Parent = InputFrame
-                inputBox.BackgroundTransparency = 1
-                inputBox.Size = UDim2.new(1, 0, 1, 0)
-                inputBox.Font = Enum.Font.SourceSans
-                inputBox.Text = currentText
-                inputBox.TextColor3 = Color3.fromRGB(147, 152, 156)
-                inputBox.TextSize = 14
-                inputBox.TextXAlignment = Enum.TextXAlignment.Left
-                inputBox.ZIndex = 8
-                inputBox.ClearTextOnFocus = false
-                inputBox.PlaceholderText = "Type here..."
-                inputBox.PlaceholderColor3 = Color3.fromRGB(100, 100, 100)
-                
-                InputTextLabel.Visible = false
-                
-                inputBox.FocusLost:Connect(function(enterPressed)
-                    currentText = inputBox.Text
-                    inputBox:Destroy()
-                    InputTextLabel.Visible = true
-                    updateText()
-                end)
-                
-                inputBox:CaptureFocus()
-            end
-        end)
-        
-        -- Initial update
-        updateText()
-        
-        table.insert(self._inputElements, InputContainer)
-        
-        local sectionsList = table.find(self._leftSections, section) and self._leftSections or self._rightSections
-        local container = sectionsList == self._leftSections and LeftContainer or RightContainer
-        
-        local contentHeight = 0
-        local elements_updated = getSortedElements(ContentFrame)
-        local previous_type = nil
-        for j, element in ipairs(elements_updated) do
-            local elem_type = element.Name:match("^Toggle_") and "toggle" or element.Name:match("^Dropdown_") and "dropdown" or "input"
-            local spacing
-            if previous_type == nil then
-                spacing = 5
-            elseif previous_type == "toggle" and elem_type == "dropdown" then
-                spacing = 3
-            elseif previous_type == "dropdown" and elem_type == "toggle" then
-                spacing = 5
-            else
-                spacing = 2
-            end
-            contentHeight = contentHeight + spacing + element.Size.Y.Offset
-            previous_type = elem_type
-        end
-        
-        if windowInstance._sectionStates[section] then
-            local bottom_padding = 15
-            section.Size = UDim2.new(1, 0, 0, 30 + contentHeight + bottom_padding)
-            ContentFrame.Size = UDim2.new(1, 0, 0, contentHeight)
-        end
-        
-        updateSectionPositions(container, sectionsList)
-        
-        return {
-            Set = function(self, value)
-                currentText = tostring(value)
-                updateText()
-            end,
-            Get = function(self)
-                return currentText
-            end
-        }
+        callback(currentText)
     end
+    
+    InputFrame.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            local inputBox = Instance.new("TextBox")
+            inputBox.Name = "InputBox"
+            inputBox.Parent = InputFrame
+            inputBox.BackgroundTransparency = 1
+            inputBox.Size = UDim2.new(1, 0, 1, 0)
+            inputBox.Font = Enum.Font.SourceSans
+            inputBox.Text = currentText
+            inputBox.TextColor3 = Color3.fromRGB(147, 152, 156)
+            inputBox.TextSize = 14
+            inputBox.TextXAlignment = Enum.TextXAlignment.Center
+            inputBox.ZIndex = 8
+            inputBox.ClearTextOnFocus = false
+            inputBox.PlaceholderText = "Type here..."
+            inputBox.PlaceholderColor3 = Color3.fromRGB(100, 100, 100)
+            
+            InputTextLabel.Visible = false
+            
+            inputBox.FocusLost:Connect(function(enterPressed)
+                currentText = inputBox.Text
+                inputBox:Destroy()
+                InputTextLabel.Visible = true
+                updateText()
+            end)
+            
+            inputBox:CaptureFocus()
+        end
+    end)
+    
+    -- Initial update
+    updateText()
+    
+    table.insert(self._inputElements, InputContainer)
+    
+    local sectionsList = table.find(self._leftSections, section) and self._leftSections or self._rightSections
+    local container = sectionsList == self._leftSections and LeftContainer or RightContainer
+    
+    local contentHeight = 0
+    local elements_updated = getSortedElements(ContentFrame)
+    local previous_type = nil
+    for j, element in ipairs(elements_updated) do
+        local elem_type = element.Name:match("^Toggle_") and "toggle" or element.Name:match("^Dropdown_") and "dropdown" or "input"
+        local spacing
+        if previous_type == nil then
+            spacing = 5
+        elseif previous_type == "toggle" and elem_type == "dropdown" then
+            spacing = 3
+        elseif previous_type == "dropdown" and elem_type == "toggle" then
+            spacing = 5
+        else
+            spacing = 2
+        end
+        contentHeight = contentHeight + spacing + element.Size.Y.Offset
+        previous_type = elem_type
+    end
+    
+    if windowInstance._sectionStates[section] then
+        local bottom_padding = 15
+        section.Size = UDim2.new(1, 0, 0, 30 + contentHeight + bottom_padding)
+        ContentFrame.Size = UDim2.new(1, 0, 0, contentHeight)
+    end
+    
+    updateSectionPositions(container, sectionsList)
+    
+    return {
+        Set = function(self, value)
+            currentText = tostring(value)
+            updateText()
+        end,
+        Get = function(self)
+            return currentText
+        end
+    }
+end
 
     local function updateAllDropdownPositions()
         for dropdownContainer, dropdownList in pairs(windowInstance._openDropdowns) do
