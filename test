@@ -1424,7 +1424,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
     InputContainer.ZIndex = 5
     InputContainer.Visible = true
     
-    -- Текст "Input" сверху (уменьшенный размер)
+    -- Текст "Input" сверху
     local InputTopLabel = Instance.new("TextLabel")
     InputTopLabel.Name = "InputTopLabel"
     InputTopLabel.Parent = InputContainer
@@ -1434,11 +1434,11 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
     InputTopLabel.Font = Enum.Font.SourceSans
     InputTopLabel.Text = "Input"
     InputTopLabel.TextColor3 = Color3.fromRGB(147, 152, 156)
-    InputTopLabel.TextSize = 12  -- Уменьшенный размер текста
+    InputTopLabel.TextSize = 12
     InputTopLabel.TextXAlignment = Enum.TextXAlignment.Center
     InputTopLabel.ZIndex = 6
     
-    -- Основное поле ввода (50x30)
+    -- Основное поле ввода
     local InputFrame = Instance.new("TextButton")
     InputFrame.Name = "InputFrame"
     InputFrame.Parent = InputContainer
@@ -1468,13 +1468,13 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
     InputTextLabel.ZIndex = 7
     InputTextLabel.ClipsDescendants = true
     
-    -- Название инпута (уменьшенное расстояние на 2/3)
+    -- Название инпута (смещено на 12px влево)
     local InputNameLabel = Instance.new("TextLabel")
     InputNameLabel.Name = "InputName"
     InputNameLabel.Parent = InputContainer
     InputNameLabel.BackgroundTransparency = 1
-    -- Уменьшаем расстояние на 2/3: было (50 + 10), стало (50 + 3.33)
-    InputNameLabel.Position = UDim2.new(0, 0.085 * 460 + 50, 0, 15)
+    -- Абсолютное позиционирование с учетом смещения
+    InputNameLabel.Position = UDim2.new(0, 0.085 * 460 + 50 - 12, 0, 15)
     InputNameLabel.Size = UDim2.new(0, 100, 0, 30)
     InputNameLabel.Font = Enum.Font.SourceSansBold
     InputNameLabel.Text = inputName
@@ -1482,6 +1482,15 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
     InputNameLabel.TextSize = 15
     InputNameLabel.TextXAlignment = Enum.TextXAlignment.Left
     InputNameLabel.ZIndex = 6
+    
+    -- Фиксация позиции для анимации
+    local function lockPosition()
+        local currentPos = InputNameLabel.Position
+        InputNameLabel.Position = UDim2.new(0, currentPos.X.Offset, 0, currentPos.Y.Offset)
+    end
+    
+    -- Применяем фиксацию сразу после создания
+    lockPosition()
     
     local currentText = defaultText
     
@@ -1527,7 +1536,7 @@ function PizdecWare:CreateWindow(guiName, infoText, saveConfig)
     
     table.insert(self._inputElements, InputContainer)
     
-    -- Обновление позиций секций
+    -- Обновление позиций с учетом фиксации
     local sectionsList = table.find(self._leftSections, section) and self._leftSections or self._rightSections
     local container = sectionsList == self._leftSections and LeftContainer or RightContainer
     updateSectionPositions(container, sectionsList)
